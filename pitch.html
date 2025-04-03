@@ -153,7 +153,14 @@
             const containerWidth = container.clientWidth - 32; // Account for padding
             const dpr = window.devicePixelRatio || 1;
             const baseScale = containerWidth / 595.276; // Standard A4 width in points
-            return baseScale * dpr;
+            
+            // Limit maximum scale to prevent excessive zooming on mobile
+            const maxScale = Math.min(2, dpr);
+            const scale = Math.min(baseScale * dpr, maxScale);
+            
+            // Ensure minimum scale for readability
+            const minScale = 0.5;
+            return Math.max(scale, minScale);
         }
 
         function renderPage(num) {
