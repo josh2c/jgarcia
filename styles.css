@@ -1,0 +1,367 @@
+/* Base styles */
+:root {
+    --text-color: #333333;
+    --background-color: #ffffff;
+    --spacing-unit: 1rem;
+    --border-color: #eaeaea;
+    
+    /* Category Colors */
+    --innovation-bg: #fde7f3;
+    --innovation-text: #c41969;
+    --leadership-bg: #ffe9d5;
+    --leadership-text: #d4500c;
+    --productivity-bg: #d3e5ef;
+    --productivity-text: #0b6e99;
+    --sports-bg: #e2e8f0;
+    --sports-text: #475569;
+    --design-bg: #f5d0fe;
+    --design-text: #a21caf;
+    --technology-bg: #dbeafe;
+    --technology-text: #1d4ed8;
+    --development-bg: #dcfce7;
+    --development-text: #15803d;
+    --entrepreneurship-bg: #fef3c7;
+    --entrepreneurship-text: #b45309;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: calc(var(--spacing-unit) * 4) var(--spacing-unit);
+}
+
+/* Pitch deck page specific styles */
+.pitch-page main {
+    max-width: 1000px;
+    padding: calc(var(--spacing-unit) * 2) var(--spacing-unit);
+}
+
+.pdf-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.pdf-button {
+    background: #f0f0f0;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.pdf-button:hover {
+    background: #e0e0e0;
+}
+
+#pdf-render {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
+#page-num, #page-count {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Home page specific styles */
+body:not(.blog-page):not(.pitch-page) main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+}
+
+body:not(.blog-page):not(.pitch-page) .intro {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+body:not(.blog-page):not(.pitch-page) header {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+body:not(.blog-page):not(.pitch-page) .social-links {
+    justify-content: flex-start;
+}
+
+body:not(.blog-page):not(.pitch-page) .bible-verse {
+    max-width: 600px;
+    margin: calc(var(--spacing-unit) * 2) 0 0;
+    text-align: left;
+}
+
+/* Typography */
+h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-unit);
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #666666;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: calc(var(--spacing-unit) * 2) 0 var(--spacing-unit);
+}
+
+.tagline {
+    font-size: 1.25rem;
+    color: #666666;
+    margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.intro {
+    font-size: 1.125rem;
+    margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.intro p {
+    margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.trezure-text {
+    font-weight: 500;
+}
+
+.trezure-text a {
+    color: var(--text-color);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.2s ease;
+}
+
+.trezure-text a:hover {
+    border-color: var(--text-color);
+}
+
+.garden-link {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.garden-link:hover {
+    color: var(--accent-color);
+}
+
+.bible-verse {
+    font-size: 0.875rem;
+    color: #999999;
+    font-style: italic;
+    margin-top: calc(var(--spacing-unit) * 2);
+    text-align: center;
+}
+
+/* Social Links */
+.social-links-container {
+    padding-top: 0.7rem;
+    margin-bottom: 0.7rem;
+}
+
+.social-links {
+    display: flex;
+    gap: var(--spacing-unit);
+}
+
+.social-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.social-button:hover {
+    background-color: #f5f5f5;
+    border-color: #d1d1d1;
+}
+
+.social-button .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Blog posts section */
+.posts-grid {
+    display: grid;
+    gap: calc(var(--spacing-unit) * 3);
+}
+
+.post {
+    padding: calc(var(--spacing-unit) * 2);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.post:last-child {
+    border-bottom: none;
+}
+
+.post-meta {
+    display: flex;
+    gap: var(--spacing-unit);
+    margin-bottom: calc(var(--spacing-unit) * 0.5);
+    font-size: 0.875rem;
+    color: #666666;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: calc(var(--spacing-unit) * 0.5);
+    color: var(--text-color);
+}
+
+.post-excerpt {
+    color: #666666;
+    margin-bottom: calc(var(--spacing-unit) * 0.75);
+}
+
+.read-more {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.read-more:hover {
+    color: #666666;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: calc(var(--spacing-unit) * 2);
+    margin-top: calc(var(--spacing-unit) * 4);
+    color: #666666;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    main {
+        padding: calc(var(--spacing-unit) * 2) var(--spacing-unit);
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .tagline {
+        font-size: 1.125rem;
+    }
+
+    .social-links {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .social-button {
+        justify-content: center;
+    }
+
+    .post {
+        padding: calc(var(--spacing-unit) * 1.5);
+    }
+}
+
+/* Category Tags */
+.category {
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.category-innovation {
+    background-color: var(--innovation-bg);
+    color: var(--innovation-text);
+}
+
+.category-leadership {
+    background-color: var(--leadership-bg);
+    color: var(--leadership-text);
+}
+
+.category-productivity {
+    background-color: var(--productivity-bg);
+    color: var(--productivity-text);
+}
+
+.category-sports {
+    background-color: var(--sports-bg);
+    color: var(--sports-text);
+}
+
+.category-design {
+    background-color: var(--design-bg);
+    color: var(--design-text);
+}
+
+.category-technology {
+    background-color: var(--technology-bg);
+    color: var(--technology-text);
+}
+
+.category-development {
+    background-color: var(--development-bg);
+    color: var(--development-text);
+}
+
+.category-entrepreneurship {
+    background-color: var(--entrepreneurship-bg);
+    color: var(--entrepreneurship-text);
+} 
