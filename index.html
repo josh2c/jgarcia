@@ -13,56 +13,60 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script type="importmap">
-    { "imports": { "three": "./vendor/three.module.min.js" } }
-    </script>
 </head>
-<body class="jg city-page is-intro">
+<body class="jg board-page is-intro">
 
-    <!-- One scene. The intro is a camera pose, not a separate page. -->
-    <canvas id="stage"></canvas>
+    <!-- One board throughout. The intro is the same plane seen flat. -->
+    <div class="board-viewport" id="viewport">
+        <div class="board-surface" id="surface"></div>
+    </div>
 
-    <!-- Intro overlay: sits over the scene, fades out as the camera moves in -->
     <div class="intro" id="intro">
-        <div class="intro-titles">
-            <h1 class="intro-name">Josh<br>Garcia</h1>
-            <p class="intro-sub">Technology,<br>Design &amp; Marketing</p>
+        <div class="sp-frame">
+            <div class="sp-frame-inner">
+                <div class="sp-screen">
+                    <span class="sp-mark">JG</span>
+                    <i class="sp-chip" style="--x: 16%; --y: 20%; background: var(--jg-accent);"></i>
+                    <i class="sp-chip" style="--x: 33%; --y: 62%; background: var(--jg-yellow);"></i>
+                    <i class="sp-chip" style="--x: 64%; --y: 26%; background: var(--jg-green);"></i>
+                    <i class="sp-chip" style="--x: 79%; --y: 64%; background: var(--jg-brown);"></i>
+                </div>
+            </div>
         </div>
-        <div class="intro-enter">
-            <button type="button" class="jg-btn" id="enter">
-                <span>Enter</span>
-                <span class="jg-btn-arrow" aria-hidden="true">→</span>
-            </button>
-            <p class="intro-note">Drag to explore · click a building to open it</p>
+
+        <div class="intro-foot">
+            <div>
+                <h1 class="intro-name">Josh<br>Garcia</h1>
+                <p class="intro-sub">Technology,<br>Design &amp; Marketing</p>
+            </div>
+            <div class="intro-enter">
+                <button type="button" class="jg-btn" id="enter">
+                    <span>Enter</span>
+                    <span class="jg-btn-arrow" aria-hidden="true">→</span>
+                </button>
+                <p class="intro-note">Drag to explore · click a card</p>
+            </div>
         </div>
     </div>
 
-    <!-- Rail: hidden during the intro, fades in once you are inside -->
-    <aside class="jg-side city-side" id="rail">
+    <aside class="jg-side board-side" id="rail">
         <a href="index.html" class="jg-logo">J<span class="a-r">G</span></a>
         <p class="jg-side-name">Josh Garcia<br>Technology,<br>Design &amp; Marketing</p>
         <nav class="jg-nav">
-            <a href="#" class="is-current" id="nav-board">Board</a>
+            <a href="index.html#board" class="is-current">Board</a>
             <a href="blog.html">Thoughts</a>
             <a href="desktop.html">Desktop</a>
             <a href="pitch.html">Pitch Deck</a>
         </nav>
         <div>
-            <p class="jg-side-label">Stops</p>
-            <!-- Filled from the tour data in board.js, so the list cannot
-                 drift from what is actually placed in the city. -->
-            <nav class="jg-nav jg-stops" id="stops"></nav>
+            <p class="jg-side-label">View</p>
+            <div class="board-view" role="group" aria-label="Board view">
+                <button type="button" class="bv-btn is-current" data-view="iso">Iso</button>
+                <span class="bv-sep" aria-hidden="true">→</span>
+                <button type="button" class="bv-btn" data-view="flat">Flat</button>
+            </div>
         </div>
-
-        <div>
-            <p class="jg-side-label">Play</p>
-            <nav class="jg-nav">
-                <a href="#" data-game="pong">Pong</a>
-                <a href="#" data-game="paint">Paint</a>
-            </nav>
-        </div>
-
-        <div>
+        <div class="jg-side-foot">
             <p class="jg-side-label">Elsewhere</p>
             <nav class="jg-nav">
                 <a href="https://playtrezure.com" target="_blank" rel="noopener noreferrer">Trezure</a>
@@ -71,19 +75,9 @@
                 <a href="https://x.com/0talentt" target="_blank" rel="noopener noreferrer">Twitter</a>
             </nav>
         </div>
-
-        <div class="jg-side-foot">
-            <p class="jg-side-label">Models</p>
-            <p class="city-credit">Kenney (CC0)</p>
-        </div>
     </aside>
 
-    <div class="city-loading" id="loading">
-        <span class="city-loading-bar"><i id="loading-fill"></i></span>
-        <span class="city-loading-text" id="loading-text">Starting…</span>
-    </div>
-
-    <p class="city-hint" id="hint">Drag to explore · scroll to zoom</p>
+    <p class="board-hint" id="hint">Drag to explore · click a card</p>
 
     <div class="dt-window" id="window" hidden>
         <div class="dt-window-bar">

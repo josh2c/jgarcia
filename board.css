@@ -1,68 +1,289 @@
-/* City — full-bleed WebGL stage with the shared rail over it. */
+/* Board — an infinite isometric plane of cards.
+ *
+ * The plane is a CSS 3D transform: rotateX(60deg) rotateZ(-45deg) with no
+ * `perspective`, so it is true isometric rather than a perspective camera.
+ * Cards lie on it; a pool of identical tiles is repositioned as you pan, so
+ * the board never ends while the asset cost stays fixed.
+ */
 
-.city-page { overflow: hidden; height: 100%; }
+.board-page { overflow: hidden; height: 100%; }
 
-#stage {
+/* ---------- plane ---------- */
+
+.board-viewport {
     position: fixed;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+    /* Dragging across cards would otherwise select their text and the native
+       selection drag would hijack the pan. */
+    user-select: none;
+    -webkit-user-select: none;
+    perspective: none;
+}
+
+.board-viewport.is-dragging { cursor: grabbing; }
+
+.board-surface {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+}
+
+.is-iso .board-surface {
+    transform-origin: 50% 50%;
+    transform: rotateX(60deg) rotateZ(-45deg);
+}
+
+/* Only while entering — otherwise the plane would spin on every load. */
+.is-entering .board-surface {
+    transition: transform 900ms cubic-bezier(0.7, 0, 0.25, 1);
+}
+
+.is-entering .bi {
+    transition: transform 900ms cubic-bezier(0.7, 0, 0.25, 1),
+                box-shadow 900ms linear;
+}
+
+.board-tile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+    transform-style: preserve-3d;
+    /* The grid motif, carried through from the rest of the site. */
+    background-image:
+        linear-gradient(rgba(42, 46, 43, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42, 46, 43, 0.06) 1px, transparent 1px);
+    background-size: 65px 65px;
+}
+
+/* ---------- cards ---------- */
+
+.bi {
+    --tilt: 0deg;
+    position: absolute;
+    overflow: hidden;
+    background: var(--jg-paper);
+    border: 2px solid var(--jg-ink);
+    color: var(--jg-ink);
+    transform: rotate(var(--tilt));
+    transition: border-color 0.12s linear;
+}
+
+/* Hard offset shadow, no blur — drawn objects, not floating ones. */
+.is-iso .bi { box-shadow: -14px 14px 0 rgba(42, 46, 43, 0.18); }
+
+.bi.is-clickable { cursor: pointer; }
+
+.board-viewport:not(.is-dragging) .bi.is-clickable:hover {
+    border-color: var(--jg-accent);
+    z-index: 500 !important;
+}
+
+.bi img {
     display: block;
     width: 100%;
     height: 100%;
-    touch-action: none;
-    cursor: grab;
+    object-fit: contain;
+    pointer-events: none;
+    -webkit-user-drag: none;
 }
 
-#stage.is-dragging { cursor: grabbing; }
-#stage.is-over { cursor: pointer; }
+/* --- written section --- */
 
-.city-side { background: rgba(244, 241, 232, 0.9); }
-.city-credit { margin: 0; font-family: var(--jg-mono); font-size: 0.62rem; color: var(--jg-dim); }
-
-/* ---------- loading ---------- */
-
-.city-loading {
-    position: fixed;
-    z-index: 80;
-    inset: 0;
+.bi-note {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.9rem;
-    background: var(--jg-bg);
-    transition: opacity 0.5s ease-in;
-}
-
-.city-loading.is-done { opacity: 0; pointer-events: none; }
-
-.city-loading-bar {
-    display: block;
-    width: min(18rem, 60vw);
-    height: 8px;
+    gap: 14px;
+    padding: 26px 28px;
     background: var(--jg-paper);
-    border: 2px solid var(--jg-ink);
 }
 
-.city-loading-bar i {
-    display: block;
-    width: 0;
-    height: 100%;
-    background: var(--jg-accent);
-    transition: width 0.2s linear;
-}
-
-.city-loading-text {
+.bi-note .n-num {
     font-family: var(--jg-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: var(--jg-accent);
+}
+
+.bi-note .n-head {
+    font-family: var(--jg-display);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.14;
+    letter-spacing: -0.01em;
+}
+
+.bi-note .n-body {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--jg-muted);
+}
+
+/* --- quote --- */
+
+.bi-quote {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 24px 26px;
+}
+
+.bi-quote .q-text {
+    font-family: var(--jg-display);
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.34;
+}
+
+.bi-quote .q-attr {
+    font-family: var(--jg-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--jg-muted);
 }
 
-/* ---------- hint ---------- */
+.bi-quote.q-dark {
+    background: var(--jg-ink);
+    color: var(--jg-paper);
+    border-color: var(--jg-ink);
+}
 
-.city-hint {
+.bi-quote.q-dark .q-attr { color: rgba(242, 239, 228, 0.6); }
+
+/* --- image --- */
+
+.bi-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: var(--jg-panel);
+}
+
+/* --- link --- */
+
+.bi-link {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px 26px;
+    background: var(--jg-blue);
+    border-color: var(--jg-ink);
+    color: #fff;
+}
+
+.bi-link .l-title { font-family: var(--jg-display); font-weight: 700; font-size: 24px; }
+.bi-link .l-desc { font-size: 14px; line-height: 1.5; margin-top: 8px; opacity: 0.9; }
+.bi-link .l-url {
+    font-family: var(--jg-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    margin-top: 14px;
+}
+
+/* --- game --- */
+
+.bi-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: var(--jg-stone);
+}
+
+.bi-game .g-name {
+    font-family: var(--jg-display);
+    font-weight: 700;
+    font-size: 22px;
+}
+
+.bi-game .g-play {
+    font-family: var(--jg-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--jg-accent);
+    color: var(--jg-ink);
+    border: 2px solid var(--jg-ink);
+    padding: 6px 14px;
+}
+
+/* --- swatch --- */
+
+.bi-swatch {
+    display: flex;
+    align-items: flex-end;
+    padding: 14px;
+}
+
+.bi-swatch .sw-hex {
+    font-family: var(--jg-mono);
+    font-size: 12px;
+    background: var(--jg-paper);
+    border: 2px solid var(--jg-ink);
+    padding: 4px 8px;
+}
+
+/* --- placeholder --- */
+
+.bi-ph {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px;
+    text-align: center;
+    background: transparent;
+    border-style: dashed;
+    border-color: rgba(42, 46, 43, 0.4);
+}
+
+.bi-ph .ph-label {
+    font-family: var(--jg-mono);
+    font-size: 13px;
+    color: var(--jg-muted);
+}
+
+.bi-ph .ph-meta {
+    font-family: var(--jg-mono);
+    font-size: 11px;
+    color: var(--jg-dim);
+}
+
+/* ---------- rail + chrome ---------- */
+
+.board-side { background: rgba(242, 239, 228, 0.9); }
+
+.board-view {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+}
+
+.bv-btn {
+    background: transparent;
+    border: 2px solid var(--jg-ink);
+    color: var(--jg-ink);
+    font: inherit;
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    padding: 0.16rem 0.5rem;
+    cursor: pointer;
+}
+
+.bv-btn.is-current { background: var(--jg-ink); color: var(--jg-paper); }
+.bv-sep { color: var(--jg-dim); font-size: 0.7rem; }
+
+.board-hint {
     position: fixed;
     z-index: 60;
     bottom: 1.5rem;
@@ -81,15 +302,92 @@
     transition: opacity 0.5s ease;
 }
 
-.city-hint.is-hidden { opacity: 0; }
+.board-hint.is-hidden { opacity: 0; }
+.is-intro .board-hint { opacity: 0; }
 
-@media (max-width: 860px) {
-    .city-side { position: fixed; width: 100%; height: auto; }
+/* ---------- intro ---------- */
+
+.intro {
+    position: fixed;
+    z-index: 70;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2rem, 5vh, 3.5rem);
+    padding: 3rem clamp(1rem, 4vw, 3rem);
+    transition: opacity 700ms ease-in;
 }
 
-/* ---------- window ----------
-   board.html does not load desktop.css, so the window it opens needs its own
-   styling here. `display: flex` outranks the UA [hidden] rule, so restate it. */
+.is-entered .intro { opacity: 0; pointer-events: none; }
+
+/* The framed mark: a bevelled frame around pixel letters. */
+.sp-frame {
+    width: min(38rem, 80vw);
+    padding: 0.55rem;
+    background: var(--jg-stone);
+    border: 2px solid var(--jg-ink);
+}
+
+.sp-frame-inner { padding: 0.9rem; background: var(--jg-paper); border: 2px solid var(--jg-ink); }
+
+.sp-screen {
+    position: relative;
+    aspect-ratio: 16 / 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--jg-bg);
+    overflow: hidden;
+}
+
+.sp-mark {
+    font-family: var(--jg-display);
+    font-weight: 700;
+    font-size: clamp(3rem, 11vw, 7rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--jg-paper);
+}
+
+.sp-chip { position: absolute; left: var(--x); top: var(--y); width: 1.4rem; height: 1.4rem; }
+
+.intro-foot {
+    width: min(38rem, 80vw);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.intro-name {
+    margin: 0;
+    font-family: var(--jg-display);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--jg-ink);
+}
+
+.intro-sub {
+    margin: 0.5rem 0 0;
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    line-height: 1.6;
+    color: var(--jg-dim);
+}
+
+.intro-enter { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-end; }
+.intro-note { margin: 0; font-family: var(--jg-mono); font-size: 0.6rem; color: var(--jg-dim); }
+
+/* The rail belongs to the board, so it arrives with it. */
+.is-intro .board-side { opacity: 0; pointer-events: none; }
+.board-side { transition: opacity 700ms ease-out 500ms; }
+
+/* ---------- window ---------- */
 
 [hidden] { display: none !important; }
 
@@ -97,7 +395,7 @@
     position: fixed;
     inset: 0;
     z-index: 90;
-    background: rgba(31, 42, 40, 0.35);
+    background: rgba(42, 46, 43, 0.35);
 }
 
 .dt-window {
@@ -145,7 +443,7 @@
     line-height: 1;
 }
 
-.dt-window-close:hover { background: rgba(0, 0, 0, 0.18); color: #fff; }
+.dt-window-close:hover { background: rgba(0, 0, 0, 0.18); }
 
 .dt-window-body {
     padding: 1.25rem;
@@ -156,81 +454,13 @@
 }
 
 .dt-window-body p { margin: 0 0 0.9rem; }
+.dt-window-body img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 .dt-window-body canvas { display: block; width: 100%; background: var(--jg-stone); border: 2px solid var(--jg-ink); }
 .dt-window-body .bw-note { font-size: 0.75rem; color: var(--jg-dim); margin-top: 0.75rem; }
+.dt-window-body a { color: var(--jg-blue); }
 
-.dt-links { list-style: none; margin: 0; padding: 0; }
-.dt-links li { border-top: 1px solid var(--jg-line); }
-.dt-links li:first-child { border-top: 0; }
-
-.dt-links a {
-    display: block;
-    padding: 0.7rem 0;
-    color: var(--jg-blue);
-    text-decoration: none;
-    font-family: var(--jg-mono);
-    font-size: 0.8rem;
-}
-
-.dt-links a:hover { color: var(--jg-accent); }
-
-/* ---------- intro overlay ----------
-   The intro is a camera pose on the same scene, so this is only the text and
-   button that sit over it — everything visual behind is the live 3D world. */
-
-.intro {
-    position: fixed;
-    z-index: 70;
-    left: 0;
-    right: 0;
-    bottom: clamp(2rem, 12vh, 7rem);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: center;
-    gap: clamp(1.5rem, 6vw, 6rem);
-    padding: 0 clamp(1rem, 4vw, 3rem);
-    transition: opacity 700ms ease-in;
-}
-
-.is-entered .intro { opacity: 0; pointer-events: none; }
-
-.intro-name {
-    margin: 0;
-    font-size: clamp(1.7rem, 3.2vw, 2.4rem);
-    font-weight: 700;
-    line-height: 1.06;
-    letter-spacing: -0.02em;
-    color: var(--jg-ink);
-    font-family: var(--jg-display);
-}
-
-.intro-sub {
-    margin: 0.6rem 0 0;
-    font-family: var(--jg-mono);
-    font-size: 0.7rem;
-    line-height: 1.6;
-    color: var(--jg-dim);
-}
-
-.intro-enter { display: flex; flex-direction: column; gap: 0.65rem; }
-
-.intro-note {
-    margin: 0;
-    font-family: var(--jg-mono);
-    font-size: 0.62rem;
-    color: var(--jg-dim);
-    max-width: 18rem;
-}
-
-/* The rail only belongs to the world, so it arrives with it. */
-.is-intro .city-side { opacity: 0; pointer-events: none; }
-.city-side { transition: opacity 700ms ease-out 600ms; }
-
-/* The hint is for the board, not the intro. */
-.is-intro .city-hint { opacity: 0; }
-
-@media (max-width: 640px) {
-    .intro { flex-direction: column; align-items: flex-start; }
-    .jg-btn { min-width: 0; width: 100%; }
+@media (max-width: 860px) {
+    .board-side { position: fixed; width: 100%; height: auto; }
+    .intro-foot { flex-direction: column; align-items: flex-start; }
+    .intro-enter { align-items: flex-start; }
 }
