@@ -149,6 +149,11 @@ function render() {
 
 /* ------------------------------------------------------- desktop <-> board -- */
 
+/* Kept in step with the durations in desktop.css and board.css. The desktop
+ * sits above the board, so the tip has to wait for the reveal to clear. */
+const REVEAL = 300;   // ms until the desktop has faded out of the way
+const TIP = 900;      // ms the plane takes to rotate
+
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
