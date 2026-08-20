@@ -154,6 +154,14 @@ function render() {
 const REVEAL = 300;   // ms until the desktop has faded out of the way
 const TIP = 900;      // ms the plane takes to rotate
 
+/* The menubar shows which layer you are on. */
+function markMenubar(which) {
+    const d = document.getElementById('mb-desktop');
+    const b = document.getElementById('mb-board');
+    if (d) d.classList.toggle('is-current', which === 'desktop');
+    if (b) b.classList.toggle('is-current', which === 'board');
+}
+
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
