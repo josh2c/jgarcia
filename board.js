@@ -27,14 +27,15 @@ function screenToBoard(sx, sy) {
     return { x: (a - b) / 2, y: (a + b) / 2 };
 }
 
-let ISO = false;            // the intro is flat; Enter tips it
+let ISO = false;            // the desktop shows the board flat; entering tips it
 let entered = false;
+let drifting = true;        // the board idles behind the desktop
 
 /* ------------------------------------------------------------- build DOM -- */
 
 function isClickable(item) {
-    return item.type === 'game' || item.type === 'link' || item.type === 'img' ||
-           item.type === 'note' || (item.type === 'quote' && item.href);
+    return item.type === 'img' || item.type === 'note' ||
+           (item.type === 'quote' && item.href);
 }
 
 function esc(s) {
@@ -65,15 +66,6 @@ function buildItem(item, index) {
             '<span class="q-attr">' + esc(item.attr) + '</span>';
     } else if (item.type === 'img') {
         el.innerHTML = '<img src="' + item.src + '" alt="' + esc(item.alt) + '" loading="lazy">';
-    } else if (item.type === 'link') {
-        el.innerHTML =
-            '<div><div class="l-title">' + esc(item.ltitle) + '</div>' +
-            '<div class="l-desc">' + esc(item.ldesc) + '</div></div>' +
-            '<div class="l-url">' + esc(item.url.replace('https://', '')) + ' →</div>';
-    } else if (item.type === 'game') {
-        el.innerHTML =
-            '<span class="g-name">' + esc(item.name) + '</span>' +
-            '<span class="g-play">Play</span>';
     } else if (item.type === 'swatch') {
         el.style.background = item.hex;
         el.innerHTML = '<span class="sw-hex">' + esc(item.hex) + '</span>';
@@ -155,15 +147,28 @@ function render() {
     }
 }
 
-/* ---------------------------------------------------------------- enter --- */
+/* ------------------------------------------------------- desktop <-> board -- */
 
-const introEl = document.getElementById('intro');
+/* A slow diagonal drift, so the board is alive behind the desktop without
+ * being busy. Stops the moment you enter. */
+function startDrift() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const step = () => {
+        if (!drifting) return;
+        camX += 0.18;
+        camY += 0.09;
+        render();
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
 
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
-    document.body.classList.remove('is-intro');
-    document.body.classList.add('is-entered');
+    drifting = false;
+    document.body.classList.remove('is-desktop');
+    document.body.classList.add('is-board');
 
     coverageIso = true;      // widen coverage BEFORE the tip, or corners tear
     render();
@@ -176,15 +181,36 @@ function enterBoard(instant) {
     }
 
     document.body.classList.add('is-entering');
-    requestAnimationFrame(() => {
-        ISO = true;
-        document.body.classList.add('is-iso');
-        setView('iso');
-    });
+    requestAnimationFrame(() => setView('iso'));
     setTimeout(() => document.body.classList.remove('is-entering'), 1000);
 }
 
-document.getElementById('enter').addEventListener('click', () => enterBoard(false));
+/* Back out: the plane tips flat again and the desktop returns. Same page. */
+function leaveBoard() {
+    if (!entered) return;
+    entered = false;
+    document.body.classList.remove('is-board');
+    document.body.classList.add('is-desktop');
+    document.body.classList.add('is-entering');
+    setView('flat');
+    setTimeout(() => {
+        document.body.classList.remove('is-entering');
+        coverageIso = false;
+        drifting = true;
+        startDrift();
+        render();
+    }, 1000);
+}
+
+window.jgEnterBoard = () => enterBoard(false);
+window.jgLeaveBoard = leaveBoard;
+
+document.querySelectorAll('[data-enter-board]').forEach((el) => {
+    el.addEventListener('click', (e) => { e.preventDefault(); enterBoard(false); });
+});
+document.querySelectorAll('[data-leave-board]').forEach((el) => {
+    el.addEventListener('click', (e) => { e.preventDefault(); leaveBoard(); });
+});
 
 /* ----------------------------------------------------------- view toggle -- */
 
@@ -316,7 +342,7 @@ function hideHint() {
     hintHidden = true;
     hintEl.classList.add('is-hidden');
 }
-setTimeout(hideHint, 8000);
+setTimeout(hideHint, 9000);
 
 /* -------------------------------------------------------------- window --- */
 
@@ -334,23 +360,6 @@ function openItem(item) {
     // 0 while the window is still hidden.
     win.hidden = false;
     scrim.hidden = false;
-
-    if (item.type === 'game') {
-        winTitle.textContent = item.name;
-        if (item.game === 'pong' && typeof mountPong === 'function') { cleanup = mountPong(winBody); return; }
-        if (item.game === 'paint' && typeof mountPaint === 'function') { cleanup = mountPaint(winBody); return; }
-        winBody.innerHTML = '<p>' + esc(item.name) + ' is not wired up yet.</p>' +
-            '<p class="bw-note">The window works; the game still needs porting.</p>';
-        return;
-    }
-
-    if (item.type === 'link') {
-        winTitle.textContent = item.ltitle;
-        winBody.innerHTML = '<p>' + esc(item.ldesc) + '</p>' +
-            '<p><a href="' + item.url + '" target="_blank" rel="noopener noreferrer">' +
-            esc(item.url.replace('https://', '')) + ' →</a></p>';
-        return;
-    }
 
     if (item.type === 'img') {
         winTitle.textContent = item.title;
@@ -379,6 +388,26 @@ function closeWindow() {
     scrim.hidden = true;
 }
 
+window.jgWindow = {
+    open(title, html) {
+        closeWindow();
+        winTitle.textContent = title;
+        win.hidden = false;
+        scrim.hidden = false;
+        winBody.innerHTML = html;
+    },
+    /* For content that needs the body sized before it mounts — the games size
+     * their canvas off it, and it measures 0 while hidden. */
+    mount(title, fn) {
+        closeWindow();
+        winTitle.textContent = title;
+        win.hidden = false;
+        scrim.hidden = false;
+        cleanup = fn(winBody) || null;
+    },
+    close: closeWindow
+};
+
 document.getElementById('window-close').addEventListener('click', closeWindow);
 scrim.addEventListener('click', closeWindow);
 document.addEventListener('keydown', (e) => {
@@ -389,6 +418,7 @@ document.addEventListener('keydown', (e) => {
 
 render();
 
-// Links from elsewhere on the site arrive as index.html#board and should skip
-// the intro rather than replay it.
+// Links from elsewhere arrive as index.html#board and should land on the board
+// rather than making you cross the desktop again.
 if (location.hash.includes('board')) enterBoard(true);
+else startDrift();

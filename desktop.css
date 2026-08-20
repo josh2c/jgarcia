@@ -1,16 +1,18 @@
 /* Desktop — the landing page as an OS desktop: folders, files, widgets, dock. */
 
 :root {
-    --dt-bg: #f6f6f3;
-    --dt-grid: rgba(16, 16, 20, 0.055);
-    --dt-ink: #101014;
-    --dt-muted: rgba(16, 16, 20, 0.55);
-    --dt-faint: rgba(16, 16, 20, 0.3);
-    --dt-line: rgba(16, 16, 20, 0.14);
-    --dt-panel: rgba(255, 255, 255, 0.92);
-    --dt-folder-a: #ffffff;
-    --dt-folder-b: #e6e6e1;
-    --dt-red: #e03a2d;
+    /* The desktop predated theme.css and carried its own palette. Every token
+       now points at the shared theme so it sits over the board rather than
+       clashing with it. */
+    --dt-ink: var(--jg-ink);
+    --dt-muted: var(--jg-muted);
+    --dt-faint: var(--jg-dim);
+    --dt-line: var(--jg-line);
+    --dt-panel: var(--jg-panel);
+    --dt-paper: var(--jg-paper);
+    --dt-folder-a: var(--jg-paper);
+    --dt-folder-b: var(--jg-stone);
+    --dt-red: var(--jg-accent);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -20,13 +22,6 @@ html { height: 100%; }
 .desktop-page {
     margin: 0;
     min-height: 100%;
-    background-color: var(--dt-bg);
-    /* The faint white grid, carried over from the board so the two pages feel
-       like the same world. */
-    background-image:
-        linear-gradient(var(--dt-grid) 1px, transparent 1px),
-        linear-gradient(90deg, var(--dt-grid) 1px, transparent 1px);
-    background-size: 64px 64px;
     color: var(--dt-ink);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -129,7 +124,7 @@ html { height: 100%; }
     width: 55%;
     height: 0.6rem;
     background: var(--dt-folder-a);
-    border: 1px solid var(--dt-line);
+    border: 2px solid var(--dt-ink);
     border-bottom: 0;
     border-radius: 3px 8px 0 0;
 }
@@ -141,9 +136,9 @@ html { height: 100%; }
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(160deg, var(--dt-folder-a), var(--dt-folder-b));
-    border: 1px solid var(--dt-line);
-    border-radius: 3px;
+    background: var(--dt-folder-a);
+    border: 2px solid var(--dt-ink);
+    border-radius: 0;
 }
 
 .dt-icon:hover .dt-folder::after { border-color: rgba(16, 16, 20, 0.34); }
@@ -183,7 +178,7 @@ html { height: 100%; }
     aspect-ratio: 1;
     object-fit: contain;
     background: #ffffff;
-    border: 1px solid var(--dt-line);
+    border: 2px solid var(--dt-ink);
     padding: 0.5rem;
 }
 
@@ -211,8 +206,8 @@ html { height: 100%; }
 
 .dt-widget {
     background: var(--dt-panel);
-    border: 1px solid var(--dt-line);
-    border-radius: 14px;
+    border: 2px solid var(--dt-ink);
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -313,8 +308,8 @@ html { height: 100%; }
     display: block;
     width: 2.6rem;
     height: 3rem;
-    background: linear-gradient(160deg, #ffffff, #dedeD8);
-    border: 1px solid var(--dt-line);
+    background: var(--dt-folder-a);
+    border: 2px solid var(--dt-ink);
     clip-path: polygon(12% 0, 88% 0, 78% 100%, 22% 100%);
 }
 
@@ -326,15 +321,15 @@ html { height: 100%; }
     right: -0.35rem;
     height: 0.45rem;
     background: #d7d7d1;
-    border: 1px solid var(--dt-line);
-    border-radius: 2px;
+    border: 2px solid var(--dt-ink);
+    border-radius: 0;
 }
 
 .dt-tool {
     width: 4.2rem;
     height: 3.4rem;
-    border: 1px solid var(--dt-line);
-    background: linear-gradient(160deg, #ffffff, #e4e4de);
+    border: 2px solid var(--dt-ink);
+    background: var(--dt-folder-a);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -410,7 +405,7 @@ html { height: 100%; }
     flex-direction: column;
     background: #ffffff;
     border: 1px solid rgba(16, 16, 20, 0.2);
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -438,7 +433,7 @@ html { height: 100%; }
     font-size: 0.85rem;
     cursor: pointer;
     padding: 0.25rem 0.5rem;
-    border-radius: 6px;
+    border-radius: 0;
     line-height: 1;
 }
 
@@ -454,7 +449,7 @@ html { height: 100%; }
 .dt-window-body p { margin: 0 0 0.75rem; }
 .dt-window-body a { color: var(--dt-red); }
 .dt-window-body img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
-.dt-window-body canvas { display: block; width: 100%; background: #f0f0ec; border-radius: 8px; }
+.dt-window-body canvas { display: block; width: 100%; background: #f0f0ec; border-radius: 0; }
 .dt-window-body .bw-note { font-size: 0.75rem; color: var(--dt-muted); margin-top: 0.75rem; }
 
 .dt-links { list-style: none; margin: 0; padding: 0; }
@@ -503,4 +498,62 @@ html { height: 100%; }
 @media (max-width: 560px) {
     .dt-folders { grid-template-columns: repeat(2, 8rem); }
     .dt-nav { flex-wrap: wrap; gap: 0.75rem 1.1rem; }
+}
+
+/* ---------- desktop as a layer over the board ----------
+   The board is the ground; the desktop is furniture standing on it. Entering
+   clears the furniture rather than loading a page. */
+
+.dt-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    overflow-y: auto;
+    transition: opacity 620ms ease-in, transform 620ms ease-in;
+}
+
+.is-board .dt-layer {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+}
+
+/* Softens the board behind the desktop so icons and text hold contrast. */
+.dt-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    background: rgba(242, 239, 228, 0.86);
+    transition: opacity 620ms ease-in;
+}
+
+.is-board .dt-veil { opacity: 0; }
+
+/* While the desktop is up the board is scenery and must not catch a drag. */
+.is-desktop .board-viewport { pointer-events: none; cursor: default; }
+.is-desktop .board-side,
+.is-desktop .board-hint { opacity: 0; pointer-events: none; }
+.board-side { transition: opacity 620ms ease-out 400ms; }
+
+/* The hero is the door in. */
+.dt-hero { cursor: pointer; pointer-events: auto; }
+.dt-hero:focus-visible { outline: 2px solid var(--jg-accent); outline-offset: 6px; }
+
+.dt-hero-cue {
+    display: block;
+    margin-top: 0.9rem;
+    text-align: center;
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--jg-muted);
+    transition: color 0.15s linear;
+}
+
+.dt-hero:hover .dt-hero-cue { color: var(--jg-accent); }
+
+@media (max-width: 1100px) {
+    .dt-hero { display: block; }
 }

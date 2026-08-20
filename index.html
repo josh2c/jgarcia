@@ -10,52 +10,80 @@
     <meta property="og:type" content="website">
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="board.css">
+    <link rel="stylesheet" href="desktop.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="jg board-page is-intro">
+<body class="jg board-page desktop-page is-desktop">
 
-    <!-- One board throughout. The intro is the same plane seen flat. -->
+    <!-- The board is the ground. The desktop is furniture standing on it. -->
     <div class="board-viewport" id="viewport">
         <div class="board-surface" id="surface"></div>
     </div>
+    <div class="dt-veil" aria-hidden="true"></div>
 
-    <div class="intro" id="intro">
-        <div class="sp-frame">
-            <div class="sp-frame-inner">
-                <div class="sp-screen">
-                    <span class="sp-mark">JG</span>
-                    <i class="sp-chip" style="--x: 16%; --y: 20%; background: var(--jg-accent);"></i>
-                    <i class="sp-chip" style="--x: 33%; --y: 62%; background: var(--jg-yellow);"></i>
-                    <i class="sp-chip" style="--x: 64%; --y: 26%; background: var(--jg-green);"></i>
-                    <i class="sp-chip" style="--x: 79%; --y: 64%; background: var(--jg-brown);"></i>
+    <!-- ---------- desktop layer ---------- -->
+    <div class="dt-layer" id="desktop">
+        <nav class="dt-nav">
+            <a href="index.html" class="dt-nav-link is-current">Desktop</a>
+            <a href="#" class="dt-nav-link" data-enter-board>Board</a>
+            <a href="blog.html" class="dt-nav-link">Thoughts</a>
+            <a href="https://x.com/0talentt" class="dt-nav-link" target="_blank" rel="noopener noreferrer">Let’s Work</a>
+        </nav>
+
+        <main class="dt-surface">
+            <div class="dt-folders" id="folders"></div>
+
+            <div class="dt-hero" title="Enter the board">
+                <img src="board/img/tz-mascot.webp" alt="" aria-hidden="true">
+                <span class="dt-hero-cue">Enter the board →</span>
+            </div>
+
+            <div class="dt-files" id="files"></div>
+
+            <aside class="dt-widgets">
+                <div class="dt-widget dt-clock">
+                    <div class="dt-time" id="clock-time">—</div>
+                    <div class="dt-date" id="clock-date">—</div>
+                    <hr class="dt-rule">
+                    <div class="dt-status">Currently building</div>
+                    <div class="dt-status-sub">Trezure &middot; Busy Cab &middot; Bemore Labz</div>
                 </div>
-            </div>
-        </div>
 
-        <div class="intro-foot">
-            <div>
-                <h1 class="intro-name">Josh<br>Garcia</h1>
-                <p class="intro-sub">Technology,<br>Design &amp; Marketing</p>
-            </div>
-            <div class="intro-enter">
-                <button type="button" class="jg-btn" id="enter">
-                    <span>Enter</span>
-                    <span class="jg-btn-arrow" aria-hidden="true">→</span>
-                </button>
-                <p class="intro-note">Drag to explore · click a card</p>
-            </div>
-        </div>
+                <div class="dt-widget dt-panel">
+                    <div class="dt-panel-bar"><span>Latest</span></div>
+                    <a class="dt-panel-body" href="blog.html">
+                        <span class="dt-panel-title">Reality’s Bend: Why Build What Doesn’t Exist Yet?</span>
+                        <span class="dt-panel-meta">April 1, 2025 · Innovation</span>
+                        <span class="dt-panel-cta">Open blog →</span>
+                    </a>
+                </div>
+            </aside>
+
+            <div class="dt-dock" id="dock"></div>
+
+            <button class="dt-trash" id="trash" type="button">
+                <span class="dt-trash-icon" aria-hidden="true"></span>
+                <span class="dt-icon-label">Trash</span>
+            </button>
+
+            <footer class="dt-foot">
+                <div class="dt-mark" aria-hidden="true"></div>
+                <p class="dt-foot-line">Technology, Design &amp; Marketing</p>
+                <p class="dt-foot-sub">Josh Garcia</p>
+            </footer>
+        </main>
     </div>
 
+    <!-- ---------- board layer ---------- -->
     <aside class="jg-side board-side" id="rail">
-        <a href="index.html" class="jg-logo">J<span class="a-r">G</span></a>
+        <a href="#" class="jg-logo" data-leave-board>J<span class="a-r">G</span></a>
         <p class="jg-side-name">Josh Garcia<br>Technology,<br>Design &amp; Marketing</p>
         <nav class="jg-nav">
-            <a href="index.html#board" class="is-current">Board</a>
+            <a href="#" data-leave-board>Desktop</a>
+            <a href="#" class="is-current" data-enter-board>Board</a>
             <a href="blog.html">Thoughts</a>
-            <a href="desktop.html">Desktop</a>
             <a href="pitch.html">Pitch Deck</a>
         </nav>
         <div>
@@ -72,13 +100,14 @@
                 <a href="https://playtrezure.com" target="_blank" rel="noopener noreferrer">Trezure</a>
                 <a href="https://busycabgame.com" target="_blank" rel="noopener noreferrer">Busy Cab</a>
                 <a href="https://bemorelabz.com" target="_blank" rel="noopener noreferrer">Bemore Labz</a>
-                <a href="https://x.com/0talentt" target="_blank" rel="noopener noreferrer">Twitter</a>
+                <a href="https://github.com/josh2c/skills" target="_blank" rel="noopener noreferrer">Skills</a>
             </nav>
         </div>
     </aside>
 
     <p class="board-hint" id="hint">Drag to explore · click a card</p>
 
+    <!-- shared by both layers -->
     <div class="dt-window" id="window" hidden>
         <div class="dt-window-bar">
             <span class="dt-window-title" id="window-title"></span>
@@ -90,5 +119,6 @@
 
     <script src="games.js"></script>
     <script type="module" src="board.js"></script>
+    <script src="desktop.js"></script>
 </body>
 </html>

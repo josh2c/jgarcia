@@ -166,55 +166,6 @@
     background: var(--jg-panel);
 }
 
-/* --- link --- */
-
-.bi-link {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 24px 26px;
-    background: var(--jg-blue);
-    border-color: var(--jg-ink);
-    color: #fff;
-}
-
-.bi-link .l-title { font-family: var(--jg-display); font-weight: 700; font-size: 24px; }
-.bi-link .l-desc { font-size: 14px; line-height: 1.5; margin-top: 8px; opacity: 0.9; }
-.bi-link .l-url {
-    font-family: var(--jg-mono);
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    margin-top: 14px;
-}
-
-/* --- game --- */
-
-.bi-game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    background: var(--jg-stone);
-}
-
-.bi-game .g-name {
-    font-family: var(--jg-display);
-    font-weight: 700;
-    font-size: 22px;
-}
-
-.bi-game .g-play {
-    font-family: var(--jg-mono);
-    font-size: 12px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    background: var(--jg-accent);
-    color: var(--jg-ink);
-    border: 2px solid var(--jg-ink);
-    padding: 6px 14px;
-}
-
 /* --- swatch --- */
 
 .bi-swatch {
