@@ -507,9 +507,11 @@ html { height: 100%; }
 
 /* Armed: the page becomes a target, but the rail and dock stay usable. */
 .is-armed { cursor: crosshair; }
+/* Everything you can still click while armed keeps a normal cursor. The rail
+   was missing from this list and the menubar was in it twice. */
 .is-armed .menubar,
 .is-armed .dt-icon,
-.is-armed .menubar { cursor: default; }
+.is-armed .pb-exit { cursor: default; }
 
 .pb-exit {
     position: fixed;

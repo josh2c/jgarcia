@@ -196,6 +196,10 @@
         // The rail and dock stay usable so you can disarm without a keyboard.
         if (e.target.closest('.menubar, .dt-icon, .win, .pb-exit')) return;
         e.preventDefault();
+        // Capture phase, so this is the board's pan handler's only chance to
+        // see the event. Firing a shot should not also drag the board out from
+        // under you, or open the card you were shooting at.
+        e.stopPropagation();
         firing = true;
         lastFire = 0;
         pump(e.clientX, e.clientY);
@@ -251,6 +255,16 @@
         if (e.target.id === 'pb-clear') { e.preventDefault(); clear(); }
         if (e.target.id === 'pb-stop') { e.preventDefault(); disarm(); }
     });
+
+    /* Swallow the click a shot generates. Blocking pointerdown is not enough:
+     * click is synthesised separately, and without this a shot at the dice
+     * would fire and enter the board at the same time. */
+    document.addEventListener('click', (e) => {
+        if (!armed) return;
+        if (e.target.closest('.menubar, .dt-icon, .win, .pb-exit')) return;
+        e.preventDefault();
+        e.stopPropagation();
+    }, true);
 
     window.jgPaintball = {
         toggle() { armed ? disarm() : arm(); },

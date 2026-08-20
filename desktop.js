@@ -68,9 +68,7 @@ const DOCK = [
     { name: 'Paint', game: 'paint',
       icon: "<path d='M15 4 20 9 9.5 19.5a3 3 0 0 1-1.5.8L4 21l.7-4a3 3 0 0 1 .8-1.5z'/><path d='M13.5 5.5 18.5 10.5'/>" },
     { name: 'Pong', game: 'pong',
-      icon: "<rect x='3' y='4' width='18' height='16' rx='2'/><path d='M12 4v16M6 9v6M18 9v6'/>" },
-    { name: 'Paintball', mode: 'paintball',
-      icon: "<circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='3.4'/><path d='M12 2v3M12 19v3M2 12h3M19 12h3'/>" }
+      icon: "<rect x='3' y='4' width='18' height='16' rx='2'/><path d='M12 4v16M6 9v6M18 9v6'/>" }
 ];
 
 /* ----------------------------------------------------------- rendering --- */
@@ -366,11 +364,6 @@ function openFolder(i) {
 
 function openGame(i) {
     const d = DOCK[i];
-    // Paintball is a mode over the whole page, not something in a window.
-    if (d.mode === 'paintball') {
-        if (window.jgPaintball) window.jgPaintball.toggle();
-        return;
-    }
     const W = window.jgWindows;
     if (!W) return;
     if (d.game === 'pong' && typeof mountPong === 'function') {
@@ -381,6 +374,17 @@ function openGame(i) {
         W.open({ id: 'game:paint', title: 'Paint', width: 560, height: 440, mount: mountPaint });
         return;
     }
+}
+
+/* Paintball lives in the menubar because it is the one control that has to
+ * work in both layers — the dock it used to sit in fades out with the rest of
+ * the furniture the moment you enter the board. */
+const mbPaint = document.getElementById('mb-paintball');
+if (mbPaint) {
+    mbPaint.addEventListener('click', () => window.jgPaintball && window.jgPaintball.toggle());
+    const sync = () => mbPaint.setAttribute('aria-pressed',
+        String(document.body.classList.contains('is-armed')));
+    new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 }
 
 /* Menubar entries that need script. */

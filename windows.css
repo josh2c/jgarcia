@@ -74,6 +74,44 @@
 
 .mb-view button.is-current { background: var(--glass-strong); color: var(--on-glass); }
 
+/* Paintball. A mode over the whole page, so it sits with the view control
+   rather than in the desktop dock — the dock is gone the moment you enter the
+   board, which is exactly where you want to be shooting. */
+.mb-tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--jg-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--glass-edge-soft);
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--on-glass-soft);
+    padding: 0.14rem 0.6rem 0.14rem 0.45rem;
+    cursor: pointer;
+    flex: none;
+    transition: background 0.15s linear, color 0.15s linear;
+}
+
+.mb-tool svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.mb-tool:hover { color: var(--on-glass); }
+
+.mb-tool[aria-pressed='true'] {
+    background: var(--jg-accent);
+    border-color: var(--jg-accent);
+    color: #2a2e2b;
+}
+
 /* The view toggle only means anything on the board. */
 .is-desktop .mb-view { opacity: 0; pointer-events: none; }
 
