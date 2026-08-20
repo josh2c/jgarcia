@@ -94,209 +94,23 @@ html { height: 100%; }
     outline: none;
 }
 
-.dt-icon-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--on-glass);
+/* Anything sitting straight on the board needs its own ground. The board used
+   to be a bare dark field; now it is covered in cream cards, where white type
+   measures 2.0:1 even through the scrim. On the chip it is 8.9:1. */
+.dt-icon-cap,
+.dt-foot {
+    background: rgba(20, 23, 24, 0.7);
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+    border-radius: 0.45rem;
 }
 
-/* Folder: three layers — a back panel, contents peeking between, and a front
-   panel that tips forward on hover so it reads as opening. Solid rather than
-   frosted; the chunky solidity is the point, and a glass folder would be a
-   ghost of one. */
-.dt-folder {
-    position: relative;
-    width: 5.4rem;
-    height: 4.4rem;
-    perspective: 520px;
-    transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-}
-
-.dt-icon:hover .dt-folder,
-.dt-icon:focus-visible .dt-folder { transform: translateY(-5px); }
-
-/* Back panel, with the tab. */
-.f-back {
-    position: absolute;
-    inset: 0.35rem 0 0 0;
-    background: var(--fold-back);
-    border-radius: 0.7rem;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.42);
-}
-
-.f-back::before {
-    content: '';
-    position: absolute;
-    left: 0.1rem;
-    top: -0.42rem;
-    width: 46%;
-    height: 0.7rem;
-    background: var(--fold-back);
-    border-radius: 0.45rem 0.45rem 0 0;
-}
-
-/* Contents. They sit between the panels and rise as it opens. */
-.f-card {
-    position: absolute;
-    left: 50%;
-    bottom: 1.15rem;
-    width: 62%;
-    height: 2.5rem;
-    margin-left: -31%;
-    background: #fbfaf6;
-    border-radius: 0.34rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-}
-
-.f-card:nth-child(2) { transform: translateY(0) rotate(-4deg) scale(0.94); }
-.f-card:nth-child(3) { transform: translateY(0) rotate(2deg) scale(0.97); }
-.f-card:nth-child(4) { transform: translateY(0) rotate(0deg); }
-
-.dt-icon:hover .f-card:nth-child(2) { transform: translateY(-13px) rotate(-11deg) scale(0.94); }
-.dt-icon:hover .f-card:nth-child(3) { transform: translateY(-16px) rotate(7deg) scale(0.97); }
-.dt-icon:hover .f-card:nth-child(4) { transform: translateY(-19px) rotate(-1deg); }
-
-/* Front panel. Tips forward from its bottom edge. */
-.f-front {
-    position: absolute;
-    inset: 1.15rem 0 0 0;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(168deg, var(--fold-front) 0%, var(--fold-front-2) 100%);
-    border-radius: 0.7rem;
-    transform-origin: bottom center;
-    transform: rotateX(0deg);
-    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4) inset;
-}
-
-.dt-icon:hover .f-front,
-.dt-icon:focus-visible .f-front { transform: rotateX(-28deg); }
-
-/* Item count under the name. */
-.dt-icon-count {
-    font-family: var(--jg-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.06em;
-    color: var(--on-glass-soft);
-}
-
-.f-front svg,
-.dt-tool svg {
-    width: 46%;
-    height: 46%;
-    fill: none;
-    stroke: var(--on-glass);
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0.85;
-}
-
-.f-front svg { width: 38%; height: 38%; stroke: rgba(34, 30, 12, 0.62); }
-
-/* ---------- the door ----------
-   A transparent target sitting exactly over the dice card on the board below,
-   so the card is never duplicated and never has to be handed off. */
-
-.dt-door {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /* Exactly the dice card underneath: one grid square, CELL - 40. */
-    width: 340px;
-    height: 340px;
-    max-width: 88vw;
-    background: none;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
-    z-index: 10;
-}
-
-.is-board .dt-door { opacity: 0; pointer-events: none; }
-.dt-door { transition: opacity 300ms ease-out; }
-
-.dt-door-cue {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 1rem);
-    text-align: center;
-    font-family: var(--jg-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--on-glass);
-    opacity: 0.75;
-    transition: color 0.15s linear, opacity 0.15s linear;
-}
-
-.dt-door:hover .dt-door-cue,
-.dt-door:focus-visible .dt-door-cue { color: var(--jg-accent); opacity: 1; }
-.dt-door:focus-visible { outline: 2px solid var(--jg-accent); outline-offset: 8px; border-radius: var(--r-md); }
-
-/* ---------- icon layer ----------
-   Every icon sits in one layer so any of them can be dragged anywhere. Below
-   the breakpoint they fall back to flow: dragging on a phone fights scrolling
-   and there is no room to arrange anything. */
-
-.dt-icons {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.dt-icons.is-free {
-    position: static;
-    display: block;
-}
-
-.dt-icons.is-free .dt-icon {
-    position: fixed;
-    width: 6.2rem;
-    margin: 0;
-    touch-action: none;
-}
-
-.dt-icon.is-dragging {
-    z-index: 30;
-    cursor: grabbing;
-    transform: scale(1.06);
-    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
-}
-
-.dt-icons.is-free .dt-icon.is-dragging { transition: none; }
-
-/* ---------- folders ---------- */
-
-.dt-icon {
-    transition: transform 0.14s ease-out;
+.dt-icon-cap {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 0.35rem;
-    background: none;
-    border: 1px solid transparent;
-    border-radius: var(--r-md);
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-}
-
-.dt-icon:hover,
-.dt-icon:focus-visible {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: var(--glass-edge-soft);
-    outline: none;
+    gap: 0.2rem;
+    padding: 0.26rem 0.55rem 0.3rem;
 }
 
 .dt-icon-label {
@@ -569,6 +383,7 @@ html { height: 100%; }
     left: 50%;
     bottom: 2rem;
     transform: translateX(-50%);
+    padding: 0.85rem 1.4rem 0.95rem;
     text-align: center;
     pointer-events: none;
 }
@@ -619,7 +434,6 @@ html { height: 100%; }
         width: auto;
         margin: 2.5rem 0 0;
     }
-    .dt-door { display: none; }        /* no room to enter by the card here */
     .dt-surface {
         display: flex;
         flex-direction: column;
@@ -638,11 +452,18 @@ html { height: 100%; }
     inset: 0;
     z-index: 50;
     overflow-y: auto;
+    /* The layer covers the viewport, so by default it would swallow every
+       click meant for the dice underneath. Only the furniture itself is a
+       target; the gaps between it belong to the board. */
+    pointer-events: none;
     /* Scaled from slightly above centre, so entering reads as moving through
        the desktop rather than dissolving it. */
     transform-origin: 50% 42%;
     transition: opacity 380ms ease-out, transform 760ms cubic-bezier(0.6, 0, 0.3, 1);
 }
+
+.dt-icons,
+.dt-widgets { pointer-events: auto; }
 
 .is-board .dt-layer {
     opacity: 0;
@@ -741,4 +562,11 @@ html { height: 100%; }
     .dt-tool,
     .dt-trash-icon { background: rgba(255, 255, 255, 0.62); }
     .dt-trash-icon::before { background: rgba(255, 255, 255, 0.72); }
+}
+
+@media (max-width: 1100px) {
+    /* A scrolling document again: the layer needs the gaps back to be
+       scrollable, and there is no dice to reach past it. This block sits
+       after the base rule on purpose — a media query adds no specificity. */
+    .dt-layer { pointer-events: auto; }
 }

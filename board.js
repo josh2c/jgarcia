@@ -67,6 +67,10 @@ function buildItem(item, index) {
             '<span class="q-attr">' + esc(item.attr) + '</span>';
     } else if (item.type === 'img' || item.type === 'piece') {
         el.innerHTML = '<img src="' + item.src + '" alt="' + esc(item.alt) + '" loading="lazy">';
+        if (item.type === 'piece') {
+            el.insertAdjacentHTML('beforeend',
+                '<span class="bi-piece-cue">Enter the board \u2192</span>');
+        }
     } else if (item.type === 'swatch') {
         el.style.background = item.hex;
         el.innerHTML = '<span class="sw-hex">' + esc(item.hex) + '</span>';
@@ -168,6 +172,7 @@ function enterBoard(instant) {
     if (entered) return;
     entered = true;
 
+    document.body.classList.remove('is-virgin');
     document.body.classList.remove('is-desktop');
     document.body.classList.add('is-board');
     markMenubar('board');
@@ -194,25 +199,17 @@ function enterBoard(instant) {
     setTimeout(() => document.body.classList.remove('is-entering'), 1050);
 }
 
+/* Calling the desktop back is not the reverse of entering. Nothing about the
+ * view changes — same position, same projection — the furniture simply comes
+ * back over wherever you happen to be looking, and the board goes inert
+ * behind it. Iso/Flat stays the only thing that moves the plane. */
 function leaveBoard() {
     if (!entered) return;
     entered = false;
 
-    document.body.classList.add('is-entering');
-    requestAnimationFrame(() => {
-        ISO = false;
-        document.body.classList.remove('is-iso');
-        render();
-        markView('flat');
-    });
-    setTimeout(() => {
-        document.body.classList.remove('is-entering');
-        document.body.classList.remove('is-board');
-        document.body.classList.add('is-desktop');
-        markMenubar('desktop');
-        coverageIso = false;
-        render();
-    }, 1050);
+    document.body.classList.remove('is-board');
+    document.body.classList.add('is-desktop');
+    markMenubar('desktop');
 }
 
 window.jgEnterBoard = () => enterBoard(false);
@@ -336,6 +333,14 @@ function maybeOpen() {
     if (hit) openItem(ITEMS[Number(hit.dataset.item)]);
 }
 
+/* The dice is the door. It is the only live thing on a frozen board, and it
+ * works wherever the dice happens to be — including after you have panned
+ * away and called the desktop back. */
+surface.addEventListener('click', (e) => {
+    if (entered) return;
+    if (e.target.closest('.bi-piece')) enterBoard(false);
+});
+
 viewport.addEventListener('wheel', (e) => {
     if (!entered) return;
     e.preventDefault();
@@ -392,6 +397,14 @@ function openItem(item) {
 /* -------------------------------------------------------------------- go --- */
 
 render();
+
+/* The cards assemble outward from the dice on first paint and never again.
+ * Held for one frame so they have a start value to animate from, then
+ * released for the longest stagger plus the longest transition. */
+document.body.classList.add('is-booting', 'is-virgin');
+requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.body.classList.remove('is-booting');
+}));
 
 // Links from elsewhere arrive as index.html#board and should land on the board
 // rather than making you cross the desktop again.

@@ -75,8 +75,13 @@ function iconButton(id, label, className, inner, count) {
     el.type = 'button';
     el.className = 'dt-icon ' + className;
     el.dataset.id = id;
-    el.innerHTML = inner + '<span class="dt-icon-label">' + label + '</span>' +
-        (count ? '<span class="dt-icon-count">' + count + '</span>' : '');
+    // Name and count share one chip. They sit directly on the board now, and
+    // white type on a cream card is 2.0:1 — the chip is what makes them read.
+    el.innerHTML = inner +
+        '<span class="dt-icon-cap">' +
+            '<span class="dt-icon-label">' + label + '</span>' +
+            (count ? '<span class="dt-icon-count">' + count + '</span>' : '') +
+        '</span>';
     return el;
 }
 
@@ -331,12 +336,6 @@ function openGame(i) {
         return;
     }
 }
-
-/* The door sits over the dice card on the board below. The card is never
- * duplicated, so there is nothing to hand off — entering just clears the
- * furniture and tips the plane the card is already lying on. */
-const doorEl = document.getElementById('door');
-if (doorEl) doorEl.addEventListener('click', () => window.jgEnterBoard && window.jgEnterBoard());
 
 /* Menubar entries that need script. */
 const mbThoughts = document.getElementById('mb-thoughts');

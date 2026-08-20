@@ -29,8 +29,29 @@
 .board-surface {
     position: absolute;
     inset: 0;
+    z-index: 0;
     transform-style: preserve-3d;
 }
+
+/* The board is scenery while the desktop is up: dimmed, and inert apart from
+   the dice. 0.35 is as far as it can go and still read as a board — it is also
+   what lets white type clear 7:1 on the panels standing over it. */
+.board-viewport::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(44, 48, 49, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 420ms ease-out;
+}
+
+.is-desktop .board-viewport::after { opacity: 1; }
+
+/* Frozen underneath — no panning, no opening a card. The dice is the one
+   exception, because it is the way in. */
+.is-desktop .board-viewport { pointer-events: none; cursor: default; }
 
 .is-iso .board-surface {
     transform-origin: 50% 50%;
@@ -78,16 +99,13 @@
                 box-shadow 0.15s linear;
 }
 
-/* On the desktop the board is bare ground: the dice is the only card on it.
-   Entering brings the rest in, nearest first, so the board assembles outward
-   from the piece you were already looking at. */
-.is-desktop .bi:not(.bi-piece) {
+/* First paint only. The cards are permanent now, so this is an arrival rather
+   than a state: they assemble outward from the dice as the page opens, nearest
+   first, and never animate again. */
+.is-booting .bi:not(.bi-piece) {
     opacity: 0;
     transform: translateY(14px) scale(0.97);
 }
-
-/* Leaving is a retreat, not a reverse assembly — no staggered exit. */
-.is-desktop .bi { transition-delay: 0ms; }
 
 /* Hard offset shadow, no blur — drawn objects, not floating ones. */
 .is-iso .bi { box-shadow: 0 14px 30px rgba(12, 46, 66, 0.22); }
@@ -212,6 +230,37 @@
     background: var(--jg-panel);
     pointer-events: none;
 }
+
+/* Clickable while the desktop is up, and only then — it is the way into the
+   board. It sits wherever the dice actually is, so it stays correct after you
+   have panned somewhere else and called the desktop back. */
+.is-desktop .bi-piece {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* It dims with the rest of the board — the scrim is a sibling of the whole
+   plane, so no card can be lifted out from under it. The cue and the cursor
+   are what mark it as live, not brightness. */
+
+/* Shown until the board has been entered once, then never again. */
+.bi-piece-cue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 14px;
+    text-align: center;
+    font-family: var(--jg-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--jg-muted);
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+}
+
+.is-virgin.is-desktop .bi-piece-cue { opacity: 1; }
+.is-desktop .bi-piece:hover .bi-piece-cue { color: var(--jg-accent); }
 
 /* --- placeholder --- */
 
