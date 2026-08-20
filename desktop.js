@@ -57,13 +57,6 @@ const FOLDERS = [
 ];
 
 /* Real files from the Trezure asset set, sitting on the desktop. */
-const FILES = [
-    { name: 'mascot.webp', src: 'board/img/tz-mascot-pirate.webp', title: 'mascot.webp',
-      body: 'A seasonal variant of the Trezure mascot.' },
-    { name: 'logo.webp', src: 'board/img/tz-logo.webp', title: 'logo.webp',
-      body: 'The Trezure mark.' }
-];
-
 /* Stroked glyphs, matching the folder tiles — emoji rendered as a second
    visual language sitting next to them. */
 const DOCK = [
@@ -111,13 +104,6 @@ FOLDERS.forEach((f, i) => {
     iconsEl.appendChild(el);
 });
 
-FILES.forEach((f, i) => {
-    const el = iconButton('file:' + f.name, f.name, 'dt-file',
-        '<img class="dt-file-thumb" src="' + f.src + '" alt="" aria-hidden="true">');
-    el.addEventListener('click', () => openFile(i));
-    iconsEl.appendChild(el);
-});
-
 DOCK.forEach((d, i) => {
     const el = iconButton('tool:' + d.name, d.name, 'dt-dock-icon',
         '<span class="dt-tool" aria-hidden="true">' +
@@ -154,9 +140,6 @@ function defaultLayout() {
             y: originY + Math.floor(i / cols) * (CELL + 16)
         };
     });
-    FILES.forEach((f, i) => {
-        out['file:' + f.name] = { x: originX + i * CELL, y: originY + 2 * (CELL + 16) + 20 };
-    });
     DOCK.forEach((d, i) => {
         out['tool:' + d.name] = { x: originX + i * CELL, y: window.innerHeight - CELL - 40 };
     });
@@ -167,7 +150,14 @@ function defaultLayout() {
 function loadLayout() {
     try {
         const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || 'null');
-        if (saved && typeof saved === 'object') return { ...defaultLayout(), ...saved };
+        if (saved && typeof saved === 'object') {
+            // Only keys that still name a real icon. A saved layout outlives
+            // the icons it was saved for, and merging it wholesale keeps
+            // positions for things that no longer exist.
+            const out = defaultLayout();
+            for (const id of Object.keys(out)) if (saved[id]) out[id] = saved[id];
+            return out;
+        }
     } catch (err) { /* corrupt entry — fall back to the default arrangement */ }
     return defaultLayout();
 }
@@ -321,15 +311,6 @@ function openFolder(i) {
             if (f.skills) loadSkills(body.querySelector('#skills-list'));
         }
     });
-}
-
-function openFile(i) {
-    const f = FILES[i];
-    const W = window.jgWindows;
-    if (!W) return;
-    W.open({ id: 'file:' + f.src, title: f.title, width: 420, height: 400,
-             html: '<img src="' + f.src + '" alt="' + f.title + '">' +
-                   '<p class="bw-note">' + f.body + '</p>' });
 }
 
 function openGame(i) {

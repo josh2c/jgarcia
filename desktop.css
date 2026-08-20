@@ -410,15 +410,6 @@ html { height: 100%; }
 
 
 
-.dt-file .dt-icon-label {
-    margin-top: 0.5rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    letter-spacing: 0.04em;
-    text-transform: none;
-    font-size: 0.64rem;
-    color: var(--dt-muted);
-}
-
 /* ---------- widgets ---------- */
 
 .dt-widgets {
