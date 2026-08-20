@@ -27,39 +27,6 @@ html { height: 100%; }
     -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- nav ---------- */
-
-.dt-nav {
-    position: fixed;
-    inset: 0 0 auto 0;
-    z-index: 60;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.15rem clamp(1rem, 3vw, 2.5rem);
-}
-
-.dt-nav-link {
-    color: var(--dt-ink);
-    text-decoration: none;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    opacity: 0.72;
-    transition: opacity 0.12s linear;
-}
-
-.dt-nav-link:hover { opacity: 1; }
-
-/* Struck through, the way the reference marks the page you are on. */
-.dt-nav-link.is-current {
-    opacity: 1;
-    text-decoration: line-through;
-    text-decoration-color: var(--dt-red);
-    text-decoration-thickness: 2px;
-}
-
 /* ---------- surface ---------- */
 
 .dt-surface {
@@ -83,10 +50,11 @@ html { height: 100%; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.55rem;
-    padding: 0.6rem 0.3rem;
+    gap: 0.6rem;
+    padding: 0.6rem 0.35rem;
     background: none;
     border: 1px solid transparent;
+    border-radius: var(--r-md);
     color: inherit;
     font: inherit;
     cursor: pointer;
@@ -96,8 +64,8 @@ html { height: 100%; }
 
 .dt-icon:hover,
 .dt-icon:focus-visible {
-    background: rgba(16, 16, 20, 0.05);
-    border-color: var(--dt-line);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--glass-edge-soft);
     outline: none;
 }
 
@@ -106,14 +74,14 @@ html { height: 100%; }
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--dt-ink);
+    color: var(--on-glass);
 }
 
-/* Folder drawn in CSS: a tab, then the body sitting over it. */
+/* Folder as a frosted tile with a tab, rather than a drawn paper folder. */
 .dt-folder {
     position: relative;
-    width: 4.6rem;
-    height: 3.5rem;
+    width: 4.9rem;
+    height: 3.8rem;
 }
 
 .dt-folder::before {
@@ -132,16 +100,19 @@ html { height: 100%; }
 .dt-folder::after {
     content: '';
     position: absolute;
-    top: 0.5rem;
+    top: 0.6rem;
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--dt-folder-a);
-    border: 2px solid var(--dt-ink);
-    border-radius: 0;
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--r-md);
+    box-shadow: var(--glass-lift), var(--glass-inset);
 }
 
-.dt-icon:hover .dt-folder::after { border-color: rgba(16, 16, 20, 0.34); }
+.dt-icon:hover .dt-folder::after { background: var(--glass-strong); }
 
 /* ---------- hero ---------- */
 
@@ -223,10 +194,14 @@ html { height: 100%; }
 }
 
 .dt-widget {
-    background: var(--dt-panel);
-    border: 2px solid var(--dt-ink);
-    border-radius: 0;
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--r-lg);
+    box-shadow: var(--glass-lift), var(--glass-inset);
     overflow: hidden;
+    color: var(--on-glass);
 }
 
 .dt-clock { padding: 1.35rem 1.5rem 1.5rem; }
@@ -245,12 +220,12 @@ html { height: 100%; }
     font-weight: 600;
     letter-spacing: 0.11em;
     text-transform: uppercase;
-    color: var(--dt-muted);
+    color: var(--on-glass-soft);
 }
 
 .dt-rule {
     border: 0;
-    border-top: 1px solid var(--dt-line);
+    border-top: 1px solid var(--glass-edge-soft);
     margin: 1.1rem 0;
 }
 
@@ -264,7 +239,7 @@ html { height: 100%; }
 .dt-status-sub {
     margin-top: 0.35rem;
     font-size: 0.74rem;
-    color: var(--dt-muted);
+    color: var(--on-glass-soft);
 }
 
 .dt-panel-bar {
@@ -273,8 +248,8 @@ html { height: 100%; }
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--dt-muted);
-    border-bottom: 1px solid var(--dt-line);
+    color: var(--on-glass-faint);
+    border-bottom: 1px solid var(--glass-edge-soft);
 }
 
 .dt-panel-body {
@@ -284,11 +259,11 @@ html { height: 100%; }
     color: inherit;
 }
 
-.dt-panel-body:hover { background: rgba(16, 16, 20, 0.04); }
+.dt-panel-body:hover { background: rgba(255, 255, 255, 0.12); }
 
 .dt-panel-title { display: block; font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
-.dt-panel-meta { display: block; margin-top: 0.45rem; font-size: 0.7rem; color: var(--dt-muted); }
-.dt-panel-cta { display: block; margin-top: 0.85rem; font-size: 0.74rem; color: var(--dt-red); font-weight: 600; }
+.dt-panel-meta { display: block; margin-top: 0.45rem; font-size: 0.7rem; color: var(--on-glass-soft); }
+.dt-panel-cta { display: block; margin-top: 0.85rem; font-size: 0.74rem; color: var(--jg-accent); font-weight: 600; }
 
 /* ---------- dock + trash ---------- */
 
@@ -302,6 +277,7 @@ html { height: 100%; }
 }
 
 .dt-trash {
+    border-radius: var(--r-md);
     position: absolute;
     z-index: 30;
     right: clamp(1rem, 3vw, 2.5rem);
@@ -318,7 +294,7 @@ html { height: 100%; }
     padding: 0.6rem;
 }
 
-.dt-trash:hover { background: rgba(16, 16, 20, 0.05); border-color: var(--dt-line); }
+.dt-trash:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--glass-edge-soft); }
 
 /* A bin: tapered body plus a lid bar. */
 .dt-trash-icon {
@@ -326,8 +302,10 @@ html { height: 100%; }
     display: block;
     width: 2.6rem;
     height: 3rem;
-    background: var(--dt-folder-a);
-    border: 2px solid var(--dt-ink);
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
     clip-path: polygon(12% 0, 88% 0, 78% 100%, 22% 100%);
 }
 
@@ -338,21 +316,28 @@ html { height: 100%; }
     left: -0.35rem;
     right: -0.35rem;
     height: 0.45rem;
-    background: #d7d7d1;
-    border: 2px solid var(--dt-ink);
-    border-radius: 0;
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--r-sm);
 }
 
 .dt-tool {
-    width: 4.2rem;
-    height: 3.4rem;
-    border: 2px solid var(--dt-ink);
-    background: var(--dt-folder-a);
+    width: 4.4rem;
+    height: 4.4rem;
+    border: 1px solid var(--glass-edge);
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-radius: var(--r-pill);
+    box-shadow: var(--glass-lift), var(--glass-inset);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.35rem;
+    font-size: 1.5rem;
+    transition: background 0.15s linear, transform 0.15s ease-out;
 }
+
+.dt-icon:hover .dt-tool { background: var(--glass-strong); transform: translateY(-2px); }
 
 /* ---------- footer ---------- */
 
@@ -370,7 +355,7 @@ html { height: 100%; }
     width: 2.1rem;
     height: 2.1rem;
     margin: 0 auto 0.7rem;
-    border: 1px solid var(--dt-faint);
+    border: 1px solid var(--on-glass-faint);
     border-radius: 50%;
     position: relative;
 }
@@ -380,7 +365,7 @@ html { height: 100%; }
     content: '';
     position: absolute;
     inset: 0;
-    border: 1px solid var(--dt-faint);
+    border: 1px solid var(--on-glass-faint);
     border-radius: 50%;
 }
 
@@ -396,95 +381,13 @@ html { height: 100%; }
     text-transform: uppercase;
 }
 
-.dt-foot-sub { margin-top: 0.3rem; color: var(--dt-ink); opacity: 0.65; }
+.dt-foot-sub { margin-top: 0.3rem; color: var(--on-glass-soft); }
 
 /* ---------- window ---------- */
 /* `display: flex` below outranks the UA stylesheet's [hidden] rule, so the
    attribute needs restating or the empty window shows permanently. */
 [hidden] { display: none !important; }
 
-
-.dt-scrim {
-    position: fixed;
-    inset: 0;
-    z-index: 90;
-    background: rgba(16, 16, 20, 0.42);
-}
-
-.dt-window {
-    position: fixed;
-    z-index: 100;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: min(680px, calc(100vw - 32px));
-    max-height: calc(100vh - 80px);
-    display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    border: 1px solid rgba(16, 16, 20, 0.2);
-    border-radius: 0;
-    overflow: hidden;
-}
-
-.dt-window-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.7rem 0.75rem 0.7rem 1.1rem;
-    background: #f0f0ec;
-    border-bottom: 1px solid var(--dt-line);
-}
-
-.dt-window-title {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.dt-window-close {
-    border: 0;
-    background: transparent;
-    color: var(--dt-muted);
-    font-size: 0.85rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0;
-    line-height: 1;
-}
-
-.dt-window-close:hover { background: rgba(16, 16, 20, 0.09); color: var(--dt-ink); }
-
-.dt-window-body {
-    padding: 1.25rem;
-    overflow: auto;
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-
-.dt-window-body p { margin: 0 0 0.75rem; }
-.dt-window-body a { color: var(--dt-red); }
-.dt-window-body img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
-.dt-window-body canvas { display: block; width: 100%; background: #f0f0ec; border-radius: 0; }
-.dt-window-body .bw-note { font-size: 0.75rem; color: var(--dt-muted); margin-top: 0.75rem; }
-
-.dt-links { list-style: none; margin: 0; padding: 0; }
-.dt-links li { border-top: 1px solid var(--dt-line); }
-.dt-links li:first-child { border-top: 0; }
-
-.dt-links a {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.8rem 0;
-    text-decoration: none;
-    color: var(--dt-ink);
-}
-
-.dt-links a:hover { color: var(--dt-red); }
-.dt-links .dt-link-meta { color: var(--dt-muted); font-size: 0.78rem; }
 
 /* ---------- responsive ---------- */
 
@@ -515,7 +418,6 @@ html { height: 100%; }
 
 @media (max-width: 560px) {
     .dt-folders { grid-template-columns: repeat(2, 8rem); }
-    .dt-nav { flex-wrap: wrap; gap: 0.75rem 1.1rem; }
 }
 
 /* ---------- desktop as a layer over the board ----------
@@ -539,18 +441,27 @@ html { height: 100%; }
     transform: scale(1.09);
 }
 
-/* The desktop's own ground. The board is not visible behind it, so this is a
-   plain surface rather than a wash over one — calm, and nothing moving. */
+/* The desktop's own ground — a deep gradient, because frosted panels need
+   something saturated behind them or they read as flat grey. */
 .dt-veil {
     position: fixed;
     inset: 0;
     z-index: 40;
     pointer-events: none;
-    background: linear-gradient(178deg,
-        var(--jg-paper) 0%,
-        #dcebe6 46%,
-        #b9ded9 100%);
+    background: var(--ground);
     transition: opacity 380ms ease-out;
+}
+
+/* A soft light behind the hero so the blue dice do not sink into the blue. */
+.dt-veil::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    width: min(58rem, 90vw);
+    height: min(34rem, 60vh);
+    transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.34), transparent 72%);
 }
 
 .is-board .dt-veil { opacity: 0; }
@@ -585,8 +496,8 @@ html { height: 100%; }
     font-size: 0.68rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--jg-ink);
-    opacity: 0.72;
+    color: var(--on-glass);
+    opacity: 0.9;
     transition: color 0.15s linear, opacity 0.15s linear;
 }
 
@@ -637,7 +548,7 @@ html { height: 100%; }
 .is-armed { cursor: crosshair; }
 .is-armed .menubar,
 .is-armed .dt-dock,
-.is-armed .dt-nav { cursor: default; }
+.is-armed .menubar { cursor: default; }
 
 .pb-exit {
     position: fixed;
@@ -673,4 +584,16 @@ html { height: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
     .pb-gun, .pb-gun.is-kick { transition: none; animation: none; }
+}
+
+/* Without backdrop-filter the fills still composite correctly — contrast is
+   unchanged, only the blur is missing — but a touch more body keeps the
+   panels reading as objects rather than tints. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .dt-folder::after,
+    .dt-widget,
+    .dt-tool,
+    .dt-trash-icon { background: rgba(255, 255, 255, 0.62); }
+    .dt-folder::before,
+    .dt-trash-icon::before { background: rgba(255, 255, 255, 0.72); }
 }

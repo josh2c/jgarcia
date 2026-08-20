@@ -37,6 +37,39 @@
     --jg-blue: #6b8ca3;
     --jg-brown: #8a7a63;
 
+    /* ---------- glass ----------
+       Frosted panels need something saturated behind them or they read as
+       flat grey. The ground gradient below is what they blur. */
+    /* Light glass with ink type, not white-on-dark. White type over this
+       palette tops out around 4.3:1 even on the deepest ramp — darkening the
+       ground enough to fix it would have meant abandoning the teal. */
+    --glass:        rgba(255, 255, 255, 0.28);
+    --glass-strong: rgba(255, 255, 255, 0.45);
+    --glass-solid:  rgba(255, 255, 255, 0.80);
+    --glass-edge:   rgba(255, 255, 255, 0.55);
+    --glass-edge-soft: rgba(255, 255, 255, 0.34);
+    --glass-blur:   saturate(180%) blur(22px);
+    --glass-lift:   0 10px 34px rgba(12, 46, 66, 0.26);
+    --glass-inset:  inset 0 1px 0 rgba(255, 255, 255, 0.45);
+
+    /* Type on glass — ink, at 5.8:1 or better across the whole ground. */
+    --on-glass:       #22302e;
+    --on-glass-soft:  rgba(34, 48, 46, 0.78);
+    --on-glass-faint: rgba(34, 48, 46, 0.58);
+
+    /* The ground the glass sits on — the palette, deepened so it has range. */
+    --ground: linear-gradient(163deg,
+        #8fded4 0%,
+        #5fbdb8 28%,
+        #57a8c4 58%,
+        #5b8fc9 84%,
+        #6b8ca3 100%);
+
+    --r-lg: 26px;
+    --r-md: 18px;
+    --r-sm: 12px;
+    --r-pill: 999px;
+
     --jg-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --jg-display: 'Space Grotesk', 'Inter', sans-serif;
     --jg-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -246,4 +279,36 @@ body.jg {
 body.board-page {
     background-image: none;
     background-color: var(--jg-bg);
+}
+
+
+/* ---------- glass primitives ----------
+   Shared by the desktop, the menubar and the windows so the whole chrome
+   speaks one language. */
+
+.glass {
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge-soft);
+    box-shadow: var(--glass-lift), var(--glass-inset);
+    border-radius: var(--r-lg);
+}
+
+/* Where a panel carries reading text it needs more body, or the words sit on
+   whatever happens to be behind them. */
+.glass-strong {
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--glass-lift), var(--glass-inset);
+    border-radius: var(--r-lg);
+}
+
+/* Safari and Firefox without backdrop-filter get a solid fill instead of an
+   unreadable transparent panel. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: rgba(255, 255, 255, 0.62); }
+    .glass-strong { background: rgba(255, 255, 255, 0.8); }
 }
