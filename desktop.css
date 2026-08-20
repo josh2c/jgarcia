@@ -151,11 +151,29 @@ html { height: 100%; }
     top: 48%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: clamp(15rem, 30vw, 26rem);
-    pointer-events: none;
-    /* A soft floor glow so the sprite is not just pasted onto the black. */
-    filter: drop-shadow(0 26px 34px rgba(16, 16, 20, 0.22));
+    /* Wider than the old square mascot: the dice are landscape, so matching
+       the previous width would have made them read much smaller. */
+    width: clamp(16rem, 33vw, 29rem);
+    cursor: pointer;
+    /* A contact shadow so they sit on the board rather than float over it. */
+    filter: drop-shadow(0 22px 26px rgba(42, 46, 43, 0.26));
+    transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
+
+.dt-hero img { transition: transform 3.4s ease-in-out; }
+
+/* A slow idle drift, and a tilt on hover — they are dice, they should look
+   like they are about to be thrown. */
+@media (prefers-reduced-motion: no-preference) {
+    .dt-hero img { animation: dice-drift 6s ease-in-out infinite; }
+}
+
+@keyframes dice-drift {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-10px) rotate(-2.5deg); }
+}
+
+.dt-hero:hover { transform: translate(-50%, -52%) scale(1.04); }
 
 .dt-hero img { display: block; width: 100%; height: auto; }
 
@@ -537,7 +555,6 @@ html { height: 100%; }
 .board-side { transition: opacity 620ms ease-out 400ms; }
 
 /* The hero is the door in. */
-.dt-hero { cursor: pointer; pointer-events: auto; }
 .dt-hero:focus-visible { outline: 2px solid var(--jg-accent); outline-offset: 6px; }
 
 .dt-hero-cue {
