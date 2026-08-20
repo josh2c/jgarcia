@@ -45,7 +45,7 @@ function esc(s) {
 
 function buildItem(item, index) {
     const el = document.createElement('div');
-    el.className = 'bi bi-' + item.type;
+    el.className = 'bi bi-' + item.type + (item.tone ? ' t-' + item.tone : '');
     el.style.left = item.x + 'px';
     el.style.top = item.y + 'px';
     el.style.width = item.w + 'px';
@@ -63,7 +63,6 @@ function buildItem(item, index) {
             '<span class="n-head">' + esc(item.head) + '</span>' +
             '<span class="n-body">' + esc(item.body) + '</span>';
     } else if (item.type === 'quote') {
-        if (item.dark) el.classList.add('q-dark');
         el.innerHTML =
             '<span class="q-text">' + esc(item.text) + '</span>' +
             '<span class="q-attr">' + esc(item.attr) + '</span>';

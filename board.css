@@ -184,21 +184,35 @@
     line-height: 1.34;
 }
 
+/* Full strength, never dimmed. Fading it to 0.72 read nicely on cream and
+   dropped the clay tone to 3.1:1 — that tone has only 4.9:1 to begin with, so
+   there is no headroom to spend. The hierarchy is size and tracking instead. */
 .bi-quote .q-attr {
     font-family: var(--jg-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-size: 11px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--jg-muted);
+    color: currentColor;
 }
 
-.bi-quote.q-dark {
-    background: rgba(34, 48, 46, 0.88);
-    color: var(--jg-paper);
-    border-color: rgba(255, 255, 255, 0.25);
-}
+/* ---------- tones ----------
+   A card is one of seven. Every pairing was measured against its own ground:
+   4.9:1 at worst (clay) and 12.0:1 at best (paper and ink).
 
-.bi-quote.q-dark .q-attr { color: rgba(242, 239, 228, 0.6); }
+   The dark tones sit close to the board's own grey — 1.3 to 1.8:1 — so they
+   read as cards by their edge and their shadow rather than by fill. There is
+   no colour that carries white type and also separates from a dark ground;
+   one or the other has to give, and the edge is what pays for it. */
+
+.t-paper     { background: #f2efe4; color: #2a2e2b; }
+.t-paperblue { background: #f2efe4; color: #2f5d8c; }
+.t-blue      { background: #2f5d8c; color: #f4f6f6; }
+.t-ink       { background: #22302e; color: #f2efe4; }
+.t-amber     { background: #e8a33d; color: #2a2e2b; }
+.t-teal      { background: #2b6f6b; color: #f4f6f6; }
+.t-clay      { background: #cf8b5e; color: #2a2e2b; }
+
+.t-blue, .t-ink, .t-teal { border-color: rgba(255, 255, 255, 0.3); }
 
 /* --- image --- */
 
