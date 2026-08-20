@@ -53,10 +53,13 @@
     left: 0;
     will-change: transform;
     transform-style: preserve-3d;
-    /* The grid motif, carried through from the rest of the site. */
+    /* The tile paints its own opaque ground. Without this the body's cloud
+       streaks and its screen-space grid show straight through the plane and
+       cross it at the wrong angle — three grids fighting at once. */
+    background-color: var(--jg-bg);
     background-image:
-        linear-gradient(rgba(42, 46, 43, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(42, 46, 43, 0.06) 1px, transparent 1px);
+        linear-gradient(rgba(42, 46, 43, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42, 46, 43, 0.055) 1px, transparent 1px);
     background-size: 65px 65px;
 }
 
@@ -192,9 +195,11 @@
     gap: 8px;
     padding: 18px;
     text-align: center;
-    background: transparent;
+    /* A wash rather than nothing: a transparent card reads as a hole in the
+       board rather than a slot waiting for an image. */
+    background: rgba(242, 239, 228, 0.28);
     border-style: dashed;
-    border-color: rgba(42, 46, 43, 0.4);
+    border-color: rgba(42, 46, 43, 0.38);
 }
 
 .bi-ph .ph-label {

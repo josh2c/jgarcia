@@ -238,3 +238,12 @@ body.jg {
     .jg-side-foot { margin-top: 1rem; }
     .jg-doc { margin-left: 0; padding-top: 0; }
 }
+
+
+/* The board and desktop paint their own ground, so the page-level sky — the
+   cloud streaks and the screen-space grid — must not show through the plane
+   underneath them. */
+body.board-page {
+    background-image: none;
+    background-color: var(--jg-bg);
+}
