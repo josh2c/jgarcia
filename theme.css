@@ -42,20 +42,24 @@
        which worked only while the thing behind them was the bare #3C4142
        ground. Now the board shows through everywhere, and white type on a
        white film over a cream card measures 1.00:1 — invisible. The same
-       panel has to survive both backdrops, and only a dark film does:
-       white type reads 13.9:1 over the ground and 7.1:1 over a cream card.
-       The blur and the light edges are what still make it glass. */
-    --glass:        rgba(24, 27, 28, 0.55);
-    --glass-strong: rgba(24, 27, 28, 0.66);
-    --glass-solid:  rgba(24, 27, 28, 0.80);
-    --glass-edge:   rgba(255, 255, 255, 0.22);
-    --glass-edge-soft: rgba(255, 255, 255, 0.13);
+       panel has to survive both backdrops, and only a dark film does.
+
+       It has to be a DEEP film, not a slight one. At 0.55 the panel came out
+       rgb(40,44,45) against a rgb(60,65,66) ground — 1.36:1, a panel you have
+       to look for. At 0.78 it is rgb(27,30,31) and the brighter edges carry
+       the rest. White type reads 15:1 over the ground, 10:1 over a cream
+       card. The blur and the light edges are what still make it glass. */
+    --glass:        rgba(18, 21, 22, 0.78);
+    --glass-strong: rgba(18, 21, 22, 0.86);
+    --glass-solid:  rgba(18, 21, 22, 0.93);
+    --glass-edge:   rgba(255, 255, 255, 0.28);
+    --glass-edge-soft: rgba(255, 255, 255, 0.16);
     --glass-blur:   saturate(180%) blur(22px);
     --glass-lift:   0 12px 34px rgba(0, 0, 0, 0.42);
     --glass-inset:  inset 0 1px 0 rgba(255, 255, 255, 0.16);
 
     /* Type on glass — white. Worst case is a panel over a cream board card:
-       7.1:1 at full weight, 5.5:1 at the soft weight. */
+       10:1 at full weight, 7.6:1 at the soft weight. */
     --on-glass:       #f4f6f6;
     --on-glass-soft:  rgba(244, 246, 246, 0.78);
     --on-glass-faint: rgba(244, 246, 246, 0.55);
@@ -316,6 +320,6 @@ body.board-page {
 /* Safari and Firefox without backdrop-filter get a solid fill instead of an
    unreadable transparent panel. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass { background: rgba(24, 27, 28, 0.82); }
-    .glass-strong { background: rgba(24, 27, 28, 0.9); }
+    .glass { background: rgba(18, 21, 22, 0.9); }
+    .glass-strong { background: rgba(18, 21, 22, 0.95); }
 }

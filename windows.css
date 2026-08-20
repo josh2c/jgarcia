@@ -26,17 +26,12 @@
     font-family: var(--jg-display);
     font-weight: 700;
     font-size: 0.95rem;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.02em;
     color: var(--on-glass);
     text-decoration: none;
-    border: 1px solid var(--glass-edge);
-    background: var(--glass-strong);
-    border-radius: var(--r-sm);
-    padding: 0.14rem 0.45rem;
     flex: none;
+    white-space: nowrap;
 }
-
-.mb-mark span { color: var(--jg-accent); }
 
 .mb-nav { display: flex; align-items: center; gap: clamp(0.6rem, 2vw, 1.5rem); }
 
@@ -127,17 +122,16 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.55rem 0.6rem 0.55rem 0.9rem;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
     border-bottom: 1px solid var(--glass-edge-soft);
-    box-shadow: inset 3px 0 0 transparent;
     cursor: grab;
     flex: none;
 }
 
-.win.is-focused .win-bar {
-    background: rgba(255, 255, 255, 0.09);
-    box-shadow: inset 3px 0 0 var(--jg-accent);
-}
+/* Focus is the bar lightening and the shadow deepening, nothing coloured. An
+   accent rule down the edge was doing the work of a highlight while reading as
+   a stray stripe. */
+.win.is-focused .win-bar { background: rgba(255, 255, 255, 0.16); }
 .win-bar:active { cursor: grabbing; }
 
 .win-title {
@@ -146,7 +140,9 @@
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--jg-ink);
+    /* The bar is dark glass now. Measured off a screenshot, ink on it was
+       1.43:1 unfocused and 3.35:1 focused; white is 12.9:1 and 9.6:1. */
+    color: var(--on-glass);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -162,7 +158,7 @@
     font-size: 0.7rem;
     line-height: 1;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.66);
     border: 1px solid var(--glass-edge);
     border-radius: var(--r-pill);
     color: var(--jg-ink);
