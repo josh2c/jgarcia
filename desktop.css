@@ -213,8 +213,7 @@ html { height: 100%; }
     color: var(--on-glass-soft);
 }
 
-.f-front svg,
-.dt-tool svg {
+.f-front svg {
     width: 46%;
     height: 46%;
     fill: none;
@@ -432,23 +431,6 @@ html { height: 100%; }
     opacity: 0.85;
 }
 
-.dt-tool {
-    width: 4.6rem;
-    height: 4.6rem;
-    border: 1px solid var(--glass-edge);
-    background: var(--glass);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    border-radius: var(--r-md);
-    box-shadow: var(--glass-lift), var(--glass-inset);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s linear, transform 0.15s ease-out;
-}
-
-.dt-icon:hover .dt-tool { background: var(--glass-strong); transform: translateY(-2px); }
-
 /* ---------- footer ---------- */
 
 .dt-foot {
@@ -635,7 +617,6 @@ html { height: 100%; }
    panels reading as objects rather than tints. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .dt-widget,
-    .dt-tool,
     .dt-trash-icon { background: rgba(255, 255, 255, 0.62); }
     .dt-trash-icon::before { background: rgba(255, 255, 255, 0.72); }
 }

@@ -56,14 +56,16 @@ const FOLDERS = [
         color: '#d97ba0',
         icon: "<rect x='2' y='7' width='20' height='11' rx='4'/><path d='M7 11v3M5.5 12.5h3'/><circle cx='16' cy='12' r='1'/><circle cx='18.5' cy='14.5' r='1'/>",
         title: 'Games',
-        body: 'Six minigames from Mind Override, a cognitive-training app I built in Flutter. Rebuilt here in plain JavaScript — same rules and scoring, without the XP ladder.',
+        body: 'Six minigames from Mind Override, a cognitive-training app I built in Flutter, rebuilt here in plain JavaScript — same rules and scoring, without the XP ladder. Plus a sketchpad and a game of Pong.',
         games: [
             { label: 'Light Squares', fn: 'lightSquares', meta: 'Visual memory' },
             { label: 'Pattern Spot', fn: 'patternSpot', meta: 'Perception' },
             { label: 'Quantum Count', fn: 'quantumCount', meta: 'Estimation' },
             { label: 'Word Flash', fn: 'wordFlash', meta: 'Verbal memory' },
             { label: 'Memory Match', fn: 'memoryMatch', meta: 'Recall' },
-            { label: 'Transform Puzzle', fn: 'transformPuzzle', meta: 'Logic' }
+            { label: 'Transform Puzzle', fn: 'transformPuzzle', meta: 'Logic' },
+            { label: 'Paint', fn: 'mountPaint', meta: 'Sketchpad', width: 560, height: 440 },
+            { label: 'Pong', fn: 'mountPong', meta: 'One paddle', width: 560, height: 420 }
         ]
     },
     {
@@ -79,13 +81,6 @@ const FOLDERS = [
 /* Real files from the Trezure asset set, sitting on the desktop. */
 /* Stroked glyphs, matching the folder tiles — emoji rendered as a second
    visual language sitting next to them. */
-const DOCK = [
-    { name: 'Paint', game: 'paint',
-      icon: "<path d='M15 4 20 9 9.5 19.5a3 3 0 0 1-1.5.8L4 21l.7-4a3 3 0 0 1 .8-1.5z'/><path d='M13.5 5.5 18.5 10.5'/>" },
-    { name: 'Pong', game: 'pong',
-      icon: "<rect x='3' y='4' width='18' height='16' rx='2'/><path d='M12 4v16M6 9v6M18 9v6'/>" }
-];
-
 /* ----------------------------------------------------------- rendering --- */
 
 function iconButton(id, label, className, inner, count) {
@@ -166,14 +161,6 @@ FOLDERS.forEach((f, i) => {
     iconsEl.appendChild(el);
 });
 
-DOCK.forEach((d, i) => {
-    const el = iconButton('tool:' + d.name, d.name, 'dt-dock-icon',
-        '<span class="dt-tool" aria-hidden="true">' +
-        '<svg viewBox="0 0 24 24">' + (d.icon || '') + '</svg></span>');
-    el.addEventListener('click', () => openGame(i));
-    iconsEl.appendChild(el);
-});
-
 const trashEl = iconButton('trash', 'Trash', 'dt-trash-icon-wrap',
     '<span class="dt-trash-icon" aria-hidden="true"></span>', 'empty');
 trashEl.addEventListener('click', emptyTrash);
@@ -209,9 +196,6 @@ function defaultLayout() {
             x: originX + (i % cols) * CELL,
             y: originY + Math.floor(i / cols) * (CELL + 16)
         };
-    });
-    DOCK.forEach((d, i) => {
-        out['tool:' + d.name] = { x: originX + i * CELL, y: window.innerHeight - CELL - 40 };
     });
     out.trash = { x: window.innerWidth - CELL - 40, y: window.innerHeight - CELL - 40 };
     // Where the widgets used to sit by CSS, now as real layout entries.
@@ -506,31 +490,21 @@ function openFolder(i) {
 /* Mind Override. The module fills the window body and hands back a cleanup,
  * which the window manager runs on close — these carry timers and an animation
  * loop, so a closed window still running would be a real leak. */
+/* Two sources: the Mind Override ports live on their own namespace, Paint and
+ * Pong are plain globals from games.js. Looked up at click time rather than at
+ * load, since script order is not something a folder entry should have to know
+ * about. */
 function launchGame(g) {
     const W = window.jgWindows;
-    const games = window.jgMindOverride;
-    if (!W || !games || !games[g.fn]) return;
+    const mount = (window.jgMindOverride && window.jgMindOverride[g.fn]) || window[g.fn];
+    if (!W || typeof mount !== 'function') return;
     W.open({
-        id: 'mo:' + g.fn,
+        id: 'game:' + g.fn,
         title: g.label,
-        width: 660,
-        height: 620,
-        mount: (body) => games[g.fn](body)
+        width: g.width || 660,
+        height: g.height || 620,
+        mount: (body) => mount(body)
     });
-}
-
-function openGame(i) {
-    const d = DOCK[i];
-    const W = window.jgWindows;
-    if (!W) return;
-    if (d.game === 'pong' && typeof mountPong === 'function') {
-        W.open({ id: 'game:pong', title: 'Pong', width: 560, height: 420, mount: mountPong });
-        return;
-    }
-    if (d.game === 'paint' && typeof mountPaint === 'function') {
-        W.open({ id: 'game:paint', title: 'Paint', width: 560, height: 440, mount: mountPaint });
-        return;
-    }
 }
 
 /* Paintball lives in the menubar because it is the one control that has to

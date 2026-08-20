@@ -104,9 +104,14 @@ try {
     rects();
 
     const draggables = surface().querySelectorAll('.dt-drag');
-    ok('everything on the desktop is draggable', draggables.length >= 11, draggables.length + ' items');
-    ok('including both widgets',
-        !!byId('widget:clock') && !!byId('widget:readme'));
+    const folders = draggables.filter((e) => (e.dataset.id || '').startsWith('folder:'));
+    ok('every folder is draggable', folders.length === 6, folders.length + ' folders');
+    ok('so are both widgets and the trash',
+        !!byId('widget:clock') && !!byId('widget:readme') && !!byId('trash'));
+    ok('and nothing else is left loose on the desktop',
+        draggables.length === folders.length + 3, draggables.length + ' draggables in total');
+    ok('the dock is gone; Paint and Pong live in the folder',
+        !draggables.some((e) => (e.dataset.id || '').startsWith('tool:')));
     ok('the readme drags by its title bar only',
         byId('widget:readme').dataset.handle === '.dt-pad-bar');
 

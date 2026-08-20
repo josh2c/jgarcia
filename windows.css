@@ -2,29 +2,40 @@
 
 /* ---------- menubar ---------- */
 
-/* A floating bar, not a strip welded to the top edge. It sits inset on all
-   three sides with a full rounded border, the way a tiling-WM panel does — the
-   gap around it is the whole effect, because it is what makes the bar read as
-   an object on the desktop rather than a browser chrome. */
+/* Two detached pills, not one bar spanning the window. The menubar itself is
+   just the strip they live in — no background, and click-through, so the gap
+   between them belongs to whatever is underneath rather than swallowing
+   pointer events across the whole width. */
 .menubar {
     position: fixed;
     z-index: 200;
     top: 0.65rem;
     left: 0.65rem;
     right: 0.65rem;
-    height: 2.6rem;
     display: flex;
     align-items: center;
-    gap: clamp(0.6rem, 2vw, 1.6rem);
-    padding: 0 0.5rem 0 0.85rem;
+    justify-content: space-between;
+    gap: 0.65rem;
+    pointer-events: none;
+    color: var(--on-glass);
+}
+
+.mb-group {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.55rem, 1.6vw, 1.3rem);
+    height: 2.6rem;
+    padding: 0 0.85rem;
     background: var(--glass);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-edge-soft);
     border-radius: 13px;
     box-shadow: var(--glass-lift), var(--glass-inset);
-    color: var(--on-glass);
+    pointer-events: auto;
 }
+
+.mb-right { padding: 0 0.45rem; gap: 0.35rem; }
 
 
 
@@ -81,19 +92,6 @@
 /* Paintball. A mode over the whole page, so it sits with the view control
    rather than in the desktop dock — the dock is gone the moment you enter the
    board, which is exactly where you want to be shooting. */
-/* The controls sit in their own recessed tray, so the bar reads as two groups
-   rather than one row of loose buttons. */
-.mb-right {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-left: auto;
-    padding: 0.2rem 0.25rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--glass-edge-soft);
-    border-radius: 10px;
-}
-
 .mb-tool {
     display: inline-flex;
     align-items: center;

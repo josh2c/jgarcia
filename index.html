@@ -21,12 +21,14 @@
 
     <!-- One menubar across the top, present in both layers. -->
     <nav class="menubar">
-        <a class="mb-mark" href="#" data-leave-board>Josh Garcia</a>
-        <div class="mb-nav">
-            <a href="#" id="mb-desktop" class="is-current" data-leave-board>Desktop</a>
-            <a href="#" id="mb-board" data-enter-board>Board</a>
+        <div class="mb-group mb-left">
+            <a class="mb-mark" href="#" data-leave-board>Josh Garcia</a>
+            <div class="mb-nav">
+                <a href="#" id="mb-desktop" class="is-current" data-leave-board>Desktop</a>
+                <a href="#" id="mb-board" data-enter-board>Board</a>
+            </div>
         </div>
-        <div class="mb-right">
+        <div class="mb-group mb-right">
             <button type="button" id="mb-paintball" class="mb-tool" aria-pressed="false"
                     title="Shoot the page. Esc to stop.">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
