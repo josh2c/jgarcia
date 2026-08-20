@@ -177,11 +177,64 @@
     padding: 24px 26px;
 }
 
+/* ---------- faces ----------
+   Not one voice repeated 39 times. A card's face comes from how much there is
+   to say — a four-word line gets set enormous, a long one gets set small and
+   quiet — and its size is solved per card rather than per face, because one
+   coefficient for a whole group has to satisfy the tightest card in it and
+   wastes every card that is roomier.
+
+   --q-size is written per card by board.js, from a wrap simulation that checks
+   the line count and the attribution against the actual box. */
+
 .bi-quote .q-text {
     font-family: var(--jg-display);
-    font-size: 21px;
+    font-size: var(--q-size, 21px);
     font-weight: 500;
     line-height: 1.34;
+}
+
+/* Four words, set as loud as the card allows. */
+.q-shout .q-text {
+    font-family: 'Anton', var(--jg-display), sans-serif;
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.005em;
+    text-transform: uppercase;
+}
+
+.q-script .q-text {
+    font-family: 'Caveat', var(--jg-display), cursive;
+    font-weight: 700;
+    line-height: 1.05;
+}
+
+/* Centred and letterspaced — the one that reads as a statement rather than
+   as a caption. */
+.q-caps {
+    align-items: center;
+    text-align: center;
+}
+
+.q-caps .q-text {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.q-serif .q-text {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.18;
+}
+
+.q-display .q-text {
+    font-family: var(--jg-display), sans-serif;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 /* Full strength, never dimmed. Fading it to 0.72 read nicely on cream and

@@ -45,7 +45,11 @@ function esc(s) {
 
 function buildItem(item, index) {
     const el = document.createElement('div');
-    el.className = 'bi bi-' + item.type + (item.tone ? ' t-' + item.tone : '');
+    el.className = 'bi bi-' + item.type +
+        (item.tone ? ' t-' + item.tone : '') +
+        (item.face ? ' q-' + item.face : '');
+    // Solved per card in boarddata.js, not chosen here.
+    if (item.fs) el.style.setProperty('--q-size', item.fs + 'px');
     el.style.left = item.x + 'px';
     el.style.top = item.y + 'px';
     el.style.width = item.w + 'px';
