@@ -151,6 +151,13 @@ function render() {
 
 /* A slow diagonal drift, so the board is alive behind the desktop without
  * being busy. Stops the moment you enter. */
+function markMenubar(which) {
+    const d = document.getElementById('mb-desktop');
+    const b = document.getElementById('mb-board');
+    if (d) d.classList.toggle('is-current', which === 'desktop');
+    if (b) b.classList.toggle('is-current', which === 'board');
+}
+
 function startDrift() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const step = () => {
@@ -169,6 +176,7 @@ function enterBoard(instant) {
     drifting = false;
     document.body.classList.remove('is-desktop');
     document.body.classList.add('is-board');
+    markMenubar('board');
 
     coverageIso = true;      // widen coverage BEFORE the tip, or corners tear
     render();
@@ -191,6 +199,7 @@ function leaveBoard() {
     entered = false;
     document.body.classList.remove('is-board');
     document.body.classList.add('is-desktop');
+    markMenubar('desktop');
     document.body.classList.add('is-entering');
     setView('flat');
     setTimeout(() => {
@@ -345,74 +354,31 @@ function hideHint() {
 setTimeout(hideHint, 9000);
 
 /* -------------------------------------------------------------- window --- */
-
-const win = document.getElementById('window');
-const scrim = document.getElementById('scrim');
-const winTitle = document.getElementById('window-title');
-const winBody = document.getElementById('window-body');
-let cleanup = null;
+/* Cards open in the shared window manager. Loaded before this module, so it
+ * is available immediately. */
 
 function openItem(item) {
-    if (!item) return;
-    closeWindow();
-
-    // Unhide first: the games size their canvas off the body width, which is
-    // 0 while the window is still hidden.
-    win.hidden = false;
-    scrim.hidden = false;
+    const W = window.jgWindows;
+    if (!item || !W) return;
 
     if (item.type === 'img') {
-        winTitle.textContent = item.title;
-        winBody.innerHTML = '<img src="' + item.src + '" alt="' + esc(item.alt) + '">' +
-            '<p class="bw-note">' + esc(item.body) + '</p>';
+        W.open({ id: 'img:' + item.src, title: item.title, width: 460, height: 420,
+                 html: '<img src="' + item.src + '" alt="' + esc(item.alt) + '">' +
+                       '<p class="bw-note">' + esc(item.body) + '</p>' });
         return;
     }
 
     if (item.type === 'note') {
-        winTitle.textContent = item.num + ' ' + item.title;
-        winBody.innerHTML = '<p><strong>' + esc(item.head) + '</strong></p><p>' + esc(item.body) + '</p>';
+        W.open({ id: 'note:' + item.num, title: item.num + ' ' + item.title, width: 480, height: 320,
+                 html: '<p><strong>' + esc(item.head) + '</strong></p><p>' + esc(item.body) + '</p>' });
         return;
     }
 
-    if (item.type === 'quote') {
-        winTitle.textContent = item.attr;
-        winBody.innerHTML = '<p>' + esc(item.text) + '</p>' +
-            (item.href ? '<p><a href="' + item.href + '">Read the post →</a></p>' : '');
+    if (item.type === 'quote' && item.href) {
+        // A quote is a doorway to the post it came from.
+        if (window.jgReader) window.jgReader.openPost(item.href, item.attr);
     }
 }
-
-function closeWindow() {
-    if (cleanup) { cleanup(); cleanup = null; }
-    winBody.innerHTML = '';
-    win.hidden = true;
-    scrim.hidden = true;
-}
-
-window.jgWindow = {
-    open(title, html) {
-        closeWindow();
-        winTitle.textContent = title;
-        win.hidden = false;
-        scrim.hidden = false;
-        winBody.innerHTML = html;
-    },
-    /* For content that needs the body sized before it mounts — the games size
-     * their canvas off it, and it measures 0 while hidden. */
-    mount(title, fn) {
-        closeWindow();
-        winTitle.textContent = title;
-        win.hidden = false;
-        scrim.hidden = false;
-        cleanup = fn(winBody) || null;
-    },
-    close: closeWindow
-};
-
-document.getElementById('window-close').addEventListener('click', closeWindow);
-scrim.addEventListener('click', closeWindow);
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !win.hidden) closeWindow();
-});
 
 /* -------------------------------------------------------------------- go --- */
 

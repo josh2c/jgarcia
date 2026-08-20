@@ -597,7 +597,7 @@ html { height: 100%; }
 
 /* Armed: the page becomes a target, but the rail and dock stay usable. */
 .is-armed { cursor: crosshair; }
-.is-armed .jg-side,
+.is-armed .menubar,
 .is-armed .dt-dock,
 .is-armed .dt-nav { cursor: default; }
 

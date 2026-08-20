@@ -11,11 +11,29 @@
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="board.css">
     <link rel="stylesheet" href="desktop.css">
+    <link rel="stylesheet" href="windows.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="jg board-page desktop-page is-desktop">
+
+    <!-- One menubar across the top, present in both layers. -->
+    <nav class="menubar">
+        <a class="mb-mark" href="#" data-leave-board>J<span>G</span></a>
+        <div class="mb-nav">
+            <a href="#" id="mb-desktop" class="is-current" data-leave-board>Desktop</a>
+            <a href="#" id="mb-board" data-enter-board>Board</a>
+            <button type="button" id="mb-thoughts">Thoughts</button>
+            <a href="pitch.html">Pitch Deck</a>
+        </div>
+        <div class="mb-right">
+            <div class="mb-view" role="group" aria-label="Board view">
+                <button type="button" class="bv-btn is-current" data-view="iso">Iso</button>
+                <button type="button" class="bv-btn" data-view="flat">Flat</button>
+            </div>
+        </div>
+    </nav>
 
     <!-- The board is the ground. The desktop is furniture standing on it. -->
     <div class="board-viewport" id="viewport">
@@ -77,45 +95,10 @@
     </div>
 
     <!-- ---------- board layer ---------- -->
-    <aside class="jg-side board-side" id="rail">
-        <a href="#" class="jg-logo" data-leave-board>J<span class="a-r">G</span></a>
-        <p class="jg-side-name">Josh Garcia<br>Technology,<br>Design &amp; Marketing</p>
-        <nav class="jg-nav">
-            <a href="#" data-leave-board>Desktop</a>
-            <a href="#" class="is-current" data-enter-board>Board</a>
-            <a href="blog.html">Thoughts</a>
-            <a href="pitch.html">Pitch Deck</a>
-        </nav>
-        <div>
-            <p class="jg-side-label">View</p>
-            <div class="board-view" role="group" aria-label="Board view">
-                <button type="button" class="bv-btn is-current" data-view="iso">Iso</button>
-                <span class="bv-sep" aria-hidden="true">→</span>
-                <button type="button" class="bv-btn" data-view="flat">Flat</button>
-            </div>
-        </div>
-        <div class="jg-side-foot">
-            <p class="jg-side-label">Elsewhere</p>
-            <nav class="jg-nav">
-                <a href="https://playtrezure.com" target="_blank" rel="noopener noreferrer">Trezure</a>
-                <a href="https://busycabgame.com" target="_blank" rel="noopener noreferrer">Busy Cab</a>
-                <a href="https://bemorelabz.com" target="_blank" rel="noopener noreferrer">Bemore Labz</a>
-                <a href="https://github.com/josh2c/skills" target="_blank" rel="noopener noreferrer">Skills</a>
-            </nav>
-        </div>
-    </aside>
 
     <p class="board-hint" id="hint">Drag to explore · click a card</p>
 
-    <!-- shared by both layers -->
-    <div class="dt-window" id="window" hidden>
-        <div class="dt-window-bar">
-            <span class="dt-window-title" id="window-title"></span>
-            <button class="dt-window-close" id="window-close" aria-label="Close">✕</button>
-        </div>
-        <div class="dt-window-body" id="window-body"></div>
-    </div>
-    <div class="dt-scrim" id="scrim" hidden></div>
+
 
     <!-- shown only while the marker is armed -->
     <div class="pb-exit">
@@ -124,6 +107,8 @@
         <button type="button" id="pb-stop">Esc</button>
     </div>
 
+    <script src="windows.js"></script>
+    <script src="reader.js"></script>
     <script src="games.js"></script>
     <script type="module" src="board.js"></script>
     <script src="paintball.js"></script>

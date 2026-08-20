@@ -40,7 +40,7 @@ const FOLDERS = [
         name: 'Thoughts',
         title: 'Thoughts',
         body: 'Twenty-two posts on innovation, leadership, productivity and sport.',
-        links: [{ label: 'Read the blog', href: 'blog.html', meta: '22 posts' }]
+        reader: true
     },
     {
         name: 'Elsewhere',
@@ -129,32 +129,44 @@ function loadSkills(host) {
 }
 
 /* -------------------------------------------------------------- window --- */
-/* The window lives in board.js and is shared by both layers. This script is a
- * classic <script> so it runs before that module; the API is reached lazily at
- * click time, by which point it exists. */
-
-function win() { return window.jgWindow; }
+/* Folders open in the shared window manager, several at a time. */
 
 function openFolder(i) {
     const f = FOLDERS[i];
-    const links = f.links.map((l) => {
+    const W = window.jgWindows;
+    if (!W) return;
+
+    // Thoughts is the blog itself, read in place.
+    if (f.reader) { if (window.jgReader) window.jgReader.openBlog(); return; }
+
+    const links = (f.links || []).map((l) => {
         const ext = /^https?:/.test(l.href);
         return '<li><a href="' + l.href + '"' +
             (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
             '<span>' + l.label + (ext ? ' \u2192' : '') + '</span>' +
             '<span class="dt-link-meta">' + l.meta + '</span></a></li>';
     }).join('');
-    if (!win()) return;
-    win().open(f.title, '<p>' + f.body + '</p><ul class="dt-links">' + links + '</ul>' +
-        (f.skills ? '<div id="skills-list"></div>' : ''));
-    if (f.skills) loadSkills(document.getElementById('skills-list'));
+
+    W.open({
+        id: 'folder:' + f.name,
+        title: f.title,
+        width: 560,
+        height: 400,
+        mount: (body) => {
+            body.innerHTML = '<p>' + f.body + '</p><ul class="dt-links">' + links + '</ul>' +
+                (f.skills ? '<div id="skills-list"></div>' : '');
+            if (f.skills) loadSkills(body.querySelector('#skills-list'));
+        }
+    });
 }
 
 function openFile(i) {
     const f = FILES[i];
-    if (!win()) return;
-    win().open(f.title, '<img src="' + f.src + '" alt="' + f.title + '">' +
-        '<p class="bw-note">' + f.body + '</p>');
+    const W = window.jgWindows;
+    if (!W) return;
+    W.open({ id: 'file:' + f.src, title: f.title, width: 420, height: 400,
+             html: '<img src="' + f.src + '" alt="' + f.title + '">' +
+                   '<p class="bw-note">' + f.body + '</p>' });
 }
 
 function openGame(i) {
@@ -164,15 +176,22 @@ function openGame(i) {
         if (window.jgPaintball) window.jgPaintball.toggle();
         return;
     }
-    if (!win()) return;
-    if (d.game === 'pong' && typeof mountPong === 'function') { win().mount(d.name, mountPong); return; }
-    if (d.game === 'paint' && typeof mountPaint === 'function') { win().mount(d.name, mountPaint); return; }
-    win().open(d.name, '<p>' + d.name + ' is not wired up yet.</p>');
+    const W = window.jgWindows;
+    if (!W) return;
+    if (d.game === 'pong' && typeof mountPong === 'function') {
+        W.open({ id: 'game:pong', title: 'Pong', width: 560, height: 420, mount: mountPong });
+        return;
+    }
+    if (d.game === 'paint' && typeof mountPaint === 'function') {
+        W.open({ id: 'game:paint', title: 'Paint', width: 560, height: 440, mount: mountPaint });
+        return;
+    }
 }
 
 document.getElementById('trash').addEventListener('click', () => {
-    if (!win()) return;
-    win().open('Trash', '<p>Empty.</p><p class="bw-note">Nothing thrown away yet.</p>');
+    if (!window.jgWindows) return;
+    window.jgWindows.open({ id: 'trash', title: 'Trash', width: 380, height: 220,
+        html: '<p>Empty.</p><p class="bw-note">Nothing thrown away yet.</p>' });
 });
 
 /* The hero is the way in: the board is already behind the desktop, so this
@@ -186,6 +205,10 @@ if (heroEl) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.jgEnterBoard && window.jgEnterBoard(); }
     });
 }
+
+/* Menubar entries that need script. */
+const mbThoughts = document.getElementById('mb-thoughts');
+if (mbThoughts) mbThoughts.addEventListener('click', () => window.jgReader && window.jgReader.openBlog());
 
 /* --------------------------------------------------------------- clock --- */
 

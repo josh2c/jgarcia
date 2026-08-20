@@ -194,7 +194,7 @@
     function onDown(e) {
         if (!armed || e.button !== 0) return;
         // The rail and dock stay usable so you can disarm without a keyboard.
-        if (e.target.closest('.jg-side, .dt-dock, .dt-nav, .dt-window, .pb-exit')) return;
+        if (e.target.closest('.menubar, .dt-dock, .win, .pb-exit')) return;
         e.preventDefault();
         firing = true;
         lastFire = 0;
