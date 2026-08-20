@@ -77,44 +77,41 @@ html { height: 100%; }
     color: var(--on-glass);
 }
 
-/* Folder as a frosted tile with a tab, rather than a drawn paper folder. */
+/* A rounded frosted tile with a glyph — the reference is Control Centre, not
+   a paper folder. The tab version seamed badly where the two borders met. */
 .dt-folder {
     position: relative;
-    width: 4.9rem;
-    height: 3.8rem;
-}
-
-.dt-folder::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 55%;
-    height: 0.6rem;
-    background: var(--dt-folder-a);
-    border: 2px solid var(--dt-ink);
-    border-bottom: 0;
-    border-radius: 3px 8px 0 0;
-}
-
-.dt-folder::after {
-    content: '';
-    position: absolute;
-    top: 0.6rem;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    display: grid;
+    place-items: center;
+    width: 4.6rem;
+    height: 4.6rem;
     background: var(--glass);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-edge);
     border-radius: var(--r-md);
     box-shadow: var(--glass-lift), var(--glass-inset);
+    transition: background 0.15s linear, transform 0.15s ease-out;
 }
 
-.dt-icon:hover .dt-folder::after { background: var(--glass-strong); }
+.dt-folder svg,
+.dt-tool svg {
+    width: 46%;
+    height: 46%;
+    fill: none;
+    stroke: var(--on-glass);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+}
 
-/* ---------- hero ---------- */
+.dt-icon:hover .dt-folder {
+    background: var(--glass-strong);
+    transform: translateY(-2px);
+}
+
+.dt-icon:hover /* ---------- hero ---------- */
 
 .dt-hero {
     position: absolute;
@@ -296,44 +293,64 @@ html { height: 100%; }
 
 .dt-trash:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--glass-edge-soft); }
 
-/* A bin: tapered body plus a lid bar. */
+/* A tile like the others, with the bin drawn inside it rather than the tile
+   itself being bin-shaped — a clip-path cannot carry a rounded glass edge. */
 .dt-trash-icon {
     position: relative;
     display: block;
-    width: 2.6rem;
-    height: 3rem;
+    width: 4.6rem;
+    height: 4.6rem;
     background: var(--glass);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-edge);
-    clip-path: polygon(12% 0, 88% 0, 78% 100%, 22% 100%);
+    border-radius: var(--r-md);
+    box-shadow: var(--glass-lift), var(--glass-inset);
+    transition: background 0.15s linear, transform 0.15s ease-out;
+}
+
+.dt-trash:hover .dt-trash-icon { background: var(--glass-strong); transform: translateY(-2px); }
+
+/* bin body */
+.dt-trash-icon::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    width: 1.5rem;
+    height: 1.6rem;
+    border: 1.7px solid var(--on-glass);
+    border-top: 0;
+    border-radius: 0 0 5px 5px;
+    opacity: 0.85;
 }
 
 .dt-trash-icon::before {
     content: '';
     position: absolute;
-    top: -0.45rem;
-    left: -0.35rem;
-    right: -0.35rem;
-    height: 0.45rem;
-    background: var(--glass-strong);
-    border: 1px solid var(--glass-edge);
-    border-radius: var(--r-sm);
+    left: 50%;
+    top: 34%;
+    transform: translate(-50%, -50%);
+    width: 2rem;
+    height: 1.7px;
+    background: var(--on-glass);
+    border-radius: 2px;
+    opacity: 0.85;
 }
 
 .dt-tool {
-    width: 4.4rem;
-    height: 4.4rem;
+    width: 4.6rem;
+    height: 4.6rem;
     border: 1px solid var(--glass-edge);
     background: var(--glass);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
-    border-radius: var(--r-pill);
+    border-radius: var(--r-md);
     box-shadow: var(--glass-lift), var(--glass-inset);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
     transition: background 0.15s linear, transform 0.15s ease-out;
 }
 
@@ -452,16 +469,19 @@ html { height: 100%; }
     transition: opacity 380ms ease-out;
 }
 
-/* A soft light behind the hero so the blue dice do not sink into the blue. */
+/* Soft colour fields over the gradient. Without these the glass has nothing to
+   blur — a blurred flat gradient is the same flat gradient, so the panels read
+   as tints rather than frosted material. Also lifts the dice off the ground. */
 .dt-veil::after {
     content: '';
     position: absolute;
-    left: 50%;
-    top: 44%;
-    width: min(58rem, 90vw);
-    height: min(34rem, 60vh);
-    transform: translate(-50%, -50%);
-    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.34), transparent 72%);
+    inset: 0;
+    background:
+        radial-gradient(38rem 26rem at 50% 44%, rgba(255, 255, 255, 0.42), transparent 70%),
+        radial-gradient(26rem 26rem at 12% 16%, rgba(255, 245, 214, 0.55), transparent 68%),
+        radial-gradient(30rem 24rem at 88% 26%, rgba(122, 214, 255, 0.45), transparent 70%),
+        radial-gradient(24rem 22rem at 78% 82%, rgba(255, 190, 150, 0.38), transparent 68%),
+        radial-gradient(28rem 22rem at 18% 88%, rgba(150, 240, 205, 0.45), transparent 70%);
 }
 
 .is-board .dt-veil { opacity: 0; }
@@ -590,10 +610,9 @@ html { height: 100%; }
    unchanged, only the blur is missing — but a touch more body keeps the
    panels reading as objects rather than tints. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .dt-folder::after,
+    .dt-folder,
     .dt-widget,
     .dt-tool,
     .dt-trash-icon { background: rgba(255, 255, 255, 0.62); }
-    .dt-folder::before,
     .dt-trash-icon::before { background: rgba(255, 255, 255, 0.72); }
 }

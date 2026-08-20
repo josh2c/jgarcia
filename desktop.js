@@ -9,6 +9,7 @@
 const FOLDERS = [
     {
         name: 'Products',
+        icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
         title: 'Products',
         body: 'Things I build and run myself.',
         links: [
@@ -20,6 +21,7 @@ const FOLDERS = [
     },
     {
         name: 'Client Work',
+        icon: "<rect x='3' y='7' width='18' height='13' rx='2'/><path d='M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 12h18'/>",
         title: 'Client Work',
         body: 'Sites I have designed and built for other people.',
         links: [
@@ -31,6 +33,7 @@ const FOLDERS = [
     },
     {
         name: 'Skills',
+        icon: "<path d='M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16'/>",
         title: 'Skills',
         body: 'Agent skills I have written, installable as a Claude Code plugin.',
         skills: true,
@@ -38,12 +41,14 @@ const FOLDERS = [
     },
     {
         name: 'Thoughts',
+        icon: "<path d='M4 5h16M4 10h16M4 15h11M4 20h7'/>",
         title: 'Thoughts',
         body: 'Twenty-two posts on innovation, leadership, productivity and sport.',
         reader: true
     },
     {
         name: 'Elsewhere',
+        icon: "<path d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z'/><path d='M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18'/>",
         title: 'Elsewhere',
         body: 'Where else to find me.',
         links: [{ label: 'Twitter / X', href: 'https://x.com/0talentt', meta: '@0talentt' }]
@@ -58,10 +63,15 @@ const FILES = [
       body: 'The Trezure mark.' }
 ];
 
+/* Stroked glyphs, matching the folder tiles — emoji rendered as a second
+   visual language sitting next to them. */
 const DOCK = [
-    { name: 'Paint', glyph: '🖌', game: 'paint' },
-    { name: 'Pong', glyph: '🏓', game: 'pong' },
-    { name: 'Paintball', glyph: '🎯', mode: 'paintball' }
+    { name: 'Paint', game: 'paint',
+      icon: "<path d='M15 4 20 9 9.5 19.5a3 3 0 0 1-1.5.8L4 21l.7-4a3 3 0 0 1 .8-1.5z'/><path d='M13.5 5.5 18.5 10.5'/>" },
+    { name: 'Pong', game: 'pong',
+      icon: "<rect x='3' y='4' width='18' height='16' rx='2'/><path d='M12 4v16M6 9v6M18 9v6'/>" },
+    { name: 'Paintball', mode: 'paintball',
+      icon: "<circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='3.4'/><path d='M12 2v3M12 19v3M2 12h3M19 12h3'/>" }
 ];
 
 /* ----------------------------------------------------------- rendering --- */
@@ -76,7 +86,9 @@ function iconButton(label, className, inner) {
 
 const foldersEl = document.getElementById('folders');
 FOLDERS.forEach((f, i) => {
-    const el = iconButton(f.name, 'dt-folder-icon', '<span class="dt-folder" aria-hidden="true"></span>');
+    const el = iconButton(f.name, 'dt-folder-icon',
+        '<span class="dt-folder" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24">' + (f.icon || '') + '</svg></span>');
     el.addEventListener('click', () => openFolder(i));
     foldersEl.appendChild(el);
 });
@@ -92,7 +104,8 @@ FILES.forEach((f, i) => {
 const dockEl = document.getElementById('dock');
 DOCK.forEach((d, i) => {
     const el = iconButton(d.name, 'dt-dock-icon',
-        '<span class="dt-tool" aria-hidden="true">' + d.glyph + '</span>');
+        '<span class="dt-tool" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24">' + (d.icon || '') + '</svg></span>');
     el.addEventListener('click', () => openGame(i));
     dockEl.appendChild(el);
 });
