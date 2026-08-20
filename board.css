@@ -79,15 +79,19 @@
        streaks and its screen-space grid show straight through the plane and
        cross it at the wrong angle — three grids fighting at once. */
     background-color: var(--jg-bg);
-    /* Same ground as the desktop. Only the grid marks it as a plane.
-       The size is CELL from boarddata.js and the tile is a whole number of
-       them, so the lines run unbroken across every seam — at 72px against a
-       3050px tile they used to restart at each one. */
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
-    background-size: 380px 380px;
 }
+
+/* The tracks are all different sizes, so the lines are elements rather than a
+   repeating gradient. The last line of each axis is skipped: it is the tile's
+   own edge, and the next tile draws it as its first. */
+.board-line {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.055);
+    pointer-events: none;
+}
+
+.board-line-v { top: 0; bottom: 0; width: 1px; }
+.board-line-h { left: 0; right: 0; height: 1px; }
 
 /* ---------- cards ---------- */
 

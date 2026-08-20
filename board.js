@@ -9,7 +9,7 @@
  * plane into isometric — one page throughout, no navigation.
  */
 
-import { ITEMS, TILE_W, TILE_H, HOME_X, HOME_Y } from './boarddata.js';
+import { ITEMS, COL_W, ROW_H, TILE_W, TILE_H, HOME_X, HOME_Y } from './boarddata.js';
 
 /* Screen<->board mapping for `rotateX(60deg) rotateZ(-45deg)`:
  *   sx = (bx + by) * SX
@@ -89,11 +89,35 @@ function buildItem(item, index) {
     return el;
 }
 
+/* The grid is drawn, not tiled. Every column has its own width and every row
+ * its own height, so a repeating background gradient cannot describe it — and
+ * a gradient at a size that does not divide the tile is what made the lines
+ * restart at every seam before. Cumulative offsets cannot drift. */
+function buildGrid(tile) {
+    let x = 0;
+    for (const w of COL_W.slice(0, -1)) {
+        x += w;
+        const el = document.createElement('span');
+        el.className = 'board-line board-line-v';
+        el.style.left = x + 'px';
+        tile.appendChild(el);
+    }
+    let y = 0;
+    for (const h of ROW_H.slice(0, -1)) {
+        y += h;
+        const el = document.createElement('span');
+        el.className = 'board-line board-line-h';
+        el.style.top = y + 'px';
+        tile.appendChild(el);
+    }
+}
+
 function buildTile() {
     const tile = document.createElement('div');
     tile.className = 'board-tile';
     tile.style.width = TILE_W + 'px';
     tile.style.height = TILE_H + 'px';
+    buildGrid(tile);
     ITEMS.forEach((item, i) => tile.appendChild(buildItem(item, i)));
     return tile;
 }

@@ -3,124 +3,139 @@
  * Projects, skills and the games live on the desktop; this holds voice,
  * images, colour and things worth looking at.
  *
- * Every piece sits in one square of a CELL grid, 10 columns by 7 rows to a
- * tile, inset by a 20px gutter so the line always shows between neighbours.
- * Nothing is rotated and nothing spans two cells: x/y are always
- * col * CELL + 20 and row * CELL + 20, and w/h are always CELL - 40.
+ * The layout is an editorial grid rather than a repeating module: COL_W and
+ * ROW_H give every column its own width and every row its own height, and a
+ * piece may span several of either. So a piece's proportions depend on where
+ * it sits, not only on how many cells it takes — which is what lets a portrait
+ * photo, a wide engraving and a square logo each fill their frame instead of
+ * being letterboxed into one shared square.
  *
- * The tile is an exact multiple of CELL in both axes. It has to be — the tile
- * repeats, so a cell that doesn't divide it makes the grid jump at the seam.
+ * Nothing is rotated and every piece is inset by GUT, so a line always shows
+ * between neighbours. x/y/w/h are generated from col/row/span, never hand-set.
  *
- * Placement is generated rather than hand-set: pieces are scattered so no two
- * of a type touch, no patch of squares is left dead, and no run of them reads
- * as a wall. Roughly half the squares stay empty on purpose.
+ * The tile is the exact sum of the tracks. It has to be — the tile repeats, so
+ * anything else makes the grid jump at the seam, and no piece may hang over an
+ * edge or it would collide with the next tile's contents.
+ *
+ * Placement is solved, not arranged: pieces are scattered so no two of a type
+ * touch and no patch of the board is left dead, while every image is pulled
+ * toward a cell shaped like the image. It settles with the scatter clean and
+ * every picture filling 97-100% of its frame.
  *
  * Types: note (written section) · quote · img · swatch · ph
  */
 
-export const CELL = 380;
-export const TILE_W = 3800;
-export const TILE_H = 2660;
+export const COL_W = [300, 460, 380, 540, 340, 400, 300, 480, 360, 420, 320, 440];
+export const ROW_H = [340, 420, 300, 460, 400, 300, 420, 340, 380];
+export const GUT = 22;
+export const TILE_W = 4740;
+export const TILE_H = 3360;
 
 /* Where the camera rests, and where the dice piece stands. Entering aligns the
  * hero with this exact point so the dice appears not to move — the board tips
  * into place around it. */
-export const HOME_X = 1710;
-export const HOME_Y = 1330;
+export const HOME_X = 2220;
+export const HOME_Y = 1720;
 
 const RAW = [
     /* The dice: a piece standing ON the board rather than a card lying on it.
        Centred on HOME so it is where the desktop hero already was. */
-    { type: 'piece', x: HOME_X - 170, y: HOME_Y - 170, w: 340, h: 340,
+    { type: 'piece', x: HOME_X - 178, y: HOME_Y - 178, w: 356, h: 356,
       src: 'board/img/dice.webp', alt: 'Dice' },
 
     /* ---- row 1 ------------------------------------------------------- */
-    { type: 'note', x:   20, y:  400, w: 340, h: 340, num: '01', title: 'About',
+    { type: 'note', x:  782, y:  362, w:  876, h:  676, num: '01', title: 'About',
       head: 'A creative who codes, designs, and thinks big.',
       body: 'I build things end to end — the product, the look, and the way it gets talked about.' },
-    { type: 'quote', x: 1920, y: 1540, w: 340, h: 340,
+    { type: 'quote', x: 3582, y: 2662, w:  376, h:  296,
       text: 'Reality’s what’s done, bend it, and you’ve got next.', attr: 'Reality’s Bend',
       href: 'posts/reality-bend.html' },
-    { type: 'img', x:   20, y: 2300, w: 340, h: 340, src: 'board/img/tz-logo.webp',
+    { type: 'img', x: 3582, y: 2242, w:  376, h:  376, src: 'board/img/tz-logo.webp',
       alt: 'Trezure logo', title: 'Trezure', body: 'The mark for the football-first fantasy app.' },
-    { type: 'swatch', x: 3060, y:  780, w: 340, h: 340, hex: '#e8a33d' },
-    { type: 'ph', x:   20, y: 1540, w: 340, h: 340, label: 'Setup — desk' },
-    { type: 'quote', x:  400, y: 1920, w: 340, h: 340, dark: true,
+    { type: 'swatch', x: 3582, y: 1942, w:  376, h:  256, hex: '#e8a33d' },
+    { type: 'ph', x: 2742, y:  782, w:  796, h:  256, label: 'Setup — desk' },
+    { type: 'quote', x: 3582, y:  782, w:  696, h:  256, dark: true,
       text: 'Good tools don’t push back, they glide.', attr: 'Tools That Fit',
       href: 'posts/tools-that-fit.html' },
-    { type: 'ph', x: 3060, y:   20, w: 340, h: 340, label: 'Personal — photo' },
-    { type: 'swatch', x:  400, y: 2300, w: 340, h: 340, hex: '#5fbdb8' },
+    { type: 'img', x: 2442, y: 1542, w:  736, h: 1076, src: 'board/img/kobe.webp',
+      alt: 'Kobe Bryant driving to the rim', title: 'Kobe',
+      body: 'The one where the whole face is already past the defender. Obsession is not a personality trait, it is a schedule.' },
+    { type: 'swatch', x: 2042, y:   22, w:  356, h:  296, hex: '#5fbdb8' },
 
     /* ---- row 2 ------------------------------------------------------- */
-    { type: 'img', x:   20, y: 1160, w: 340, h: 340, src: 'board/img/tz-mascot.webp',
+    { type: 'img', x: 1702, y:   22, w:  296, h:  296, src: 'board/img/tz-mascot.webp',
       alt: 'Trezure mascot', title: 'Trezure mascot', body: 'Carries most of the personality in the app.' },
-    { type: 'quote', x:  400, y:   20, w: 340, h: 340,
+    { type: 'quote', x:  322, y:   22, w:  796, h:  296,
       text: 'Momentum isn’t a roar, it’s a hum that grows if you let it.', attr: 'Momentum’s Secret',
       href: 'posts/momentums-secret.html' },
-    { type: 'ph', x: 1540, y: 1920, w: 340, h: 340, label: 'Setup — rig' },
-    { type: 'note', x: 2300, y:  400, w: 340, h: 340, num: '02', title: 'Now',
+    { type: 'ph', x: 4002, y:   22, w:  276, h:  716, label: 'Setup — rig' },
+    { type: 'note', x: 3582, y: 1542, w:  696, h:  356, num: '02', title: 'Now',
       head: 'Building Trezure.',
       body: 'A daily fantasy sports app, plus Busy Cab and Bemore Labz. And I design websites professionally.' },
-    { type: 'quote', x: 1160, y: 1920, w: 340, h: 340,
+    { type: 'quote', x:  322, y: 2662, w:  796, h:  296,
       text: 'New breaks old, always.', attr: 'Innovation’s Price',
       href: 'posts/innovation-price.html' },
-    { type: 'ph', x:  780, y: 1540, w: 340, h: 340, label: 'Personal — album art' },
-    { type: 'quote', x: 2680, y: 1160, w: 340, h: 340, dark: true,
+    { type: 'ph', x:   22, y:  782, w:  256, h:  716, label: 'Personal — album art' },
+    { type: 'quote', x: 2042, y:  362, w:  356, h:  376, dark: true,
       text: 'Failure’s a gift dressed as a punch.', attr: 'Failure’s Edge',
       href: 'posts/failure-edge.html' },
 
     /* ---- row 3 ------------------------------------------------------- */
-    { type: 'quote', x:  400, y: 1160, w: 340, h: 340,
+    { type: 'quote', x: 2042, y: 1082, w:  356, h:  416,
       text: 'Time’s a one-shot deal, no refills.', attr: 'Time’s Trick',
       href: 'posts/time-trick.html' },
-    { type: 'ph', x:   20, y:  780, w: 340, h: 340, label: 'Setup — workspace' },
-    { type: 'img', x: 1160, y:  780, w: 340, h: 340, src: 'board/img/tz-mascot-pirate.webp',
+    { type: 'ph', x: 4002, y: 2242, w:  716, h:  376, label: 'Setup — workspace' },
+    { type: 'img', x:  322, y: 1082, w:  416, h:  416, src: 'board/img/tz-mascot-pirate.webp',
       alt: 'Pirate mascot', title: 'Pirate mascot', body: 'A seasonal variant.' },
-    { type: 'quote', x: 1920, y:  780, w: 340, h: 340,
+    { type: 'quote', x: 2742, y:   22, w:  436, h:  296,
       text: 'Design’s the pulse, beyond looks, it’s fit.', attr: 'Design’s Soul',
       href: 'posts/design-soul.html' },
-    { type: 'swatch', x:  780, y:  780, w: 340, h: 340, hex: '#6e9b57' },
-    { type: 'img', x: 1160, y: 2300, w: 340, h: 340, src: 'board/img/century.webp',
+    { type: 'swatch', x:   22, y:   22, w:  256, h:  296, hex: '#6e9b57' },
+    { type: 'img', x: 2742, y: 3002, w:  436, h:  336, src: 'board/img/century.webp',
       alt: 'Black Toyota Century on the Bonneville salt flats', title: 'Toyota Century',
       body: 'Parked on the Bonneville salt. A V12 that never mentions it — the whole car is restraint, which is the part I keep stealing.' },
-    { type: 'quote', x: 1160, y: 1160, w: 340, h: 340, dark: true,
+    { type: 'quote', x: 4322, y: 2662, w:  396, h:  296, dark: true,
       text: 'Curiosity starts as a nudge, then grips tight.', attr: 'Curiosity’s Pull',
       href: 'posts/curiosity-pull.html' },
-    { type: 'swatch', x: 3440, y: 1920, w: 340, h: 340, hex: '#2a2e2b' },
+    { type: 'swatch', x: 1162, y: 1942, w:  496, h:  256, hex: '#2a2e2b' },
 
     /* ---- row 4 ------------------------------------------------------- */
-    { type: 'img', x: 1920, y: 1160, w: 340, h: 340, src: 'board/img/octopus.webp',
+    { type: 'img', x: 4002, y: 1082, w:  716, h:  416, src: 'board/img/octopus.webp',
       alt: 'Engraving of an octopus', title: 'Octopus',
       body: 'An old scientific engraving. Nine brains and no single one in charge — which is closer to how anything good actually gets built.' },
-    { type: 'note', x:  780, y:   20, w: 340, h: 340, num: '03', title: 'Also',
+    { type: 'note', x: 4002, y: 3002, w:  716, h:  336, num: '03', title: 'Also',
       head: 'Data, crypto, real estate and strategy games.',
       body: 'A hundred-odd Python problems solved for fun. I like systems you can take apart.' },
-    { type: 'quote', x: 1920, y: 2300, w: 340, h: 340,
+    { type: 'quote', x: 1702, y: 1942, w:  696, h:  256,
       text: 'Big goals grab attention, but small wins pile up silently.', attr: 'Small Wins',
       href: 'posts/small-wins.html' },
-    { type: 'img', x: 1160, y: 1540, w: 340, h: 340, src: 'board/img/tz-mascot-popup.webp',
+    { type: 'img', x:  782, y: 3002, w:  336, h:  336, src: 'board/img/tz-mascot-popup.webp',
       alt: 'Popup mascot', title: 'Popup mascot', body: 'Used for in-app moments.' },
-    { type: 'quote', x: 1160, y:   20, w: 340, h: 340,
+    { type: 'quote', x:  322, y: 1542, w:  416, h:  356,
       text: 'Chaos looks like a storm, but it’s where the real stuff takes root.', attr: 'Trust in Chaos',
       href: 'posts/trust-chaos.html' },
-    { type: 'ph', x: 2300, y:  780, w: 340, h: 340, label: 'Personal — travel' },
-    { type: 'swatch', x: 2680, y: 2300, w: 340, h: 340, hex: '#f0c060' },
-    { type: 'ph', x: 2300, y: 1920, w: 340, h: 340, label: 'Misc' },
+    { type: 'ph', x:  782, y: 1542, w:  336, h:  656, label: 'Personal — travel' },
+    { type: 'swatch', x: 4322, y: 1942, w:  396, h:  256, hex: '#f0c060' },
+    { type: 'img', x:  322, y: 1942, w:  416, h:  676, src: 'board/img/seiko.webp',
+      alt: 'Grand Seiko SBGA469 with a blue Spring Drive dial', title: 'Grand Seiko SBGA469',
+      body: 'Spring Drive: the second hand glides instead of ticking. A dial finished like weather and a movement that refuses to make a sound about it.' },
 
     /* ---- row 5 ------------------------------------------------------- */
-    { type: 'quote', x: 3440, y: 2300, w: 340, h: 340,
+    { type: 'quote', x: 3582, y:   22, w:  376, h:  296,
       text: 'Plans start lean, then bloat, extra layers, noise.', attr: 'Simplicity',
       href: 'posts/simplicity.html' },
-    { type: 'ph', x: 3060, y: 1920, w: 340, h: 340, label: 'Personal — vinyl' },
-    { type: 'quote', x: 3440, y: 1540, w: 340, h: 340, dark: true,
+    { type: 'img', x: 3582, y:  362, w:  376, h:  376, src: 'board/img/marathon.webp',
+      alt: 'The Marathon Don\u2019t Stop, a book about Nipsey Hussle', title: 'The Marathon Don\u2019t Stop',
+      body: 'Rob Kenner on Nipsey Hussle. Own the block, then the building \u2014 build the thing where you already are instead of waiting to be let in somewhere else.' },
+    { type: 'quote', x: 1702, y: 2662, w:  696, h:  296, dark: true,
       text: 'Every chase kicks off with a why, that quiet nudge that won’t let go.', attr: 'The Power of Why',
       href: 'posts/power-of-why.html' },
-    { type: 'swatch', x: 1920, y: 1920, w: 340, h: 340, hex: '#8a7a63' },
-    { type: 'quote', x: 3440, y:  400, w: 340, h: 340,
+    { type: 'swatch', x: 3222, y: 2662, w:  316, h:  296, hex: '#8a7a63' },
+    { type: 'quote', x: 2742, y: 1082, w:  436, h:  416,
       text: 'The unknown’s every start, blank slate, no script.', attr: 'The Unknown',
       href: 'posts/unknown.html' },
-    { type: 'ph', x: 1540, y:  400, w: 340, h: 340, label: 'Personal — game shelf' },
-    { type: 'quote', x: 2680, y:   20, w: 340, h: 340,
+    { type: 'ph', x: 1702, y:  362, w:  296, h:  676, label: 'Personal — game shelf' },
+    { type: 'quote', x: 3222, y: 1942, w:  316, h:  256,
       text: 'Vision carries heft, it’s not a light thing.', attr: 'Vision’s Weight',
       href: 'posts/visions-weight.html' }
 ];
