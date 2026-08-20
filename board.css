@@ -33,22 +33,6 @@
     transform-style: preserve-3d;
 }
 
-/* The board is scenery while the desktop is up: dimmed, and inert apart from
-   the dice. 0.35 is as far as it can go and still read as a board — it is also
-   what lets white type clear 7:1 on the panels standing over it. */
-.board-viewport::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: rgba(44, 48, 49, 0.35);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 420ms ease-out;
-}
-
-.is-desktop .board-viewport::after { opacity: 1; }
-
 /* Frozen underneath — no panning, no opening a card. The dice is the one
    exception, because it is the way in. */
 .is-desktop .board-viewport { pointer-events: none; cursor: default; }
@@ -62,6 +46,28 @@
 .is-entering .board-surface {
     transition: transform 950ms cubic-bezier(0.32, 0.02, 0.16, 1);
 }
+
+/* The board is scenery while the desktop is up: dimmed, and inert apart from
+   the dice. 0.35 is as far as it can go and still read as a board — it is also
+   what lets white type clear 7:1 on the panels standing over it.
+
+   The scrim lies ON the plane, one per tile, rather than over the screen. A
+   screen overlay is a sibling of the whole board, so nothing on the board can
+   sit above it; from inside the tile it can sit below the dice and above every
+   other card. It also tips with the plane, so it is the same dim in both
+   projections. Tiles never overlap, so the joins are invisible. */
+.board-tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    background: rgba(44, 48, 49, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 420ms ease-out;
+}
+
+.is-desktop .board-tile::after { opacity: 1; }
 
 .board-tile {
     position: absolute;
@@ -229,6 +235,11 @@
     padding: 22px;
     background: var(--jg-panel);
     pointer-events: none;
+    /* A real lift, not just a z-index. The plane is a preserve-3d context, so
+       its children are sorted by depth and z-index is at best a tiebreaker
+       between coplanar ones — 1px of Z puts the dice in front of the scrim
+       whichever rule the browser applies. Too small to see, at any angle. */
+    transform: translateZ(1px);
 }
 
 /* Clickable while the desktop is up, and only then — it is the way into the
@@ -239,9 +250,9 @@
     cursor: pointer;
 }
 
-/* It dims with the rest of the board — the scrim is a sibling of the whole
-   plane, so no card can be lifted out from under it. The cue and the cursor
-   are what mark it as live, not brightness. */
+/* Above the scrim, at z-index 600 set in board.js against the 100 the scrim
+   sits at. It is the one thing on the board that is still live, so it is the
+   one thing that is not dimmed — it reads as lit rather than as scenery. */
 
 /* Shown until the board has been entered once, then never again. */
 .bi-piece-cue {

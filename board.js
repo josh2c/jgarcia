@@ -50,7 +50,9 @@ function buildItem(item, index) {
     el.style.top = item.y + 'px';
     el.style.width = item.w + 'px';
     el.style.height = item.h + 'px';
-    el.style.zIndex = String(10 + (index % 40));
+    // 600 clears the 100 the desktop scrim sits at, so the dice stays lit
+    // while the rest of the board dims behind the furniture.
+    el.style.zIndex = item.type === 'piece' ? '600' : String(10 + (index % 40));
     // Staggered by distance from the dice, so the board assembles outward from
     // the card you were already looking at.
     el.style.setProperty('--in-delay', item.stagger + 'ms');
