@@ -50,8 +50,7 @@ const RAW = [
     { type: 'img', x:  782, y: 3002, w:  336, h:  336, src: 'board/img/tz-logo.webp',
       alt: 'Trezure logo', title: 'Trezure', body: 'The mark for the football-first fantasy app.' },
     { type: 'swatch', x: 1702, y: 2242, w:  296, h:  376, hex: '#e8a33d' },
-    { type: 'ph', x: 1162, y: 3002, w:  836, h:  336, label: 'Setup — desk' },
-    { type: 'img', x: 2742, y: 1542, w:  796, h: 1076, src: 'board/img/kobe.webp',
+        { type: 'img', x: 2742, y: 1542, w:  796, h: 1076, src: 'board/img/kobe.webp',
       alt: 'Kobe Bryant driving to the rim', title: 'Kobe',
       body: 'The one where the whole face is already past the defender. Obsession is not a personality trait, it is a schedule.' },
     { type: 'swatch', x: 1702, y:  362, w:  296, h:  376, hex: '#5fbdb8' },
@@ -68,8 +67,7 @@ const RAW = [
     { type: 'ph', x: 4002, y: 3002, w:  716, h:  336, label: 'Personal — album art' },
 
     /* ---- row 3 ------------------------------------------------------- */
-    { type: 'ph', x:   22, y: 2242, w:  716, h:  376, label: 'Setup — workspace' },
-    { type: 'img', x: 2042, y: 2242, w:  356, h:  376, src: 'board/img/tz-mascot-pirate.webp',
+        { type: 'img', x: 2042, y: 2242, w:  356, h:  376, src: 'board/img/tz-mascot-pirate.webp',
       alt: 'Pirate mascot', title: 'Pirate mascot', body: 'A seasonal variant.' },
     { type: 'swatch', x: 2442, y: 2242, w:  256, h:  376, hex: '#6e9b57' },
     { type: 'img', x: 2742, y: 3002, w:  436, h:  336, src: 'board/img/century.webp',
@@ -108,6 +106,14 @@ const RAW = [
     { type: 'img', x: 2742, y:  782, w:  436, h:  256, src: 'board/img/todo.webp',
       alt: 'Aoi Todo from Jujutsu Kaisen, arms folded', title: 'Todo',
       body: 'Jujutsu Kaisen. The one who asks the question first and fights afterwards \u2014 the whole bit is that taste tells you more about someone than a r\u00e9sum\u00e9 does.' },
+
+    { type: 'img', x: 1162, y:  362, w:  496, h:  376, src: 'board/img/desk.webp',
+      alt: 'A desk at dusk with a laptop, a monitor and a lit tower', title: 'The rig',
+      body: 'Two machines, more keyboards than hands, and a window doing the lighting for free. Most of this site was built at it.' },
+
+    { type: 'img', x:   22, y: 2242, w:  716, h:  376, src: 'board/img/liquiddeath.webp',
+      alt: 'A variety pack of Liquid Death sparkling energy', title: 'Liquid Death',
+      body: 'Death to drowsy. Here for the branding as much as the caffeine \u2014 nobody else would put a death metal logo on a can of water and mean it.' },
 
     /* ---- other people's words. A moodboard collects what resonates,
          not the owner's own back catalogue. ---- */
