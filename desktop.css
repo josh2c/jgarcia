@@ -151,9 +151,9 @@ html { height: 100%; }
     top: 48%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* Wider than the old square mascot: the dice are landscape, so matching
-       the previous width would have made them read much smaller. */
-    width: clamp(16rem, 33vw, 29rem);
+    /* These dice are a wide strip — 2.26:1 against the previous 1.27:1 — so
+       they need more width to carry the same presence. */
+    width: clamp(19rem, 42vw, 36rem);
     cursor: pointer;
     /* A contact shadow so they sit on the board rather than float over it. */
     filter: drop-shadow(0 22px 26px rgba(42, 46, 43, 0.26));
@@ -396,7 +396,7 @@ html { height: 100%; }
     text-transform: uppercase;
 }
 
-.dt-foot-sub { margin-top: 0.3rem; color: var(--dt-muted); }
+.dt-foot-sub { margin-top: 0.3rem; color: var(--dt-ink); opacity: 0.65; }
 
 /* ---------- window ---------- */
 /* `display: flex` below outranks the UA stylesheet's [hidden] rule, so the
@@ -536,13 +536,19 @@ html { height: 100%; }
     transform: scale(1.05);
 }
 
-/* Softens the board behind the desktop so icons and text hold contrast. */
+/* Softens the board behind the desktop without washing it out. At 0.86 the
+   teal was reduced to near-cream and the desktop read colourless; this lets
+   the ground through while ink text still holds contrast against it. */
 .dt-veil {
     position: fixed;
     inset: 0;
     z-index: 40;
     pointer-events: none;
-    background: rgba(242, 239, 228, 0.86);
+    background:
+        linear-gradient(180deg,
+            rgba(242, 239, 228, 0.52) 0%,
+            rgba(242, 239, 228, 0.34) 45%,
+            rgba(95, 189, 184, 0.30) 100%);
     transition: opacity 620ms ease-in;
 }
 
@@ -565,11 +571,12 @@ html { height: 100%; }
     font-size: 0.68rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--jg-muted);
-    transition: color 0.15s linear;
+    color: var(--jg-ink);
+    opacity: 0.72;
+    transition: color 0.15s linear, opacity 0.15s linear;
 }
 
-.dt-hero:hover .dt-hero-cue { color: var(--jg-accent); }
+.dt-hero:hover .dt-hero-cue { color: var(--jg-accent); opacity: 1; }
 
 @media (max-width: 1100px) {
     .dt-hero { display: block; }
