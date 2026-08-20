@@ -238,7 +238,10 @@ function endDrag() {
 iconsEl.addEventListener('pointerup', endDrag);
 iconsEl.addEventListener('pointercancel', endDrag);
 
-/* Put everything back where it started. */
+/* Put everything back where it started. No longer in the menubar — a
+ * maintenance action does not belong next to Desktop and Board — but kept
+ * reachable from the console, since it is the only way out of an arrangement
+ * you regret short of clearing site data. */
 window.jgTidyDesktop = function () {
     layout = defaultLayout();
     saveLayout();
@@ -338,12 +341,6 @@ function openGame(i) {
 }
 
 /* Menubar entries that need script. */
-const mbThoughts = document.getElementById('mb-thoughts');
-if (mbThoughts) mbThoughts.addEventListener('click', () => window.jgReader && window.jgReader.openBlog());
-
-const mbTidy = document.getElementById('mb-tidy');
-if (mbTidy) mbTidy.addEventListener('click', () => window.jgTidyDesktop && window.jgTidyDesktop());
-
 /* --------------------------------------------------------------- clock --- */
 
 /* The latest post is read from blog.html so the panel cannot go stale as you
