@@ -25,6 +25,7 @@
             <a href="#" id="mb-desktop" class="is-current" data-leave-board>Desktop</a>
             <a href="#" id="mb-board" data-enter-board>Board</a>
             <button type="button" id="mb-thoughts">Thoughts</button>
+            <button type="button" id="mb-tidy" title="Put the icons back where they started">Tidy</button>
             <a href="pitch.html">Pitch Deck</a>
         </div>
         <div class="mb-right">
@@ -45,14 +46,14 @@
     <div class="dt-layer" id="desktop">
 
         <main class="dt-surface">
-            <div class="dt-folders" id="folders"></div>
+            <!-- Every icon lives in one layer so any of them can be dragged
+                 anywhere, the way a real desktop works. -->
+            <div class="dt-icons" id="icons"></div>
 
             <div class="dt-hero" title="Enter the board">
                 <img src="board/img/dice.webp" alt="" aria-hidden="true">
                 <span class="dt-hero-cue">Enter the board →</span>
             </div>
-
-            <div class="dt-files" id="files"></div>
 
             <aside class="dt-widgets">
                 <div class="dt-widget dt-clock">
@@ -72,13 +73,6 @@
                     </a>
                 </div>
             </aside>
-
-            <div class="dt-dock" id="dock"></div>
-
-            <button class="dt-trash" id="trash" type="button">
-                <span class="dt-trash-icon" aria-hidden="true"></span>
-                <span class="dt-icon-label">Trash</span>
-            </button>
 
             <footer class="dt-foot">
                 <div class="dt-mark" aria-hidden="true"></div>

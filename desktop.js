@@ -77,10 +77,11 @@ const DOCK = [
 
 /* ----------------------------------------------------------- rendering --- */
 
-function iconButton(label, className, inner, count) {
+function iconButton(id, label, className, inner, count) {
     const el = document.createElement('button');
     el.type = 'button';
     el.className = 'dt-icon ' + className;
+    el.dataset.id = id;
     el.innerHTML = inner + '<span class="dt-icon-label">' + label + '</span>' +
         (count ? '<span class="dt-icon-count">' + count + '</span>' : '');
     return el;
@@ -94,37 +95,160 @@ function countFor(f) {
     return n ? n + (n === 1 ? ' item' : ' items') : '';
 }
 
-const foldersEl = document.getElementById('folders');
+const iconsEl = document.getElementById('icons');
+
+function folderMarkup(f) {
+    return '<span class="dt-folder" aria-hidden="true">' +
+             '<span class="f-back"></span>' +
+             '<span class="f-card"></span><span class="f-card"></span><span class="f-card"></span>' +
+             '<span class="f-front"><svg viewBox="0 0 24 24">' + (f.icon || '') + '</svg></span>' +
+           '</span>';
+}
+
 FOLDERS.forEach((f, i) => {
-    const el = iconButton(f.name, 'dt-folder-icon',
-        '<span class="dt-folder" aria-hidden="true">' +
-          '<span class="f-back"></span>' +
-          '<span class="f-card"></span><span class="f-card"></span><span class="f-card"></span>' +
-          '<span class="f-front"><svg viewBox="0 0 24 24">' + (f.icon || '') + '</svg></span>' +
-        '</span>', countFor(f));
+    const el = iconButton('folder:' + f.name, f.name, 'dt-folder-icon', folderMarkup(f), countFor(f));
     el.addEventListener('click', () => openFolder(i));
-    foldersEl.appendChild(el);
+    iconsEl.appendChild(el);
 });
 
-const filesEl = document.getElementById('files');
 FILES.forEach((f, i) => {
-    const el = iconButton(f.name, 'dt-file',
+    const el = iconButton('file:' + f.name, f.name, 'dt-file',
         '<img class="dt-file-thumb" src="' + f.src + '" alt="" aria-hidden="true">');
     el.addEventListener('click', () => openFile(i));
-    filesEl.appendChild(el);
+    iconsEl.appendChild(el);
 });
 
-// Populate the Skills count on load rather than waiting for someone to open it.
-loadSkills(null);
-
-const dockEl = document.getElementById('dock');
 DOCK.forEach((d, i) => {
-    const el = iconButton(d.name, 'dt-dock-icon',
+    const el = iconButton('tool:' + d.name, d.name, 'dt-dock-icon',
         '<span class="dt-tool" aria-hidden="true">' +
         '<svg viewBox="0 0 24 24">' + (d.icon || '') + '</svg></span>');
     el.addEventListener('click', () => openGame(i));
-    dockEl.appendChild(el);
+    iconsEl.appendChild(el);
 });
+
+const trashEl = iconButton('trash', 'Trash', 'dt-trash-icon-wrap',
+    '<span class="dt-trash-icon" aria-hidden="true"></span>');
+trashEl.addEventListener('click', () => {
+    if (!window.jgWindows) return;
+    window.jgWindows.open({ id: 'trash', title: 'Trash', width: 380, height: 220,
+        html: '<p>Empty.</p><p class="bw-note">Nothing thrown away yet.</p>' });
+});
+iconsEl.appendChild(trashEl);
+
+/* ------------------------------------------------------------- placement --
+ * Icons are placed absolutely and dragged freely, positions kept in local
+ * storage. Below the breakpoint they fall back to normal flow — dragging on a
+ * phone fights scrolling, and there is no room to arrange anything anyway. */
+
+const LAYOUT_KEY = 'jg-desktop-layout';
+const CELL = 116;
+const FREE = () => window.innerWidth > 1100;
+
+function defaultLayout() {
+    const out = {};
+    const originX = 26, originY = 84;
+    const cols = 3;
+    FOLDERS.forEach((f, i) => {
+        out['folder:' + f.name] = {
+            x: originX + (i % cols) * CELL,
+            y: originY + Math.floor(i / cols) * (CELL + 16)
+        };
+    });
+    FILES.forEach((f, i) => {
+        out['file:' + f.name] = { x: originX + i * CELL, y: originY + 2 * (CELL + 16) + 20 };
+    });
+    DOCK.forEach((d, i) => {
+        out['tool:' + d.name] = { x: originX + i * CELL, y: window.innerHeight - CELL - 40 };
+    });
+    out.trash = { x: window.innerWidth - CELL - 40, y: window.innerHeight - CELL - 40 };
+    return out;
+}
+
+function loadLayout() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || 'null');
+        if (saved && typeof saved === 'object') return { ...defaultLayout(), ...saved };
+    } catch (err) { /* corrupt entry — fall back to the default arrangement */ }
+    return defaultLayout();
+}
+
+let layout = loadLayout();
+
+function saveLayout() {
+    try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch (err) { /* full */ }
+}
+
+/* Keeps an icon on screen and clear of the menubar. */
+function clampPos(p, el) {
+    const w = el.offsetWidth || CELL, h = el.offsetHeight || CELL;
+    return {
+        x: Math.max(8, Math.min(window.innerWidth - w - 8, p.x)),
+        y: Math.max(64, Math.min(window.innerHeight - h - 8, p.y))
+    };
+}
+
+function applyLayout() {
+    const free = FREE();
+    iconsEl.classList.toggle('is-free', free);
+    [...iconsEl.children].forEach((el) => {
+        if (!free) { el.style.left = el.style.top = ''; return; }
+        const p = clampPos(layout[el.dataset.id] || { x: 26, y: 84 }, el);
+        layout[el.dataset.id] = p;
+        el.style.left = p.x + 'px';
+        el.style.top = p.y + 'px';
+    });
+}
+
+applyLayout();
+window.addEventListener('resize', applyLayout);
+
+/* Drag. A click still opens the icon as long as it barely moved — the same
+ * threshold the board uses to tell a tap from a pan. */
+let drag = null;
+
+iconsEl.addEventListener('pointerdown', (e) => {
+    if (!FREE() || e.button !== 0) return;
+    const el = e.target.closest('.dt-icon');
+    if (!el) return;
+    const p = layout[el.dataset.id];
+    drag = { el, id: el.dataset.id, sx: e.clientX, sy: e.clientY, ox: p.x, oy: p.y, moved: 0 };
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('is-dragging');
+});
+
+iconsEl.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    drag.moved = Math.abs(dx) + Math.abs(dy);
+    if (drag.moved < 4) return;
+    const p = clampPos({ x: drag.ox + dx, y: drag.oy + dy }, drag.el);
+    drag.el.style.left = p.x + 'px';
+    drag.el.style.top = p.y + 'px';
+    layout[drag.id] = p;
+});
+
+function endDrag() {
+    if (!drag) return;
+    drag.el.classList.remove('is-dragging');
+    // Anything past the threshold was a move, so suppress the click that
+    // follows or every drop would also open the folder.
+    if (drag.moved >= 4) {
+        const el = drag.el;
+        el.addEventListener('click', (ev) => ev.stopImmediatePropagation(), { capture: true, once: true });
+        saveLayout();
+    }
+    drag = null;
+}
+
+iconsEl.addEventListener('pointerup', endDrag);
+iconsEl.addEventListener('pointercancel', endDrag);
+
+/* Put everything back where it started. */
+window.jgTidyDesktop = function () {
+    layout = defaultLayout();
+    saveLayout();
+    applyLayout();
+};
 
 /* The skills list is read from the repo rather than hardcoded, so adding a
  * skill on GitHub adds it here. Cached for a day; falls back to the repo link
@@ -227,12 +351,6 @@ function openGame(i) {
     }
 }
 
-document.getElementById('trash').addEventListener('click', () => {
-    if (!window.jgWindows) return;
-    window.jgWindows.open({ id: 'trash', title: 'Trash', width: 380, height: 220,
-        html: '<p>Empty.</p><p class="bw-note">Nothing thrown away yet.</p>' });
-});
-
 /* The hero is the way in: the board is already behind the desktop, so this
  * clears the furniture rather than loading a page. */
 const heroEl = document.querySelector('.dt-hero');
@@ -248,6 +366,9 @@ if (heroEl) {
 /* Menubar entries that need script. */
 const mbThoughts = document.getElementById('mb-thoughts');
 if (mbThoughts) mbThoughts.addEventListener('click', () => window.jgReader && window.jgReader.openBlog());
+
+const mbTidy = document.getElementById('mb-tidy');
+if (mbTidy) mbTidy.addEventListener('click', () => window.jgTidyDesktop && window.jgTidyDesktop());
 
 /* --------------------------------------------------------------- clock --- */
 
