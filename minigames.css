@@ -433,3 +433,24 @@
     font-size: 0.95rem;
     line-height: 1.35;
 }
+
+/* ---------- narrow ---------- */
+
+@media (pointer: coarse) {
+    /* Five tiers plus a go button on one row is a lot of small targets. */
+    .mg-tiers button { padding: 0.42rem 0.55rem; font-size: 0.6rem; }
+    .mg-go { padding: 0.5rem 1rem; }
+    .mg-choice button { padding: 0.6rem 1.1rem; }
+    .mg-cell { min-width: 1.9rem; min-height: 1.9rem; }
+}
+
+@media (max-width: 700px) {
+    .mg-how { display: none; }              /* the bar is for the clock here */
+    .mg-bar { justify-content: flex-end; }
+    .mg-foot { gap: 0.45rem; }
+    .mg-msg { min-width: 100%; order: 3; }  /* its own line, under the controls */
+    .mm-card { width: 7.4rem; min-height: 9.4rem; }
+    .mm-mid { width: 3.9rem; height: 3.9rem; }
+    .mg-answer-wide input { width: 100%; min-width: 7rem; }
+    .mg-answer { width: 100%; }
+}

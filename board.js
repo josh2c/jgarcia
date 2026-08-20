@@ -18,12 +18,20 @@ import { ITEMS, COL_W, ROW_H, TILE_W, TILE_H, HOME_X, HOME_Y } from './boarddata
 const SX = Math.SQRT1_2;
 const SY = Math.SQRT1_2 * 0.5;
 
-/* Inverse of the above, so a screen drag becomes a board delta. Without it,
- * dragging right slides the board off along a diagonal. */
+/* The board is a fixed-size world: cards run from 256 to 796px wide, so on a
+ * 360px phone a single card is wider than the screen and you would pan around
+ * inside one quote. Zooming the plane out is the only fix that does not mean
+ * a second set of card sizes. Full size from 620px up. */
+const zoom = () => Math.min(1, Math.max(0.55, window.innerWidth / 620));
+
+/* Inverse of the mapping above, so a screen drag becomes a board delta. The
+ * zoom divides out here too — at 0.6, a finger moving 60px has to move the
+ * board 100. Without it the board lags behind the finger. */
 function screenToBoard(sx, sy) {
-    if (!ISO) return { x: sx, y: sy };
-    const a = sx / SX;
-    const b = sy / SY;
+    const z = zoom();
+    if (!ISO) return { x: sx / z, y: sy / z };
+    const a = sx / z / SX;
+    const b = sy / z / SY;
     return { x: (a - b) / 2, y: (a + b) / 2 };
 }
 
@@ -139,8 +147,11 @@ let tiles = [];
 /* A screen rectangle maps back to a diamond in board space, so the tilted
  * board needs a wider spread of tiles than a flat one to stay covered. */
 function coverageHalfExtent() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    // Zoomed out, a screen covers proportionally more board, so the tile pool
+    // has to reach further or the edges come up bare.
+    const z = zoom();
+    const vw = window.innerWidth / z;
+    const vh = window.innerHeight / z;
     if (!ISO && !coverageIso) return { x: vw / 2, y: vh / 2 };
     const half = (vw / SX + vh / SY) / 4;
     return { x: half, y: half };
@@ -158,6 +169,7 @@ function ensurePool(n) {
 }
 
 function render() {
+    document.documentElement.style.setProperty('--board-zoom', zoom().toFixed(3));
     const ext = coverageHalfExtent();
     const startI = Math.floor((camX - ext.x) / TILE_W);
     const endI = Math.floor((camX + ext.x) / TILE_W);

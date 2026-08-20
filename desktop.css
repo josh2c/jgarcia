@@ -579,4 +579,16 @@ html { height: 100%; }
        scrollable, and there is no dice to reach past it. This block sits
        after the base rule on purpose — a media query adds no specificity. */
     .dt-layer { pointer-events: auto; }
+
+    /* An editor does not wrap, but a phone has no room for a horizontal
+       scrollbar inside a card inside a scrolling page. It wraps here. */
+    .dt-pad-text { white-space: pre-wrap; height: 12rem; font-size: 0.76rem; }
+    .dt-widget { width: auto; }
+}
+
+@media (max-width: 700px) {
+    .dt-icons { gap: 0.7rem; justify-content: flex-start; }
+    .dt-pad-text { height: 10.5rem; }
+    /* Nothing drags below the breakpoint, so the grab cursors are a lie. */
+    .dt-pad-bar, .dt-clock { cursor: default; }
 }
