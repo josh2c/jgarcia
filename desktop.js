@@ -397,8 +397,8 @@ function launchGame(g) {
     W.open({
         id: 'mo:' + g.fn,
         title: g.label,
-        width: 520,
-        height: 560,
+        width: 660,
+        height: 620,
         mount: (body) => games[g.fn](body)
     });
 }

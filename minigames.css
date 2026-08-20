@@ -86,7 +86,8 @@
     gap: 5px;
     /* Square, and never larger than the stage in either direction, so a 7x7
        grid cannot push the footer out of a short window. */
-    width: min(100cqw, 100cqh);
+    /* Capped: filling the whole stage made a 7x7 grid feel zoomed in. */
+    width: min(100cqw, 100cqh, 21rem);
     aspect-ratio: 1;
     align-self: center;
 }
@@ -114,7 +115,7 @@
     background: #fff;
 }
 
-.mg-tile svg { width: 78%; height: 78%; }
+.mg-tile svg { width: 64%; height: 64%; }
 .mg-tile.is-on { background: rgba(232, 163, 61, 0.3); }
 
 /* ---------- quantum count ---------- */
@@ -174,7 +175,7 @@
 .mg-big {
     font-family: var(--jg-display);
     font-weight: 700;
-    font-size: clamp(1.6rem, 14cqw, 3rem);
+    font-size: clamp(1.3rem, 9cqw, 2.1rem);
     letter-spacing: 0.02em;
     text-align: center;
 }
@@ -215,30 +216,63 @@
     opacity: 0.75;
 }
 
-/* ---------- memory match ---------- */
+/* ---------- memory match ----------
+   A white face with a colour band, not a card filled with its own colour. In
+   the app the ink is drawn straight onto the background, which puts a yellow
+   word on a yellow card at 1.2:1 — unreadable. Here every ink clears 4.5:1 on
+   white, and the band still says what the card's colour is. */
 
-.mg-slots { flex-direction: row; flex-wrap: wrap; gap: 0.7rem; }
+.mg-slots { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
 
-.mg-slot {
-    position: relative;
-    width: 5.2rem;
-    height: 5.2rem;
-    display: grid;
-    place-items: center;
+.mm-card {
+    width: 7.4rem;
+    overflow: hidden;
     background: #fff;
-    border: 1px solid rgba(42, 46, 43, 0.16);
-    border-radius: 8px;
+    border: 1px solid rgba(42, 46, 43, 0.18);
+    border-radius: 9px;
 }
 
-.mg-slot svg { width: 62%; height: 62%; }
+.mm-band {
+    position: relative;
+    height: 1.5rem;
+}
 
-.mg-slot-n {
+.mm-n {
     position: absolute;
-    top: 0.25rem;
-    left: 0.4rem;
+    top: 50%;
+    left: 0.45rem;
+    transform: translateY(-50%);
     font-family: var(--jg-mono);
-    font-size: 0.62rem;
-    color: var(--jg-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.mm-shape { display: grid; place-items: center; padding: 0.5rem 0 0.2rem; }
+.mm-shape svg { width: 2.5rem; height: 2.5rem; }
+
+.mm-lines {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.15rem 0.4rem 0.6rem;
+    font-family: var(--jg-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
+.mm-lines span:nth-child(2) { font-size: 1.05rem; }
+
+.mm-prompt {
+    font-family: var(--jg-mono);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.45;
 }
 
 .mg-q {
@@ -261,25 +295,25 @@
     padding: 0;
     display: grid;
     gap: 0.4rem;
-    width: min(100%, 20rem);
+    width: min(100%, 17rem);
 }
 
 .mg-rulelist li {
     font-family: var(--jg-mono);
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     padding: 0.45rem 0.7rem;
     background: #fff;
     border: 1px solid rgba(42, 46, 43, 0.16);
     border-radius: 6px;
 }
 
-.mg-given svg { width: 4.2rem; height: 4.2rem; }
+.mg-given svg { width: 3.2rem; height: 3.2rem; }
 
 .mg-opts { display: flex; gap: 0.5rem; }
 
 .mg-opts button {
-    width: 4rem;
-    height: 4rem;
+    width: 3.2rem;
+    height: 3.2rem;
     display: grid;
     place-items: center;
     padding: 0;

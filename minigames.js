@@ -1,9 +1,11 @@
 /* Mind Override — six of the seven minigames from the Flutter app
  * (github.com/josh2c/mind_override), rebuilt in plain JS to run in a window.
  *
- * The rules, difficulty parameters and scoring formulas are taken from the
- * app's own docs/tier3_mechanics.md rather than reinvented, so a game plays the
- * way it plays there. What is deliberately dropped is the meta-layer: the XP
+ * The rules, difficulty parameters and scoring formulas come from the app
+ * itself rather than being reinvented — docs/tier3_mechanics.md for the
+ * formulas, and the Dart for anything the docs only summarise. Memory Match
+ * had to be rebuilt from lib/features/memory_match once it was clear the doc's
+ * "8 card attributes" was describing a Stroop test, not a coloured shape. What is deliberately dropped is the meta-layer: the XP
  * ladder, unlock thresholds, difficulty tiers and progression persistence.
  * Nobody grinds 350 XP to unlock a game on a personal site, so each game runs
  * at one chosen tier and keeps a streak instead.
@@ -99,7 +101,8 @@
             square: '<rect x="10" y="10" width="28" height="28" rx="3"/>',
             triangle: '<path d="M24 8 41 38 7 38Z"/>',
             star: '<path d="M24 7 29 19 42 20 32 29 35 42 24 35 13 42 16 29 6 20 19 19Z"/>',
-            diamond: '<path d="M24 7 40 24 24 41 8 24Z"/>'
+            diamond: '<path d="M24 7 40 24 24 41 8 24Z"/>',
+            rectangle: '<rect x="6" y="15" width="36" height="18" rx="2"/>'
         }[shape];
         return '<svg viewBox="0 0 48 48" aria-hidden="true"><g fill="' + hex +
             '" transform="' + t + '">' + body + mark + '</g></svg>';
@@ -522,30 +525,86 @@
     }
 
     /* ------------------------------------------------------ memory match --- */
-    /* The app's flagship: a study screen, then a question about what was where.
-     * Answers are fuzzy-matched a character either way, and getting one of the
-     * two words is worth half, both from the original scoring. */
+    /* The real one, from lib/features/memory_match. It is a Stroop test wearing
+     * a memory game: a card carries the WORD "RED" printed in some other ink, a
+     * digit in a third ink, and a shape word that need not match the shape
+     * actually drawn. Eight attributes are queryable, and the prompt asks for
+     * two of them from two different slots:
+     *
+     *     DIGIT FROM SLOT (2) AND BG COLOR FROM SLOT (3)
+     *
+     * The answer is those two values, space separated, fuzzy-matched a
+     * character either way, and worth half if only one of them lands.
+     *
+     * One departure. In the app the whole card is the background colour and the
+     * ink is drawn straight onto it, which means a yellow word on a yellow card
+     * — I measured the five: as ink on their own faces they run 1.2:1 to 6.3:1,
+     * so several combinations are literally unreadable. Here the face is white
+     * with a colour band, the inks are darkened to clear 4.5:1 on it, and every
+     * attribute stays just as identifiable. */
+
+    const MM_SHAPES = ['triangle', 'circle', 'square', 'rectangle'];
+    const MM_COLOURS = [
+        { name: 'red', band: '#f44336', ink: '#c62828' },
+        { name: 'blue', band: '#2196f3', ink: '#1565c0' },
+        { name: 'green', band: '#4caf50', ink: '#2e7d32' },
+        { name: 'yellow', band: '#ffd21f', ink: '#8a6300' },
+        { name: 'purple', band: '#9c27b0', ink: '#6a1b9a' }
+    ];
+    const MM_ATTRS = [
+        { key: 'shape', label: 'SHAPE', of: (c) => c.shape },
+        { key: 'bgColor', label: 'BG COLOR', of: (c) => c.bg.name },
+        { key: 'colorWord', label: 'COLOR WORD', of: (c) => c.colourWord },
+        { key: 'colorInk', label: 'COLOR INK', of: (c) => c.colourInk.name },
+        { key: 'digit', label: 'DIGIT', of: (c) => String(c.digit) },
+        { key: 'digitInk', label: 'DIGIT INK', of: (c) => c.digitInk.name },
+        { key: 'shapeWord', label: 'SHAPE WORD', of: (c) => c.shapeWord },
+        { key: 'shapeInk', label: 'SHAPE INK', of: (c) => c.shapeInk.name }
+    ];
 
     function mountMemoryMatch(host) {
-        const SLOTS = 4, STUDY = 9;
-        const s = shell(host, { how: 'Memorise the slots, then answer one question about them.' });
+        const SLOTS = 3, STUDY = 5, LIMIT = 10;   // the app's easy tier
+        const s = shell(host, {
+            how: 'Memorise the cards. The words do not have to match their ink, or the shape.'
+        });
         s.stage.className = 'mg-stage mg-slots';
 
-        let cards = [], query = null, phase = 'idle', started = 0;
+        let cards = [], query = null, phase = 'idle', started = 0, clockId = 0;
+
         const form = document.createElement('form');
         form.className = 'mg-answer mg-answer-wide';
-        form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. red triangle">' +
+        form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="two words">' +
             '<button type="submit">Answer</button>';
         const input = form.querySelector('input');
 
+        const card = (c) =>
+            '<div class="mm-card">' +
+                '<div class="mm-band" style="background:' + c.bg.band + '">' +
+                    '<span class="mm-n">' + c.slot + '</span></div>' +
+                '<div class="mm-shape">' + shapeSvg(c.shape, '#2a2e2b', 0, false) + '</div>' +
+                '<div class="mm-lines">' +
+                    '<span style="color:' + c.colourInk.ink + '">' + c.colourWord.toUpperCase() + '</span>' +
+                    '<span style="color:' + c.digitInk.ink + '">' + c.digit + '</span>' +
+                    '<span style="color:' + c.shapeInk.ink + '">' + c.shapeWord.toUpperCase() + '</span>' +
+                '</div>' +
+            '</div>';
+
         function round() {
             phase = 'study';
-            const shapes = shuffle(SHAPES).slice(0, SLOTS);
-            const colours = shuffle(COLOURS).slice(0, SLOTS);
-            cards = shapes.map((shape, i) => ({ shape, colour: colours[i], slot: i + 1 }));
-            s.stage.innerHTML = cards.map((c) =>
-                '<div class="mg-slot"><span class="mg-slot-n">' + c.slot + '</span>' +
-                shapeSvg(c.shape, c.colour.hex, 0, false) + '</div>').join('');
+            // Every attribute is rolled independently, exactly as the app does
+            // it — nothing is kept consistent, which is the whole difficulty.
+            cards = Array.from({ length: SLOTS }, (_, i) => ({
+                slot: i + 1,
+                shape: pick(MM_SHAPES),
+                bg: pick(MM_COLOURS),
+                colourWord: pick(MM_COLOURS).name,
+                colourInk: pick(MM_COLOURS),
+                digit: 1 + rnd(9),
+                digitInk: pick(MM_COLOURS),
+                shapeWord: pick(MM_SHAPES),
+                shapeInk: pick(MM_COLOURS)
+            }));
+            s.stage.innerHTML = cards.map(card).join('');
             s.say('');
             s.go.textContent = 'Studying…';
             s.go.disabled = true;
@@ -554,33 +613,35 @@
 
         function ask() {
             phase = 'answer';
-            const c = pick(cards);
-            // Three question shapes, matching the app: whole card, one attribute,
-            // and the chained one that goes the other way round.
-            query = pick([
-                { q: 'What was in slot ' + c.slot + '?', want: [c.colour.name, c.shape], hint: 'colour and shape' },
-                { q: 'What shape was in slot ' + c.slot + '?', want: [c.shape], hint: 'shape' },
-                { q: 'What colour was the ' + c.shape + '?', want: [c.colour.name], hint: 'colour' },
-                { q: 'Which slot held the ' + c.colour.name + ' ' + c.shape + '?', want: [String(c.slot)], hint: 'slot number' }
-            ]);
-            s.stage.innerHTML = '<p class="mg-q">' + query.q + '</p>';
+            const attrs = shuffle(MM_ATTRS);
+            const a1 = attrs[0], a2 = attrs[1];
+            const s1 = 1 + rnd(SLOTS);
+            let s2 = 1 + rnd(SLOTS);
+            while (s2 === s1) s2 = 1 + rnd(SLOTS);
+            const c1 = cards[s1 - 1], c2 = cards[s2 - 1];
+            query = {
+                text: a1.label + ' FROM SLOT (' + s1 + ') AND ' + a2.label + ' FROM SLOT (' + s2 + ')',
+                want: [a1.of(c1), a2.of(c2)]
+            };
+            s.stage.innerHTML = '<p class="mg-q mm-prompt">' + query.text + '</p>';
             s.stage.appendChild(form);
-            input.placeholder = query.hint;
             input.value = '';
-            s.stat.textContent = 'Answer';
             started = Date.now();
             input.focus();
+            clockId = countdown(s, LIMIT, 'Answer', () => judge(''));
         }
 
         function judge(text) {
+            if (phase !== 'answer') return;
             phase = 'done';
             s.stopAll();
             const hits = scoreWords(text, query.want);
-            let score = Math.round((hits / query.want.length) * 100);
-            if (query.want.length === 2 && hits === 1) score = 50;
-            if (score === 100 && Date.now() - started < STUDY * 500) score += 10;
+            let score = Math.round((hits / 2) * 100);
+            if (hits === 1) score = 50;                       // the app's partial credit
+            if (score === 100 && Date.now() - started < LIMIT * 500) score += 10;
             s.tally(score);
-            s.say(score >= 100 ? 'Right.' : 'It was “' + query.want.join(' ') + '”.');
+            s.say(score >= 100 ? 'Both right.'
+                : 'Answer was “' + query.want.join(' ') + '”' + (hits === 1 ? ' — half of it.' : '.'));
             s.go.textContent = 'Again';
             s.go.disabled = false;
             input.blur();
@@ -588,12 +649,13 @@
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            if (phase === 'answer') judge(input.value);
+            judge(input.value);
         });
 
         s.go.addEventListener('click', () => { if (phase !== 'study') round(); });
         s.go.textContent = 'Start';
-        s.stage.innerHTML = '<p class="mg-q">Four slots, one question. A typo still counts.</p>';
+        s.stage.innerHTML = '<p class="mg-q">Three cards, then two things about two of them. ' +
+            'A typo still counts, and getting one of the two is worth half.</p>';
         s.say('');
         return () => s.stopAll();
     }

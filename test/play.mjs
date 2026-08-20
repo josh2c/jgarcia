@@ -112,20 +112,96 @@ run('Word Flash', () => {
     cleanup();
 });
 
-/* ---- Memory Match ---- */
+/* ---- Memory Match ----
+   Read the cards back off the DOM, parse the prompt the game printed, work out
+   the right answer and type it. A game that never accepts a correct answer is
+   exactly the failure this has to catch. */
+const BAND = { '#f44336': 'red', '#2196f3': 'blue', '#4caf50': 'green', '#ffd21f': 'yellow', '#9c27b0': 'purple' };
+const INK = { '#c62828': 'red', '#1565c0': 'blue', '#2e7d32': 'green', '#8a6300': 'yellow', '#6a1b9a': 'purple' };
+
+function readCards(host) {
+    return host.querySelectorAll('.mm-card').map((el) => {
+        const band = (el.querySelector('.mm-band').attrs.style || '').match(/#[0-9a-f]{6}/i)[0].toLowerCase();
+        const svg = el.querySelector('.mm-shape svg');
+        const kid = svg.children[0].children[0];
+        const shape = kid.tag === 'circle' ? 'circle'
+            : kid.tag === 'path' ? 'triangle'
+            : kid.attrs.x === '10' ? 'square' : 'rectangle';
+        const lines = el.querySelectorAll('.mm-lines span');
+        const inkOf = (n) => INK[(lines[n].attrs.style || '').match(/#[0-9a-f]{6}/i)[0].toLowerCase()];
+        return {
+            slot: Number(el.querySelector('.mm-n').textContent),
+            shape, bgColor: BAND[band],
+            colorWord: lines[0].textContent.toLowerCase(), colorInk: inkOf(0),
+            digit: lines[1].textContent, digitInk: inkOf(1),
+            shapeWord: lines[2].textContent.toLowerCase(), shapeInk: inkOf(2)
+        };
+    });
+}
+const ATTR_KEY = {
+    'SHAPE': 'shape', 'BG COLOR': 'bgColor', 'COLOR WORD': 'colorWord', 'COLOR INK': 'colorInk',
+    'DIGIT': 'digit', 'DIGIT INK': 'digitInk', 'SHAPE WORD': 'shapeWord', 'SHAPE INK': 'shapeInk'
+};
+
 run('Memory Match', () => {
+    let perfect = 0, half = 0, rounds = 0;
+    const seenAttrs = new Set();
+    for (let n = 0; n < 40; n++) {
+        const host = fresh();
+        const cleanup = games.memoryMatch(host);
+        go(host).dispatch('click');
+        const cards = readCards(host);
+        if (n === 0) {
+            ok('shows three cards', cards.length === 3, cards.length + ' cards');
+            ok('every attribute is readable from the card',
+                cards.every((c) => c.shape && c.bgColor && c.colorWord && c.colorInk &&
+                                   c.digit && c.digitInk && c.shapeWord && c.shapeInk));
+        }
+        tick(6000);
+        const prompt = host.querySelector('.mm-prompt').textContent;
+        const m = /^(.+?) FROM SLOT \((\d)\) AND (.+?) FROM SLOT \((\d)\)$/.exec(prompt);
+        if (!m) { ok('prompt matches the app format', false, prompt); cleanup(); break; }
+        seenAttrs.add(m[1]); seenAttrs.add(m[3]);
+        if (m[2] === m[4]) ok('the two slots are always different', false, prompt);
+        const want = [
+            cards[Number(m[2]) - 1][ATTR_KEY[m[1]]],
+            cards[Number(m[4]) - 1][ATTR_KEY[m[3]]]
+        ];
+        // Correct answer.
+        host.querySelector('input').value = want.join(' ');
+        host.querySelector('.mg-answer').dispatch('submit');
+        const sc = Number((/Score (\d+)/.exec(stat(host)) || [])[1]);
+        if (sc >= 100) perfect++;
+        rounds++;
+        cleanup();
+
+        // And a half-right answer on a fresh round.
+        const h2 = fresh();
+        const c2 = games.memoryMatch(h2);
+        go(h2).dispatch('click');
+        const cards2 = readCards(h2);
+        tick(6000);
+        const p2 = /^(.+?) FROM SLOT \((\d)\) AND (.+?) FROM SLOT \((\d)\)$/.exec(
+            h2.querySelector('.mm-prompt').textContent);
+        h2.querySelector('input').value = cards2[Number(p2[2]) - 1][ATTR_KEY[p2[1]]] + ' zzzzz';
+        h2.querySelector('.mg-answer').dispatch('submit');
+        if (/Score 50\b/.test(stat(h2))) half++;
+        c2();
+    }
+    ok('a correct answer always scores full', perfect === rounds, perfect + '/' + rounds);
+    ok('one of two scores 50', half > 0, half + '/' + rounds + ' half-right rounds scored 50');
+    ok('all eight attributes get asked', seenAttrs.size === 8,
+        seenAttrs.size + ' seen: ' + [...seenAttrs].join(', '));
+});
+
+run('Memory Match, running out of time', () => {
     const host = fresh();
     const cleanup = games.memoryMatch(host);
     go(host).dispatch('click');
-    const slots = host.querySelectorAll('.mg-slot');
-    ok('shows four slots', slots.length === 4, slots.length + ' slots');
-    tick(10000);
-    ok('asks a question', !!host.querySelector('.mg-q'));
-    const form = host.querySelector('.mg-answer');
-    ok('offers an input', !!form);
-    host.querySelector('input').value = 'red triangle';
-    form.dispatch('submit');
-    ok('scores the answer', /Score \d+/.test(stat(host)), stat(host));
+    tick(6000);
+    ok('the answer phase is timed', /Answer \d+s/.test(stat(host)), stat(host));
+    tick(12000);
+    ok('timing out scores zero', /Score 0\b/.test(stat(host)), stat(host));
     cleanup();
 });
 
@@ -182,28 +258,6 @@ run('Light Squares, played correctly', () => {
     go(host).dispatch('click');
     ok('streak carries between rounds', /streak 2\b/.test(stat(host)), stat(host));
     cleanup();
-});
-
-run('Memory Match, answered correctly', () => {
-    for (let attempt = 0; attempt < 30; attempt++) {
-        const host = fresh();
-        const cleanup = games.memoryMatch(host);
-        go(host).dispatch('click');
-        // Slot n holds shape/colour; read them back off the rendered cards.
-        const slots = host.querySelectorAll('.mg-slot');
-        const seen = slots.map((s) => (s.querySelector('svg').querySelector('[fill]') || {}).attrs || {});
-        tick(10000);
-        const q = host.querySelector('.mg-q').textContent;
-        const m = /What shape was in slot (\d)\?/.exec(q);
-        cleanup();
-        if (!m) continue;
-        // Only the shape question is answerable from the harness, since the
-        // shape name is not in the DOM — skip and rely on the score path being
-        // shared with the other question forms.
-        ok('a shape question is reachable', true, q);
-        return;
-    }
-    ok('a shape question is reachable', false, 'never drawn in 30 tries');
 });
 
 console.log('\n  ' + (fails ? fails + ' FAILURES' : 'all checks passed'));
