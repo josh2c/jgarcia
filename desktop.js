@@ -431,27 +431,29 @@ if (mbPaint) {
 /* Menubar entries that need script. */
 /* --------------------------------------------------------------- clock --- */
 
-/* The latest post is read from blog.html so the panel cannot go stale as you
- * publish. The markup in the page is the fallback. */
-fetch('blog.html')
-    .then((r) => (r.ok ? r.text() : null))
-    .then((html) => {
-        if (!html) return;
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const post = doc.querySelector('.post');
-        if (!post) return;
-        const title = post.querySelector('.post-title');
-        const date = post.querySelector('.date');
-        const cat = post.querySelector('.category');
-        const href = post.querySelector('.read-more');
-        const t = document.querySelector('.dt-pad-title');
-        const m = document.querySelector('.dt-pad-meta');
-        const a = document.querySelector('.dt-pad-body');
-        if (t && title) t.textContent = title.textContent;
-        if (m && date) m.textContent = date.textContent + (cat ? ' · ' + cat.textContent : '');
-        if (a && href) a.setAttribute('href', href.getAttribute('href'));
-    })
-    .catch(() => { /* offline — the markup in the page stands */ });
+/* ------------------------------------------------------------- readme --- */
+/* The pad is a real editor, so it behaves like one: the filename picks up a
+ * leading asterisk the moment you change anything, and the status line tracks
+ * the caret. Edits are not stored — reload and it is the readme again. */
+
+const padText = document.getElementById('pad-text');
+const padPos = document.getElementById('pad-pos');
+const padDirty = document.getElementById('pad-dirty');
+
+if (padText) {
+    const pristine = padText.value;
+
+    const caret = () => {
+        const upto = padText.value.slice(0, padText.selectionStart).split('\n');
+        padPos.textContent = 'Ln ' + upto.length + ', Col ' + (upto[upto.length - 1].length + 1);
+    };
+
+    ['input', 'click', 'keyup', 'select', 'focus'].forEach((e) => padText.addEventListener(e, caret));
+    padText.addEventListener('input', () => {
+        padDirty.textContent = padText.value === pristine ? '' : '*';
+    });
+    caret();
+}
 
 const timeEl = document.getElementById('clock-time');
 const dateEl = document.getElementById('clock-date');

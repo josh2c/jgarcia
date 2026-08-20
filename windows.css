@@ -2,21 +2,27 @@
 
 /* ---------- menubar ---------- */
 
+/* A floating bar, not a strip welded to the top edge. It sits inset on all
+   three sides with a full rounded border, the way a tiling-WM panel does — the
+   gap around it is the whole effect, because it is what makes the bar read as
+   an object on the desktop rather than a browser chrome. */
 .menubar {
     position: fixed;
     z-index: 200;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2.9rem;
+    top: 0.65rem;
+    left: 0.65rem;
+    right: 0.65rem;
+    height: 2.6rem;
     display: flex;
     align-items: center;
-    gap: clamp(0.75rem, 2.5vw, 2rem);
-    padding: 0 clamp(0.75rem, 3vw, 1.75rem);
+    gap: clamp(0.6rem, 2vw, 1.6rem);
+    padding: 0 0.5rem 0 0.85rem;
     background: var(--glass);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
-    border-bottom: 1px solid var(--glass-edge-soft);
+    border: 1px solid var(--glass-edge-soft);
+    border-radius: 13px;
+    box-shadow: var(--glass-lift), var(--glass-inset);
     color: var(--on-glass);
 }
 
@@ -54,8 +60,6 @@
 .mb-nav a:hover, .mb-nav button:hover { color: var(--on-glass); background: rgba(255, 255, 255, 0.14); }
 .mb-nav .is-current { color: var(--on-glass); background: rgba(255, 255, 255, 0.22); }
 
-.mb-right { margin-left: auto; display: flex; align-items: center; gap: 0.9rem; }
-
 .mb-view { display: flex; align-items: center; gap: 0.3rem; }
 
 .mb-view button {
@@ -77,6 +81,19 @@
 /* Paintball. A mode over the whole page, so it sits with the view control
    rather than in the desktop dock — the dock is gone the moment you enter the
    board, which is exactly where you want to be shooting. */
+/* The controls sit in their own recessed tray, so the bar reads as two groups
+   rather than one row of loose buttons. */
+.mb-right {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: auto;
+    padding: 0.2rem 0.25rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--glass-edge-soft);
+    border-radius: 10px;
+}
+
 .mb-tool {
     display: inline-flex;
     align-items: center;
@@ -116,7 +133,8 @@
 .is-desktop .mb-view { opacity: 0; pointer-events: none; }
 
 /* Everything below the bar starts below the bar. */
-.dt-surface { padding-top: 4.5rem; }
+/* Clears the floating bar: 0.65rem inset + 2.6rem tall + breathing room. */
+.dt-surface { padding-top: 4.6rem; }
 .board-hint { bottom: 1.5rem; }
 
 /* ---------- windows ---------- */
@@ -149,7 +167,7 @@
 
 .win.is-max {
     left: 1rem !important;
-    top: 3.6rem !important;
+    top: 3.9rem !important;
     width: calc(100vw - 2rem) !important;
     height: calc(100vh - 5rem) !important;
 }

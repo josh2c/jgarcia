@@ -247,8 +247,11 @@
 
     document.addEventListener('keydown', (e) => {
         if (!armed) return;
-        if (e.key === 'Escape') disarm();
-        if (e.key === 'c' || e.key === 'C') clear();
+        // The readme is a real text field. Typing a "c" into it should write a
+        // c, not wipe the canvas.
+        const typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable;
+        if (e.key === 'Escape') return disarm();
+        if (!typing && (e.key === 'c' || e.key === 'C')) clear();
     });
 
     document.addEventListener('click', (e) => {
