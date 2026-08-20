@@ -105,6 +105,10 @@ const RAW = [
 
     /* ---- more voice, so the board reads rather than just decorates ---- */
 
+    { type: 'img', x: 2742, y:  782, w:  436, h:  256, src: 'board/img/todo.webp',
+      alt: 'Aoi Todo from Jujutsu Kaisen, arms folded', title: 'Todo',
+      body: 'Jujutsu Kaisen. The one who asks the question first and fights afterwards \u2014 the whole bit is that taste tells you more about someone than a r\u00e9sum\u00e9 does.' },
+
     /* ---- other people's words. A moodboard collects what resonates,
          not the owner's own back catalogue. ---- */
     { type: 'quote', x: 1162, y: 2662, w:  496, h:  296, tone: 'amber', face: 'shout', fs: 102,
