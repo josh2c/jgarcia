@@ -187,27 +187,19 @@
     padding: 4px 8px;
 }
 
-/* --- the dice piece ---
-   A piece standing ON the board, not a card lying on it. In isometric the two
-   rotations cancel the plane's, so it stays upright and facing you while the
-   board tips around it — which is what makes entering read as one movement
-   rather than a swap. */
+/* --- the dice card ---
+   A card lying WITH the plane, like every other image on the board. Standing
+   it upright made it a cut-out: a flat billboard with a hard edge where it met
+   the ground. Lying down, it also tips as you enter — the dice lay themselves
+   onto the board rather than being swapped onto it. */
 
 .bi-piece {
-    background: none;
-    border: 0;
-    box-shadow: none !important;
-    transform-style: preserve-3d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    background: var(--jg-panel);
     pointer-events: none;
-}
-
-.is-iso .bi-piece {
-    transform: translateZ(2px) rotateZ(45deg) rotateX(-60deg) rotate(var(--tilt));
-}
-
-.bi-piece img {
-    object-fit: contain;
-    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.5));
 }
 
 /* --- placeholder --- */
