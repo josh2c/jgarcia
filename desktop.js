@@ -44,7 +44,8 @@ const FOLDERS = [
         icon: "<path d='M4 5h16M4 10h16M4 15h11M4 20h7'/>",
         title: 'Thoughts',
         body: 'Twenty-two posts on innovation, leadership, productivity and sport.',
-        reader: true
+        reader: true,
+        count: '22 posts'
     },
     {
         name: 'Elsewhere',
@@ -76,19 +77,31 @@ const DOCK = [
 
 /* ----------------------------------------------------------- rendering --- */
 
-function iconButton(label, className, inner) {
+function iconButton(label, className, inner, count) {
     const el = document.createElement('button');
     el.type = 'button';
     el.className = 'dt-icon ' + className;
-    el.innerHTML = inner + '<span class="dt-icon-label">' + label + '</span>';
+    el.innerHTML = inner + '<span class="dt-icon-label">' + label + '</span>' +
+        (count ? '<span class="dt-icon-count">' + count + '</span>' : '');
     return el;
+}
+
+/* What the folder actually holds, shown under the name. */
+function countFor(f) {
+    if (f.count) return f.count;
+    if (f.skills) return 'loading…';
+    const n = (f.links || []).length;
+    return n ? n + (n === 1 ? ' item' : ' items') : '';
 }
 
 const foldersEl = document.getElementById('folders');
 FOLDERS.forEach((f, i) => {
     const el = iconButton(f.name, 'dt-folder-icon',
         '<span class="dt-folder" aria-hidden="true">' +
-        '<svg viewBox="0 0 24 24">' + (f.icon || '') + '</svg></span>');
+          '<span class="f-back"></span>' +
+          '<span class="f-card"></span><span class="f-card"></span><span class="f-card"></span>' +
+          '<span class="f-front"><svg viewBox="0 0 24 24">' + (f.icon || '') + '</svg></span>' +
+        '</span>', countFor(f));
     el.addEventListener('click', () => openFolder(i));
     foldersEl.appendChild(el);
 });
@@ -100,6 +113,9 @@ FILES.forEach((f, i) => {
     el.addEventListener('click', () => openFile(i));
     filesEl.appendChild(el);
 });
+
+// Populate the Skills count on load rather than waiting for someone to open it.
+loadSkills(null);
 
 const dockEl = document.getElementById('dock');
 DOCK.forEach((d, i) => {
@@ -116,10 +132,19 @@ DOCK.forEach((d, i) => {
 const SKILLS_CACHE = 'jg-skills';
 const SKILLS_TTL = 864e5;
 
+/* The Skills tile cannot know its count until GitHub answers. */
+function showSkillCount(n) {
+    const tile = [...document.querySelectorAll('.dt-folder-icon')]
+        .find((el) => el.querySelector('.dt-icon-label').textContent === 'Skills');
+    const slot = tile && tile.querySelector('.dt-icon-count');
+    if (slot) slot.textContent = n + (n === 1 ? ' skill' : ' skills');
+}
+
 function loadSkills(host) {
-    if (!host) return;
+    // host may be null: the count is wanted on load, the list only when the
+    // folder is opened. The guard belongs on the render, not the fetch.
     const render = (names) => {
-        if (!names.length) return;
+        if (!host || !names.length) return;
         host.innerHTML = '<ul class="dt-links">' + names.map((n) =>
             '<li><a href="https://github.com/josh2c/skills/tree/main/skills/' + n + '"' +
             ' target="_blank" rel="noopener noreferrer"><span>' + n + ' \u2192</span>' +
@@ -127,7 +152,7 @@ function loadSkills(host) {
     };
     try {
         const hit = JSON.parse(localStorage.getItem(SKILLS_CACHE) || 'null');
-        if (hit && Date.now() - hit.at < SKILLS_TTL) { render(hit.names); return; }
+        if (hit && Date.now() - hit.at < SKILLS_TTL) { render(hit.names); showSkillCount(hit.names.length); return; }
     } catch (err) { /* ignore a bad cache */ }
 
     fetch('https://api.github.com/repos/josh2c/skills/contents/skills')
@@ -137,6 +162,7 @@ function loadSkills(host) {
             const names = d.filter((e) => e.type === 'dir').map((e) => e.name);
             try { localStorage.setItem(SKILLS_CACHE, JSON.stringify({ at: Date.now(), names })); } catch (err) { /* storage full */ }
             render(names);
+            showSkillCount(names.length);
         })
         .catch(() => { /* offline or rate-limited — the repo link still works */ });
 }

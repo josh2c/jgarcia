@@ -65,6 +65,11 @@
         #5b8fc9 84%,
         #6b8ca3 100%);
 
+    /* One folder colour for all five, so the glyph is what distinguishes
+       them. Amber against the teal ground. */
+    --fold-back:    #d98f28;
+    --fold-front:   #f3b44a;
+    --fold-front-2: #e79a2c;
     --r-lg: 26px;
     --r-md: 18px;
     --r-sm: 12px;

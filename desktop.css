@@ -77,24 +77,89 @@ html { height: 100%; }
     color: var(--on-glass);
 }
 
-/* A rounded frosted tile with a glyph — the reference is Control Centre, not
-   a paper folder. The tab version seamed badly where the two borders met. */
+/* Folder: three layers — a back panel, contents peeking between, and a front
+   panel that tips forward on hover so it reads as opening. Solid rather than
+   frosted; the chunky solidity is the point, and a glass folder would be a
+   ghost of one. */
 .dt-folder {
     position: relative;
-    display: grid;
-    place-items: center;
-    width: 4.6rem;
-    height: 4.6rem;
-    background: var(--glass);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-edge);
-    border-radius: var(--r-md);
-    box-shadow: var(--glass-lift), var(--glass-inset);
-    transition: background 0.15s linear, transform 0.15s ease-out;
+    width: 5.4rem;
+    height: 4.4rem;
+    perspective: 520px;
+    transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 
-.dt-folder svg,
+.dt-icon:hover .dt-folder,
+.dt-icon:focus-visible .dt-folder { transform: translateY(-5px); }
+
+/* Back panel, with the tab. */
+.f-back {
+    position: absolute;
+    inset: 0.35rem 0 0 0;
+    background: var(--fold-back);
+    border-radius: 0.7rem;
+    box-shadow: 0 8px 18px rgba(12, 46, 66, 0.24);
+}
+
+.f-back::before {
+    content: '';
+    position: absolute;
+    left: 0.1rem;
+    top: -0.42rem;
+    width: 46%;
+    height: 0.7rem;
+    background: var(--fold-back);
+    border-radius: 0.45rem 0.45rem 0 0;
+}
+
+/* Contents. They sit between the panels and rise as it opens. */
+.f-card {
+    position: absolute;
+    left: 50%;
+    bottom: 1.15rem;
+    width: 62%;
+    height: 2.5rem;
+    margin-left: -31%;
+    background: #fbfaf6;
+    border-radius: 0.34rem;
+    box-shadow: 0 2px 6px rgba(12, 46, 66, 0.18);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.f-card:nth-child(2) { transform: translateY(0) rotate(-4deg) scale(0.94); }
+.f-card:nth-child(3) { transform: translateY(0) rotate(2deg) scale(0.97); }
+.f-card:nth-child(4) { transform: translateY(0) rotate(0deg); }
+
+.dt-icon:hover .f-card:nth-child(2) { transform: translateY(-13px) rotate(-11deg) scale(0.94); }
+.dt-icon:hover .f-card:nth-child(3) { transform: translateY(-16px) rotate(7deg) scale(0.97); }
+.dt-icon:hover .f-card:nth-child(4) { transform: translateY(-19px) rotate(-1deg); }
+
+/* Front panel. Tips forward from its bottom edge. */
+.f-front {
+    position: absolute;
+    inset: 1.15rem 0 0 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(168deg, var(--fold-front) 0%, var(--fold-front-2) 100%);
+    border-radius: 0.7rem;
+    transform-origin: bottom center;
+    transform: rotateX(0deg);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+.dt-icon:hover .f-front,
+.dt-icon:focus-visible .f-front { transform: rotateX(-28deg); }
+
+/* Item count under the name. */
+.dt-icon-count {
+    font-family: var(--jg-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    color: var(--on-glass-soft);
+}
+
+.f-front svg,
 .dt-tool svg {
     width: 46%;
     height: 46%;
@@ -106,12 +171,9 @@ html { height: 100%; }
     opacity: 0.85;
 }
 
-.dt-icon:hover .dt-folder {
-    background: var(--glass-strong);
-    transform: translateY(-2px);
-}
+.f-front svg { width: 38%; height: 38%; stroke: rgba(34, 30, 12, 0.62); }
 
-.dt-icon:hover /* ---------- hero ---------- */
+/* ---------- hero ---------- */
 
 .dt-hero {
     position: absolute;
@@ -476,12 +538,14 @@ html { height: 100%; }
     content: '';
     position: absolute;
     inset: 0;
+    /* Enough variation for the frosting to have something to smear, far below
+       the strength where the fields read as blotches on the ground itself. */
     background:
-        radial-gradient(38rem 26rem at 50% 44%, rgba(255, 255, 255, 0.42), transparent 70%),
-        radial-gradient(26rem 26rem at 12% 16%, rgba(255, 245, 214, 0.55), transparent 68%),
-        radial-gradient(30rem 24rem at 88% 26%, rgba(122, 214, 255, 0.45), transparent 70%),
-        radial-gradient(24rem 22rem at 78% 82%, rgba(255, 190, 150, 0.38), transparent 68%),
-        radial-gradient(28rem 22rem at 18% 88%, rgba(150, 240, 205, 0.45), transparent 70%);
+        radial-gradient(46rem 34rem at 50% 46%, rgba(255, 255, 255, 0.22), transparent 72%),
+        radial-gradient(34rem 30rem at 8% 12%, rgba(255, 246, 220, 0.20), transparent 70%),
+        radial-gradient(38rem 30rem at 92% 22%, rgba(120, 205, 255, 0.18), transparent 72%),
+        radial-gradient(32rem 28rem at 84% 88%, rgba(255, 196, 160, 0.16), transparent 70%),
+        radial-gradient(34rem 28rem at 12% 92%, rgba(150, 240, 210, 0.18), transparent 72%);
 }
 
 .is-board .dt-veil { opacity: 0; }
@@ -610,7 +674,6 @@ html { height: 100%; }
    unchanged, only the blur is missing — but a touch more body keeps the
    panels reading as objects rather than tints. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .dt-folder,
     .dt-widget,
     .dt-tool,
     .dt-trash-icon { background: rgba(255, 255, 255, 0.62); }
