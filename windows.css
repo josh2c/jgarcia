@@ -310,14 +310,3 @@
     .mb-right { gap: 0.5rem; }
 }
 
-/* ---------- wave transition ---------- */
-
-.wave-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 500;          /* above the windows and the menubar */
-    pointer-events: none;
-    opacity: 0;
-}
-
-.wave-canvas.is-on { opacity: 1; }

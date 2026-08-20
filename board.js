@@ -9,7 +9,7 @@
  * plane into isometric — one page throughout, no navigation.
  */
 
-import { ITEMS, TILE_W, TILE_H } from './boarddata.js';
+import { ITEMS, TILE_W, TILE_H, HOME_X, HOME_Y } from './boarddata.js';
 
 /* Screen<->board mapping for `rotateX(60deg) rotateZ(-45deg)`:
  *   sx = (bx + by) * SX
@@ -34,6 +34,7 @@ let entered = false;
 /* ------------------------------------------------------------- build DOM -- */
 
 function isClickable(item) {
+    if (item.type === 'piece') return false;      // the dice is scenery here
     return item.type === 'img' || item.type === 'note' ||
            (item.type === 'quote' && item.href);
 }
@@ -64,7 +65,7 @@ function buildItem(item, index) {
         el.innerHTML =
             '<span class="q-text">' + esc(item.text) + '</span>' +
             '<span class="q-attr">' + esc(item.attr) + '</span>';
-    } else if (item.type === 'img') {
+    } else if (item.type === 'img' || item.type === 'piece') {
         el.innerHTML = '<img src="' + item.src + '" alt="' + esc(item.alt) + '" loading="lazy">';
     } else if (item.type === 'swatch') {
         el.style.background = item.hex;
@@ -96,8 +97,10 @@ function buildTile() {
 const viewport = document.getElementById('viewport');
 const surface = document.getElementById('surface');
 
-let camX = TILE_W * 0.35;
-let camY = TILE_H * 0.3;
+/* The camera rests on the dice, so the piece sits where the desktop hero
+ * already was and entering does not move it. */
+let camX = HOME_X;
+let camY = HOME_Y;
 let tiles = [];
 
 /* A screen rectangle maps back to a diamond in board space, so the tilted
@@ -157,46 +160,59 @@ function markMenubar(which) {
     if (b) b.classList.toggle('is-current', which === 'board');
 }
 
+/* Entering is a handoff, not a swap. The ground is the same colour on both
+ * sides, so nothing about it changes; the desktop furniture clears, the plane
+ * tips, and the dice — already standing at the camera's resting point — simply
+ * stops being the hero and starts being a piece on the board. */
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
 
-    // Everything the eye could catch happens while the water covers the
-    // screen. Changing layers first and washing over afterwards would show
-    // the swap and then hide the finished result — backwards.
-    const swap = () => {
-        document.body.classList.remove('is-desktop');
-        document.body.classList.add('is-board');
-        markMenubar('board');
+    document.body.classList.remove('is-desktop');
+    document.body.classList.add('is-board');
+    markMenubar('board');
+
+    coverageIso = true;
+    render();
+
+    if (instant) {
         ISO = true;
-        coverageIso = true;
         document.body.classList.add('is-iso');
         render();
         markView('iso');
-    };
+        return;
+    }
 
-    if (instant || !window.jgWave) { swap(); return; }
-    window.jgWave.play(swap);
+    document.body.classList.add('is-entering');
+    // Next frame, so the plane has a start value to rotate from.
+    requestAnimationFrame(() => {
+        ISO = true;
+        document.body.classList.add('is-iso');
+        render();
+        markView('iso');
+    });
+    setTimeout(() => document.body.classList.remove('is-entering'), 1100);
 }
 
-/* Back out: the same wash in reverse. */
 function leaveBoard() {
     if (!entered) return;
     entered = false;
 
-    const swap = () => {
-        document.body.classList.remove('is-board');
-        document.body.classList.add('is-desktop');
-        markMenubar('desktop');
+    document.body.classList.add('is-entering');
+    requestAnimationFrame(() => {
         ISO = false;
-        coverageIso = false;
         document.body.classList.remove('is-iso');
         render();
         markView('flat');
-    };
-
-    if (!window.jgWave) { swap(); return; }
-    window.jgWave.play(swap);
+    });
+    setTimeout(() => {
+        document.body.classList.remove('is-entering');
+        document.body.classList.remove('is-board');
+        document.body.classList.add('is-desktop');
+        markMenubar('desktop');
+        coverageIso = false;
+        render();
+    }, 1000);
 }
 
 window.jgEnterBoard = () => enterBoard(false);

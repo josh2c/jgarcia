@@ -203,12 +203,14 @@ html { height: 100%; }
 .dt-hero {
     position: absolute;
     z-index: 10;
-    top: 48%;
+    /* Dead centre and a fixed width, because the board piece renders at the
+       camera's resting point — exactly the middle of the viewport — at exactly
+       560px. Any difference would show as a jump during the handoff. */
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* These dice are a wide strip — 2.26:1 against the previous 1.27:1 — so
-       they need more width to carry the same presence. */
-    width: clamp(19rem, 42vw, 36rem);
+    width: 560px;
+    max-width: 88vw;
     cursor: pointer;
     /* A contact shadow so they sit on the board rather than float over it. */
     filter: drop-shadow(0 22px 30px rgba(0, 0, 0, 0.5));
@@ -228,7 +230,7 @@ html { height: 100%; }
     50%      { transform: translateY(-10px) rotate(-2.5deg); }
 }
 
-.dt-hero:hover { transform: translate(-50%, -52%) scale(1.04); }
+.dt-hero:hover { transform: translate(-50%, -52%) scale(1.03); }
 
 .dt-hero img { display: block; width: 100%; height: auto; }
 
@@ -504,8 +506,15 @@ html { height: 100%; }
 .is-board .dt-layer {
     opacity: 0;
     pointer-events: none;
-    transform: scale(1.09);
+    transform: scale(1.04);
 }
+
+/* The hero and the board piece are the same dice in the same place. Only one
+   is drawn at a time, so the exchange is invisible. */
+.is-board .dt-hero { opacity: 0; }
+/* Matched to the ground fade, so the two dice cross rather than blink. */
+.dt-hero { transition: opacity 420ms ease-out; }
+.is-desktop .bi-piece { opacity: 1; }
 
 /* The desktop's ground. */
 .dt-veil {
@@ -515,26 +524,17 @@ html { height: 100%; }
     pointer-events: none;
     background: var(--ground);
     background-color: var(--desk);
-    transition: opacity 380ms ease-out;
+    transition: opacity 420ms ease-out;
 }
 
 
 .is-board .dt-veil { opacity: 0; }
 
-/* The board is hidden on the desktop entirely — not merely dimmed — and fades
-   in as you cross over. `visibility` keeps it out of hit-testing too. */
-.board-viewport {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 380ms ease-in, visibility 0s linear 380ms;
-}
-
-.is-board .board-viewport,
-.is-entering .board-viewport {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 260ms ease-out, visibility 0s;
-}
+/* The board stays visible throughout: both sides share a ground, so there is
+   nothing to reveal. Its CARDS fade, leaving only the dice — which is the
+   desktop hero — so the handoff has nothing to give itself away with. */
+.is-desktop .bi:not(.bi-piece) { opacity: 0; }
+.bi { transition: opacity 420ms ease-out; }
 
 /* While the desktop is up the board is scenery and must not catch a drag. */
 .is-desktop .board-viewport { pointer-events: none; cursor: default; }

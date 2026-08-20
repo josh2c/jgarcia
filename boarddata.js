@@ -10,10 +10,21 @@
  * Types: note (written section) · quote · img · swatch · ph
  */
 
-export const TILE_W = 2600;
-export const TILE_H = 1950;
+export const TILE_W = 3050;
+export const TILE_H = 2300;
+
+/* Where the camera rests, and where the dice piece stands. Entering aligns the
+ * hero with this exact point so the dice appears not to move — the board tips
+ * into place around it. */
+export const HOME_X = 1420;
+export const HOME_Y = 1854;
 
 export const ITEMS = [
+    /* The dice: a piece standing ON the board rather than a card lying on it.
+       Centred on HOME so it is where the desktop hero already was. */
+    { type: 'piece', x: HOME_X - 280, y: HOME_Y - 124, w: 560, h: 248, rot: 0,
+      src: 'board/img/dice.webp', alt: 'Dice' },
+
     /* ---- row 1 ------------------------------------------------------- */
     { type: 'note', x:   70, y:   70, w: 430, h: 300, rot: -2, num: '01', title: 'About',
       head: 'A creative who codes, designs, and thinks big.',

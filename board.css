@@ -57,15 +57,11 @@
        streaks and its screen-space grid show straight through the plane and
        cross it at the wrong angle — three grids fighting at once. */
     background-color: var(--jg-bg);
-    /* Light through water: broad soft pools over the grid, so the plane reads
-       as being under the surface the wave washes down from. */
+    /* Same ground as the desktop. Only the grid marks it as a plane. */
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        radial-gradient(30% 22% at 22% 18%, rgba(150, 226, 236, 0.16), transparent 70%),
-        radial-gradient(26% 20% at 74% 62%, rgba(120, 205, 230, 0.14), transparent 70%),
-        radial-gradient(34% 24% at 48% 88%, rgba(170, 235, 240, 0.10), transparent 72%);
-    background-size: 65px 65px, 65px 65px, 100% 100%, 100% 100%, 100% 100%;
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 72px 72px;
 }
 
 /* ---------- cards ---------- */
@@ -189,6 +185,29 @@
     background: var(--jg-paper);
     border: 2px solid var(--jg-ink);
     padding: 4px 8px;
+}
+
+/* --- the dice piece ---
+   A piece standing ON the board, not a card lying on it. In isometric the two
+   rotations cancel the plane's, so it stays upright and facing you while the
+   board tips around it — which is what makes entering read as one movement
+   rather than a swap. */
+
+.bi-piece {
+    background: none;
+    border: 0;
+    box-shadow: none !important;
+    transform-style: preserve-3d;
+    pointer-events: none;
+}
+
+.is-iso .bi-piece {
+    transform: translateZ(2px) rotateZ(45deg) rotateX(-60deg) rotate(var(--tilt));
+}
+
+.bi-piece img {
+    object-fit: contain;
+    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.5));
 }
 
 /* --- placeholder --- */
