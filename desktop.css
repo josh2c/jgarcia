@@ -107,8 +107,7 @@ html { height: 100%; }
 /* Anything sitting straight on the board needs its own ground. The board used
    to be a bare dark field; now it is covered in cream cards, where white type
    measures 2.0:1 even through the scrim. On the chip it is 8.9:1. */
-.dt-icon-cap,
-.dt-foot {
+.dt-icon-cap {
     background: rgba(20, 23, 24, 0.7);
     -webkit-backdrop-filter: blur(7px);
     backdrop-filter: blur(7px);
@@ -431,51 +430,6 @@ html { height: 100%; }
     opacity: 0.85;
 }
 
-/* ---------- footer ---------- */
-
-.dt-foot {
-    position: absolute;
-    z-index: 25;
-    left: 50%;
-    bottom: 2rem;
-    transform: translateX(-50%);
-    padding: 0.85rem 1.4rem 0.95rem;
-    text-align: center;
-    pointer-events: none;
-}
-
-.dt-mark {
-    width: 2.1rem;
-    height: 2.1rem;
-    margin: 0 auto 0.7rem;
-    border: 1px solid var(--on-glass-faint);
-    border-radius: 50%;
-    position: relative;
-}
-
-.dt-mark::before,
-.dt-mark::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 1px solid var(--on-glass-faint);
-    border-radius: 50%;
-}
-
-.dt-mark::before { transform: scaleX(0.42); }
-.dt-mark::after { transform: scaleY(0.42); }
-
-.dt-foot-line,
-.dt-foot-sub {
-    margin: 0;
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.17em;
-    text-transform: uppercase;
-}
-
-.dt-foot-sub { margin-top: 0.3rem; color: var(--on-glass-soft); }
-
 /* ---------- window ---------- */
 /* `display: flex` below outranks the UA stylesheet's [hidden] rule, so the
    attribute needs restating or the empty window shows permanently. */
@@ -496,7 +450,6 @@ html { height: 100%; }
         align-items: flex-start;
         padding-bottom: 3rem;
     }
-    .dt-foot { margin: 3rem auto 0; text-align: center; }
 }
 
 /* ---------- desktop as a layer over the board ----------
