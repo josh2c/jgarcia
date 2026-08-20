@@ -1,20 +1,24 @@
-/* Mind Override — six of the seven minigames from the Flutter app
- * (github.com/josh2c/mind_override), rebuilt in plain JS to run in a window.
+/* Mind Override — six games from josh2c/mind_override, rebuilt in plain JS.
  *
- * The rules, difficulty parameters and scoring formulas come from the app
- * itself rather than being reinvented — docs/tier3_mechanics.md for the
- * formulas, and the Dart for anything the docs only summarise. Memory Match
- * had to be rebuilt from lib/features/memory_match once it was clear the doc's
- * "8 card attributes" was describing a Stroop test, not a coloured shape. What is deliberately dropped is the meta-layer: the XP
- * ladder, unlock thresholds, difficulty tiers and progression persistence.
- * Nobody grinds 350 XP to unlock a game on a personal site, so each game runs
- * at one chosen tier and keeps a streak instead.
+ * Written against the Dart, not the docs. The docs summarise, and the summaries
+ * mislead where it matters: "8 card attributes" turned out to describe a Stroop
+ * face sitting behind a shuffled-number memory task, and Word Flash's "identify
+ * repeated words" turned out to be sudden death.
  *
- * Vortex Assemble is not here. It is built on a physics engine with vortex
- * gravity, 80%-overlap snapping and graph traversal for completion — a rewrite
- * rather than a port.
+ * Difficulty is the app's own, all five tiers, chosen by the player:
  *
- * Every mount(host) returns a cleanup, which the window manager calls on close.
+ *   Memory Match   slots 3/4/4/5/6   study 5/4/3/3/3s   answer 10/7/5/4/3s
+ *   Pattern Spot   grid 2/3/3/4/4    study 12/8/6/5/4s  changes 1/2/3/4/4
+ *   Word Flash     5/4/3/2/2s a word, 15+5 / 13+7 / 12+8 / 11+9 / 10+10
+ *   Quantum Count  20-50 .. 200-300 dots, tolerance 10/7/5/3/2
+ *   Transform      rules 4/5/6/6/7   flash 10/7/5/4/3s  answer 10/7/5/4/3s
+ *   Light Squares  15/25/35/45/55% of the grid lit
+ *
+ * Dropped on purpose: the XP ladder, unlock thresholds, progression storage,
+ * Gauntlet mode. Vortex Assemble is absent — physics, vortex gravity and
+ * graph-traversal completion is a rewrite, not a port.
+ *
+ * Every mount(host) returns a cleanup, which the window manager runs on close.
  */
 
 (function () {
@@ -24,6 +28,7 @@
 
     const rnd = (n) => Math.floor(Math.random() * n);
     const pick = (a) => a[rnd(a.length)];
+    const TIERS = ['Easy', 'Medium', 'Hard', 'Expert', 'Master'];
 
     function shuffle(a) {
         const out = a.slice();
@@ -34,8 +39,9 @@
         return out;
     }
 
-    /* Levenshtein, capped. The app accepts an answer one character off:
-     * "triangl", "trianglee" and "trianngle" all match "triangle". */
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    /* Levenshtein, capped. The app accepts an answer one character out. */
     function lev(a, b) {
         a = String(a).toLowerCase().trim();
         b = String(b).toLowerCase().trim();
@@ -46,11 +52,8 @@
         for (let i = 1; i <= m; i++) {
             const cur = [i];
             for (let j = 1; j <= n; j++) {
-                cur[j] = Math.min(
-                    prev[j] + 1,
-                    cur[j - 1] + 1,
-                    prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
-                );
+                cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1,
+                    prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
             }
             prev = cur;
         }
@@ -59,99 +62,124 @@
 
     const near = (a, b) => lev(a, b) <= 1;
 
-    /* How many of the expected words the answer got, allowing one typo each
-     * and ignoring order. */
+    /* Both expected words, in any order, each allowed one typo. */
     function scoreWords(answer, expected) {
         const got = String(answer).toLowerCase().trim().split(/\s+/).filter(Boolean);
-        const want = expected.map((w) => w.toLowerCase());
         const used = new Set();
         let hits = 0;
-        for (const w of want) {
+        for (const w of expected.map((x) => String(x).toLowerCase())) {
             const i = got.findIndex((g, k) => !used.has(k) && near(g, w));
             if (i >= 0) { used.add(i); hits++; }
         }
         return hits;
     }
 
-    const SHAPES = ['circle', 'square', 'triangle', 'star', 'diamond'];
-    const COLOURS = [
-        { name: 'red', hex: '#e0574a' },
-        { name: 'blue', hex: '#3b82f6' },
-        { name: 'green', hex: '#22c55e' },
-        { name: 'amber', hex: '#e8a33d' },
-        { name: 'violet', hex: '#a98ed2' },
-        { name: 'teal', hex: '#2b9c96' }
-    ];
+    /* ---------------------------------------------------------- drawing --- */
 
-    /* `pip` is not decoration. Every shape here is symmetric about its vertical
-     * axis, so a flip is invisible on all of them, and a square or a diamond
-     * rotated by a quarter turn is identical to itself. Pattern Spot would have
-     * generated changes nobody could ever spot. The pip sits off both axes, so
-     * any rotation or flip moves it somewhere visibly different. Memory Match
-     * never rotates anything and leaves it off. */
-    function shapeSvg(shape, hex, rot, flip, pip) {
-        const t = 'rotate(' + (rot || 0) + ' 24 24)' + (flip ? ' scale(-1 1) translate(-48 0)' : '');
-        // Off BOTH axes and off the 45-degree diagonal. On the diagonal a mirror
-        // lands exactly where a rotation does, and four of the eight
-        // orientations become the same picture. Kept close to the centre so it
-        // still falls inside the narrowest shape, which is the triangle.
-        const mark = pip ? '<circle cx="29" cy="21" r="2.6" fill="rgba(255,255,255,0.92)"/>' : '';
-        const body = {
-            circle: '<circle cx="24" cy="24" r="15"/>',
-            square: '<rect x="10" y="10" width="28" height="28" rx="3"/>',
-            triangle: '<path d="M24 8 41 38 7 38Z"/>',
-            star: '<path d="M24 7 29 19 42 20 32 29 35 42 24 35 13 42 16 29 6 20 19 19Z"/>',
-            diamond: '<path d="M24 7 40 24 24 41 8 24Z"/>',
-            rectangle: '<rect x="6" y="15" width="36" height="18" rx="2"/>'
-        }[shape];
-        return '<svg viewBox="0 0 48 48" aria-hidden="true"><g fill="' + hex +
-            '" transform="' + t + '">' + body + mark + '</g></svg>';
+    const PALETTE = [
+        { name: 'red', hex: '#d32f2f' },
+        { name: 'orange', hex: '#f57c00' },
+        { name: 'yellow', hex: '#fbc02d' },
+        { name: 'green', hex: '#43a047' },
+        { name: 'blue', hex: '#1e88e5' },
+        { name: 'purple', hex: '#8e24aa' },
+        { name: 'white', hex: '#ffffff' },
+        { name: 'black', hex: '#212121' }
+    ];
+    const BRIGHT = PALETTE.slice(0, 6);
+
+    function lum(hex) {
+        const c = [1, 3, 5].map((i) => parseInt(hex.substr(i, 2), 16) / 255)
+            .map((v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    }
+    /* Any ink lands on any background here, deliberately — the card puts every
+     * colour against every other. Outlining the type is what keeps white on
+     * orange and yellow on white legible. */
+    const outline = (hex) => (lum(hex) > 0.4 ? '#111' : '#fff');
+
+    const SHAPE_PATH = {
+        circle: '<circle cx="32" cy="32" r="26"/>',
+        square: '<rect x="7" y="7" width="50" height="50"/>',
+        triangle: '<path d="M32 5 60 58 4 58Z"/>',
+        rectangle: '<rect x="4" y="16" width="56" height="32"/>',
+        star: '<path d="M32 5 39 24 59 25 43 37 48 57 32 46 16 57 21 37 5 25 25 24Z"/>',
+        diamond: '<path d="M32 4 58 32 32 60 6 32Z"/>',
+        arrow: '<path d="M6 24h28V10l24 22-24 22V40H6Z"/>'
+    };
+
+    /* Every shape carries a dark edge, so a yellow shape on a white card is
+     * still a shape. The original relies on fill alone and loses those pairs. */
+    function shapeSvg(shape, hex, opts) {
+        const o = opts || {};
+        const t = 'rotate(' + (o.rot || 0) + ' 32 32)' +
+            (o.flip === 'h' ? ' scale(-1 1) translate(-64 0)' : '') +
+            (o.flip === 'v' ? ' scale(1 -1) translate(0 -64)' : '');
+        return '<svg viewBox="0 0 64 64" aria-hidden="true" class="mg-svg">' +
+            '<g transform="' + t + '" fill="' + hex + '" stroke="rgba(0,0,0,0.55)" stroke-width="2">' +
+            SHAPE_PATH[shape] + '</g></svg>';
     }
 
-    /* One chrome for all six, so a game only has to fill the stage. */
+    /* ------------------------------------------------------------ shell --- */
+
     function shell(host, opts) {
         host.innerHTML =
             '<div class="mg">' +
-                '<div class="mg-bar">' +
-                    '<span class="mg-how"></span>' +
-                    '<span class="mg-stat"></span>' +
-                '</div>' +
+                '<div class="mg-bar"><span class="mg-how"></span><span class="mg-stat"></span></div>' +
                 '<div class="mg-stage"></div>' +
                 '<div class="mg-foot">' +
                     '<span class="mg-msg"></span>' +
-                    '<button type="button" class="mg-go"></button>' +
+                    '<span class="mg-right">' +
+                        '<span class="mg-tiers" role="group" aria-label="Difficulty">' +
+                            TIERS.map((t, i) => '<button type="button" data-t="' + i + '"' +
+                                (i === 0 ? ' class="is-on"' : '') + '>' + t + '</button>').join('') +
+                        '</span>' +
+                        '<button type="button" class="mg-go"></button>' +
+                    '</span>' +
                 '</div>' +
             '</div>';
 
-        const q = (s) => host.querySelector(s);
+        const q = (sel) => host.querySelector(sel);
         const timers = new Set();
+        const tierButtons = host.querySelectorAll('.mg-tiers button');
+        let tier = 0;
+
         const api = {
             stage: q('.mg-stage'),
             how: q('.mg-how'),
             stat: q('.mg-stat'),
             msg: q('.mg-msg'),
+            foot: q('.mg-foot'),
             go: q('.mg-go'),
             best: 0,
             streak: 0,
+            tier: () => tier,
+            lockTiers(on) { tierButtons.forEach((b) => { b.disabled = !!on; }); },
             after(ms, fn) { const t = setTimeout(fn, ms); timers.add(t); return t; },
             every(ms, fn) { const t = setInterval(fn, ms); timers.add(t); return t; },
             stop(t) { clearTimeout(t); clearInterval(t); timers.delete(t); },
             stopAll() { timers.forEach((t) => { clearTimeout(t); clearInterval(t); }); timers.clear(); },
             say(m) { api.msg.textContent = m; },
-            /* Streak is the only thing carried between rounds — the app's XP
-             * ladder is deliberately not here. */
-            tally(score) {
+            tally(score, extra) {
                 api.streak = score >= 100 ? api.streak + 1 : 0;
                 api.best = Math.max(api.best, api.streak);
                 api.stat.textContent = 'Score ' + score + ' · streak ' + api.streak +
-                    (api.best > api.streak ? ' · best ' + api.best : '');
+                    (api.best > api.streak ? ' (best ' + api.best + ')' : '') +
+                    (extra ? ' · ' + extra : '');
             }
         };
+
+        tierButtons.forEach((b) => b.addEventListener('click', () => {
+            tier = Number(b.dataset.t);
+            tierButtons.forEach((o) => o.classList.toggle('is-on', o === b));
+            if (opts.onTier) opts.onTier(tier);
+        }));
+
         api.how.textContent = opts.how;
         return api;
     }
 
-    /* A countdown that shows in the bar and fires once when it runs out. */
+    /* Counts down in the status slot and fires once at zero. */
     function countdown(s, secs, label, done) {
         let left = secs;
         s.stat.textContent = label + ' ' + left + 's';
@@ -163,81 +191,255 @@
         return t;
     }
 
-    /* ---------------------------------------------------- light squares --- */
-    /* Grid of 7, 15% of it lit, six seconds to take it in. Replicate it. */
+    /* ------------------------------------------------------ memory match --- */
+    /* Two screens, and the first one is the whole game.
+     *
+     * Screen 1 shows nothing but a position number on each card, SHUFFLED — the
+     * third card along might be slot 1. You memorise which slot sits where.
+     *
+     * Screen 2 puts the same cards in the same order with their faces up and no
+     * numbers, next to the question and the answer box. You read the answer off
+     * a card you can see, provided you remember which one it is.
+     *
+     * A face carries eight queryable things: background colour, outer shape and
+     * its colour, inner shape and its colour, a digit, a colour word and a shape
+     * word. The words are bait — "WHITE" printed in orange on a yellow card —
+     * and which of the two sits on top varies. */
 
-    function mountLightSquares(host) {
-        const SIZE = 7, LIT = Math.round(SIZE * SIZE * 0.15), STUDY = 6;
-        const s = shell(host, { how: 'Memorise the lit squares, then rebuild the pattern.' });
-        let pattern = [], picked = new Set(), phase = 'idle';
+    const MM = {
+        slots: [3, 4, 4, 5, 6],
+        study: [5, 4, 3, 3, 3],
+        answer: [10, 7, 5, 4, 3],
+        shapes: ['circle', 'square', 'triangle', 'rectangle'],
+        attrs: [
+            { label: 'BACKGROUND COLOR', of: (c) => c.bg.name },
+            { label: 'OUTER SHAPE', of: (c) => c.outer },
+            { label: 'OUTER SHAPE COLOR', of: (c) => c.outerCol.name },
+            { label: 'INNER SHAPE', of: (c) => c.inner },
+            { label: 'INNER SHAPE COLOR', of: (c) => c.innerCol.name },
+            { label: 'DIGIT', of: (c) => String(c.digit) },
+            { label: 'COLOR WORD', of: (c) => c.colourWord },
+            { label: 'SHAPE WORD', of: (c) => c.shapeWord }
+        ]
+    };
 
-        const cells = [];
-        s.stage.className = 'mg-stage mg-grid';
-        s.stage.style.setProperty('--n', SIZE);
-        for (let i = 0; i < SIZE * SIZE; i++) {
-            const c = document.createElement('button');
-            c.type = 'button';
-            c.className = 'mg-cell';
-            c.addEventListener('click', () => {
-                if (phase !== 'answer') return;
-                if (picked.has(i)) { picked.delete(i); c.classList.remove('is-on'); }
-                else { picked.add(i); c.classList.add('is-on'); }
-            });
-            s.stage.appendChild(c);
-            cells.push(c);
+    function mountMemoryMatch(host) {
+        const s = shell(host, { how: 'Memorise which slot number sits where, then read the answer off the faces.' });
+        let cards = [], order = [], query = null, phase = 'idle', started = 0;
+
+        const form = document.createElement('form');
+        form.className = 'mg-answer mg-answer-wide';
+        form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="two words">' +
+            '<button type="submit">Answer</button>';
+        const input = form.querySelector('input');
+
+        function makeCard(slot) {
+            const bg = pick(PALETTE);
+            let outerCol = pick(PALETTE);
+            while (outerCol.name === bg.name) outerCol = pick(PALETTE);
+            let innerCol = pick(PALETTE);
+            while (innerCol.name === outerCol.name) innerCol = pick(PALETTE);
+            return {
+                slot, bg,
+                outer: pick(MM.shapes), outerCol,
+                inner: pick(MM.shapes), innerCol,
+                digit: 1 + rnd(9), digitInk: pick(PALETTE),
+                colourWord: pick(PALETTE).name, colourInk: pick(PALETTE),
+                shapeWord: pick(MM.shapes), shapeInk: pick(PALETTE),
+                swapped: Math.random() < 0.5
+            };
+        }
+
+        const word = (text, ink) =>
+            '<span class="mm-word" style="color:' + ink.hex + ';-webkit-text-stroke:0.6px ' +
+            outline(ink.hex) + '">' + esc(String(text).toUpperCase()) + '</span>';
+
+        function face(c) {
+            const w = [word(c.colourWord, c.colourInk), word(c.shapeWord, c.shapeInk)];
+            if (c.swapped) w.reverse();
+            return '<div class="mm-card" style="background:' + c.bg.hex + '">' + w[0] +
+                '<span class="mm-mid">' + shapeSvg(c.outer, c.outerCol.hex) +
+                    '<span class="mm-inner">' + shapeSvg(c.inner, c.innerCol.hex) + '</span>' +
+                    '<span class="mm-digit" style="color:' + c.digitInk.hex + ';-webkit-text-stroke:0.7px ' +
+                        outline(c.digitInk.hex) + '">' + c.digit + '</span>' +
+                '</span>' + w[1] + '</div>';
         }
 
         function round() {
+            const t = s.tier();
             phase = 'study';
-            picked.clear();
-            pattern = shuffle([...Array(SIZE * SIZE).keys()]).slice(0, LIT);
-            cells.forEach((c, i) => c.classList.toggle('is-on', pattern.includes(i)));
+            s.lockTiers(true);
+            cards = Array.from({ length: MM.slots[t] }, (_, i) => makeCard(i + 1));
+            // Shuffled for display, and the SAME order is reused on the answer
+            // screen — that mapping is the only thing worth memorising.
+            order = shuffle(cards);
+            s.stage.className = 'mg-stage mm-stage';
+            s.stage.innerHTML = '<p class="mm-title">Memorise the position numbers</p>' +
+                '<div class="mm-row">' + order.map((c) =>
+                    '<div class="mm-card mm-back"><span>' + c.slot + '</span></div>').join('') + '</div>';
             s.say('');
             s.go.textContent = 'Studying…';
             s.go.disabled = true;
-            countdown(s, STUDY, 'Study', () => {
-                phase = 'answer';
-                cells.forEach((c) => c.classList.remove('is-on'));
-                s.stat.textContent = 'Pick ' + LIT;
-                s.go.textContent = 'Check';
-                s.go.disabled = false;
-            });
+            countdown(s, MM.study[t], 'Study', ask);
         }
 
-        function check() {
+        function ask() {
+            const t = s.tier();
+            phase = 'answer';
+            const attrs = shuffle(MM.attrs);
+            const n = cards.length;
+            const a = 1 + rnd(n);
+            let b = 1 + rnd(n);
+            while (b === a) b = 1 + rnd(n);
+            query = {
+                text: 'Enter the ' + attrs[0].label + ' (' + a + ') and ' + attrs[1].label + ' (' + b + ')',
+                want: [attrs[0].of(cards[a - 1]), attrs[1].of(cards[b - 1])]
+            };
+            s.stage.innerHTML = '<div class="mm-row">' + order.map(face).join('') + '</div>' +
+                '<p class="mm-q">' + esc(query.text.toUpperCase()) + '</p>';
+            s.stage.appendChild(form);
+            input.value = '';
+            started = Date.now();
+            input.focus();
+            countdown(s, MM.answer[t], 'Answer', () => judge(''));
+        }
+
+        function judge(text) {
+            if (phase !== 'answer') return;
             phase = 'done';
             s.stopAll();
-            let hit = 0;
-            cells.forEach((c, i) => {
-                const want = pattern.includes(i), got = picked.has(i);
-                if (want && got) { hit++; c.classList.add('is-right'); }
-                else if (want) c.classList.add('is-missed');
-                else if (got) c.classList.add('is-wrong');
-            });
-            const score = Math.max(0, Math.round((hit / LIT) * 100) - (picked.size - hit) * 10);
+            s.lockTiers(false);
+            const hits = scoreWords(text, query.want);
+            let score = hits === 2 ? 100 : hits === 1 ? 50 : 0;
+            if (score === 100 && Date.now() - started < MM.answer[s.tier()] * 500) score += 10;
             s.tally(score);
-            s.say(hit + ' of ' + LIT + ' found' + (picked.size > hit ? ', ' + (picked.size - hit) + ' wrong' : ''));
+            s.stage.insertAdjacentHTML('beforeend',
+                '<p class="mm-reveal">Real numbers: ' + order.map((c) => c.slot).join(' ') +
+                '<br>Solution: ' + esc(query.want.join(' ').toUpperCase()) + '</p>');
+            s.say(hits === 2 ? 'Both right.' : hits === 1 ? 'Half of it.' : 'Neither.');
             s.go.textContent = 'Again';
+            s.go.disabled = false;
+            input.blur();
         }
 
-        s.go.addEventListener('click', () => {
-            if (phase === 'answer') return check();
-            cells.forEach((c) => c.classList.remove('is-right', 'is-wrong', 'is-missed'));
-            round();
-        });
-
+        form.addEventListener('submit', (e) => { e.preventDefault(); judge(input.value); });
+        s.go.addEventListener('click', () => { if (phase !== 'study') round(); });
         s.go.textContent = 'Start';
-        s.say('Seven squares light up.');
+        s.stage.className = 'mg-stage mm-stage';
+        s.stage.innerHTML = '<p class="mm-title">First the numbers, shuffled. Then the faces, without them.</p>';
         return () => s.stopAll();
     }
 
+    /* ------------------------------------------------------- word flash --- */
+    /* Twenty words, some coming round a second time. Call each new or seen. One
+     * wrong call, or one word you let time out, and the run is over — the app
+     * emits WordFlashFailure for both. */
+
+    const WF = {
+        seconds: [5, 4, 3, 2, 2],
+        unique: [15, 13, 12, 11, 10],
+        repeat: [5, 7, 8, 9, 10],
+        pool: ['APPLE', 'BANANA', 'CHERRY', 'DRAGON', 'ELEPHANT', 'FOREST', 'GUITAR', 'HORIZON',
+            'ISLAND', 'JUNGLE', 'KEYBOARD', 'LEMON', 'MOUNTAIN', 'NEBULA', 'OCEAN', 'PYRAMID',
+            'QUARTZ', 'ROCKET', 'SUNSET', 'TIGER', 'UMBRELLA', 'VOLCANO', 'WHISPER', 'GALAXY',
+            'THUNDER', 'CRYSTAL', 'MEADOW', 'PHOENIX', 'SHADOW', 'BREEZE', 'CANYON', 'EMBER',
+            'HARMONY', 'LANTERN', 'MIRROR', 'PRISM', 'RIVER', 'SPARK', 'VALLEY', 'WINTER']
+    };
+
+    function mountWordFlash(host) {
+        const s = shell(host, { how: 'New word, or one you have already seen? A single mistake ends the run.' });
+        s.stage.className = 'mg-stage mg-word';
+        s.stage.innerHTML = '<span class="mg-big"></span><div class="mg-choice">' +
+            '<button type="button" data-a="new">New <kbd>N</kbd></button>' +
+            '<button type="button" data-a="seen">Seen <kbd>S</kbd></button></div>';
+        const big = s.stage.querySelector('.mg-big');
+        const buttons = s.stage.querySelectorAll('.mg-choice button');
+        let seq = [], at = 0, phase = 'idle', tick = 0;
+
+        function build(t) {
+            const words = shuffle(WF.pool).slice(0, WF.unique[t]);
+            const out = words.map((w) => ({ w, seen: false }));
+            for (let i = 0; i < WF.repeat[t]; i++) {
+                const w = pick(words);
+                const first = out.findIndex((e) => e.w === w);
+                out.splice(first + 1 + rnd(out.length - first), 0, { w, seen: true });
+            }
+            return out;
+        }
+
+        function show() {
+            if (at >= seq.length) return finish(true);
+            big.textContent = seq[at].w;
+            big.classList.remove('mg-flash');
+            void big.offsetWidth;
+            big.classList.add('mg-flash');
+            let left = WF.seconds[s.tier()];
+            const label = () => { s.stat.textContent = (at + 1) + ' / ' + seq.length + ' · ' + Math.max(0, left) + 's'; };
+            label();
+            tick = s.every(1000, () => { left--; label(); if (left <= 0) { s.stop(tick); answer(null); } });
+        }
+
+        function answer(said) {
+            if (phase !== 'play') return;
+            s.stop(tick);
+            const want = seq[at].seen ? 'seen' : 'new';
+            if (said !== want) { big.classList.add('is-wrong'); return finish(false, want, seq[at].w, said === null); }
+            big.classList.add('is-right');
+            at++;
+            s.after(170, () => { big.classList.remove('is-right'); show(); });
+        }
+
+        function finish(cleared, want, word, timedOut) {
+            phase = 'done';
+            s.stopAll();
+            s.lockTiers(false);
+            s.tally(cleared ? 100 : 0, cleared ? null : 'survived ' + at + '/' + seq.length);
+            big.textContent = cleared ? 'CLEARED' : word;
+            s.say(cleared ? 'All ' + seq.length + ' of them.'
+                : (timedOut ? 'Out of time on ' : 'Wrong on ') + word + ' — it was ' + want + '.');
+            s.go.textContent = 'Again';
+            s.go.disabled = false;
+            buttons.forEach((b) => { b.disabled = true; });
+        }
+
+        buttons.forEach((b) => b.addEventListener('click', () => answer(b.dataset.a)));
+        const key = (e) => {
+            if (phase !== 'play') return;
+            if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+            if (e.key === 'n' || e.key === 'N') answer('new');
+            if (e.key === 's' || e.key === 'S') answer('seen');
+        };
+        document.addEventListener('keydown', key);
+
+        s.go.addEventListener('click', () => {
+            seq = build(s.tier());
+            at = 0;
+            phase = 'play';
+            s.lockTiers(true);
+            big.classList.remove('is-wrong', 'is-right');
+            buttons.forEach((b) => { b.disabled = false; });
+            s.say('');
+            s.go.textContent = 'Running…';
+            s.go.disabled = true;
+            show();
+        });
+
+        s.go.textContent = 'Start';
+        big.textContent = '—';
+        s.say('Clear all twenty without a miss.');
+        buttons.forEach((b) => { b.disabled = true; });
+        return () => { document.removeEventListener('keydown', key); s.stopAll(); };
+    }
+
     /* ----------------------------------------------------- quantum count --- */
-    /* A swarm you cannot count one by one. Estimate it. Scored on a tolerance
-     * band: exact is 110, inside the band falls off linearly, outside is zero. */
+    /* Nothing is hidden and nothing is timed. The dots keep moving and the box
+     * is right there — the difficulty is only that a moving swarm cannot be
+     * counted one at a time. */
+
+    const QC = { low: [20, 50, 100, 150, 200], high: [50, 100, 150, 200, 300], tol: [10, 7, 5, 3, 2] };
 
     function mountQuantumCount(host) {
-        const COUNT_MIN = 34, COUNT_MAX = 62, TOL = 8, STUDY = 6;
-        const s = shell(host, { how: 'Estimate how many dots. Within ' + TOL + ' still scores.' });
+        const s = shell(host, { how: 'Estimate the swarm. Nothing is hidden and there is no clock.' });
         s.stage.className = 'mg-stage mg-canvas-wrap';
         const canvas = document.createElement('canvas');
         s.stage.appendChild(canvas);
@@ -247,14 +449,9 @@
             '<button type="submit">Guess</button>';
         s.stage.appendChild(form);
         const input = form.querySelector('input');
-
         const ctx = canvas.getContext('2d');
         let dots = [], raf = 0, actual = 0, phase = 'idle';
 
-        /* Measured on the canvas, and only once it is visible. Measuring the
-         * stage while the canvas was still hidden gave a zero box, and sizing
-         * off the stage rather than the element left the drawing buffer a
-         * different shape from the box it is stretched into. */
         function size() {
             const r = canvas.getBoundingClientRect();
             canvas.width = Math.max(120, Math.round(r.width));
@@ -276,46 +473,41 @@
         }
 
         function round() {
-            phase = 'study';
-            form.hidden = true;
-            canvas.hidden = false;
+            const t = s.tier();
+            phase = 'live';
+            s.lockTiers(true);
+            form.hidden = false;
             size();
-            actual = COUNT_MIN + rnd(COUNT_MAX - COUNT_MIN + 1);
+            actual = QC.low[t] + rnd(QC.high[t] - QC.low[t] + 1);
+            const base = actual > 150 ? 2.2 : actual > 80 ? 3 : 4.2;
             dots = Array.from({ length: actual }, () => ({
-                x: 12 + Math.random() * (canvas.width - 24),
-                y: 12 + Math.random() * (canvas.height - 24),
-                vx: (Math.random() - 0.5) * 1.7,
-                vy: (Math.random() - 0.5) * 1.7,
-                r: 4 + Math.random() * 3,
-                c: pick(COLOURS).hex
+                x: 10 + Math.random() * (canvas.width - 20),
+                y: 10 + Math.random() * (canvas.height - 20),
+                vx: (Math.random() - 0.5) * 1.6,
+                vy: (Math.random() - 0.5) * 1.6,
+                r: base + Math.random() * 1.4,
+                c: pick(BRIGHT).hex
             }));
+            input.value = '';
+            s.stat.textContent = 'Within ' + QC.tol[t];
             s.say('');
             s.go.textContent = 'Counting…';
             s.go.disabled = true;
             cancelAnimationFrame(raf);
             frame();
-            countdown(s, STUDY, 'Look', () => {
-                cancelAnimationFrame(raf);
-                canvas.hidden = true;
-                form.hidden = false;
-                phase = 'answer';
-                s.stat.textContent = 'Your guess';
-                input.value = '';
-                input.focus();
-            });
+            input.focus();
         }
 
         function judge(guess) {
+            const t = s.tier();
             phase = 'done';
-            s.stopAll();
+            s.lockTiers(false);
+            cancelAnimationFrame(raf);
             const err = Math.abs(guess - actual);
             let score = 0;
-            if (err === 0) score = 110;
-            else if (err <= TOL) score = 100 - Math.round((err / TOL) * 50);
+            if (err <= QC.tol[t]) score = 100 - Math.round((err / QC.tol[t]) * 50) + (err === 0 ? 10 : 0);
             s.tally(score);
-            s.say(err === 0 ? 'Exactly ' + actual + '. Perfect.'
-                : 'It was ' + actual + ', you were ' + err + ' out.');
-            form.hidden = true;
+            s.say(err === 0 ? 'Exactly ' + actual + '.' : 'It was ' + actual + ', you were ' + err + ' out.');
             s.go.textContent = 'Again';
             s.go.disabled = false;
         }
@@ -323,446 +515,397 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const g = parseInt(input.value, 10);
-            if (phase === 'answer' && Number.isFinite(g)) judge(g);
+            if (phase === 'live' && Number.isFinite(g)) judge(g);
         });
 
-        s.go.addEventListener('click', () => { if (phase !== 'study') round(); });
+        s.go.addEventListener('click', () => { if (phase !== 'live') round(); });
         s.go.textContent = 'Start';
         s.say('They move, so counting one by one will not work.');
         form.hidden = true;
-        canvas.hidden = true;
-
         return () => { cancelAnimationFrame(raf); s.stopAll(); };
     }
 
-    /* ------------------------------------------------------- word flash --- */
-    /* Exactly twenty words, fifteen distinct and five repeats, in the app's own
-     * proportions. Every repeat is guaranteed to land after its first showing,
-     * so "seen" is always answerable. */
-
-    function mountWordFlash(host) {
-        const POOL = ['APPLE', 'BANANA', 'CHERRY', 'DRAGON', 'ELEPHANT', 'FOREST', 'GUITAR',
-            'HORIZON', 'ISLAND', 'JUNGLE', 'KEYBOARD', 'LEMON', 'MOUNTAIN', 'NEBULA', 'OCEAN',
-            'PYRAMID', 'QUARTZ', 'ROCKET', 'SUNSET', 'TIGER', 'UMBRELLA', 'VOLCANO', 'WHISPER',
-            'GALAXY', 'THUNDER', 'CRYSTAL', 'MEADOW', 'PHOENIX', 'SHADOW', 'BREEZE', 'CANYON',
-            'EMBER', 'HARMONY', 'LANTERN', 'MIRROR', 'PRISM', 'RIVER', 'SPARK', 'VALLEY', 'WINTER'];
-        const UNIQUE = 15, REPEAT = 5, TOTAL = UNIQUE + REPEAT, PER_WORD = 2600;
-
-        const s = shell(host, { how: 'New word, or one you have already seen?' });
-        s.stage.className = 'mg-stage mg-word';
-        s.stage.innerHTML = '<span class="mg-big"></span><div class="mg-choice">' +
-            '<button type="button" data-a="new">New <kbd>N</kbd></button>' +
-            '<button type="button" data-a="seen">Seen <kbd>S</kbd></button></div>';
-        const big = s.stage.querySelector('.mg-big');
-        const buttons = [...s.stage.querySelectorAll('.mg-choice button')];
-
-        let seq = [], at = 0, right = 0, phase = 'idle', tick = 0;
-
-        function build() {
-            const words = shuffle(POOL).slice(0, UNIQUE);
-            const out = words.map((w) => ({ w, seen: false }));
-            for (let i = 0; i < REPEAT; i++) {
-                const w = pick(words);
-                // Somewhere strictly after the word's first appearance.
-                const first = out.findIndex((e) => e.w === w);
-                const at = first + 1 + rnd(out.length - first);
-                out.splice(at, 0, { w, seen: true });
-            }
-            return out;
-        }
-
-        function show() {
-            if (at >= seq.length) return finish();
-            big.textContent = seq[at].w;
-            big.classList.remove('mg-flash');
-            void big.offsetWidth;
-            big.classList.add('mg-flash');
-            s.stat.textContent = (at + 1) + ' / ' + TOTAL;
-            tick = s.after(PER_WORD, () => answer(null));
-        }
-
-        function answer(said) {
-            if (phase !== 'play') return;
-            s.stop(tick);
-            const want = seq[at].seen ? 'seen' : 'new';
-            if (said === want) right++;
-            big.classList.toggle('is-right', said === want);
-            big.classList.toggle('is-wrong', said !== want);
-            at++;
-            s.after(180, () => {
-                big.classList.remove('is-right', 'is-wrong');
-                show();
-            });
-        }
-
-        function finish() {
-            phase = 'done';
-            s.stopAll();
-            big.textContent = right + ' / ' + TOTAL;
-            const score = Math.round((right / TOTAL) * 100);
-            s.tally(score);
-            s.say(score === 100 ? 'Every one.' : right + ' right out of ' + TOTAL + '.');
-            s.go.textContent = 'Again';
-            s.go.disabled = false;
-            buttons.forEach((b) => (b.disabled = true));
-        }
-
-        buttons.forEach((b) => b.addEventListener('click', () => answer(b.dataset.a)));
-        const key = (e) => {
-            if (phase !== 'play') return;
-            // Another game's window may be open with a text field focused.
-            if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
-            if (e.key === 'n' || e.key === 'N') answer('new');
-            if (e.key === 's' || e.key === 'S') answer('seen');
-        };
-        document.addEventListener('keydown', key);
-
-        s.go.addEventListener('click', () => {
-            seq = build(); at = 0; right = 0; phase = 'play';
-            buttons.forEach((b) => (b.disabled = false));
-            s.say('');
-            s.go.textContent = 'Running…';
-            s.go.disabled = true;
-            show();
-        });
-
-        s.go.textContent = 'Start';
-        big.textContent = '—';
-        s.say('Twenty words. Five of them come round twice.');
-        buttons.forEach((b) => (b.disabled = true));
-
-        return () => { document.removeEventListener('keydown', key); s.stopAll(); };
-    }
-
     /* ------------------------------------------------------ pattern spot --- */
-    /* Two grids, a few seconds apart. Tap what moved. A change is a colour, a
-     * shape, a rotation or a flip — the app's four types — and an extra tap
-     * costs less than a miss, as it does there. */
+    /* One grid, then a second. Tap what changed — a colour, a shape, a rotation
+     * or a flip. From Hard up there is a one-in-ten chance nothing changed at
+     * all, and calling that is worth a bonus. */
+
+    const PS = {
+        grid: [2, 3, 3, 4, 4],
+        study: [12, 8, 6, 5, 4],
+        changes: [1, 2, 3, 4, 4],
+        shapes: ['square', 'circle', 'triangle', 'star', 'arrow', 'diamond'],
+        flips: [null, 'h', 'v']
+    };
 
     function mountPatternSpot(host) {
-        const N = 3, CHANGES = 2, STUDY = 4;
-        const s = shell(host, { how: 'Tap every cell that changed between the two grids.' });
-        s.stage.className = 'mg-stage mg-grid mg-grid-lg';
-        s.stage.style.setProperty('--n', N);
+        const s = shell(host, { how: 'Tap every cell that changed. An extra tap costs less than a miss.' });
+        let before = [], after = [], changed = [], tapped = new Set(), trap = false, phase = 'idle', cells = [];
 
-        let before = [], after = [], changed = [], tapped = new Set(), phase = 'idle';
-        const cells = [];
-        for (let i = 0; i < N * N; i++) {
-            const c = document.createElement('button');
-            c.type = 'button';
-            c.className = 'mg-cell mg-tile';
-            c.addEventListener('click', () => {
-                if (phase !== 'answer') return;
-                if (tapped.has(i)) { tapped.delete(i); c.classList.remove('is-on'); }
-                else { tapped.add(i); c.classList.add('is-on'); }
-            });
-            s.stage.appendChild(c);
-            cells.push(c);
+        const noChange = document.createElement('button');
+        noChange.type = 'button';
+        noChange.className = 'ps-nochange';
+        noChange.textContent = 'Nothing changed';
+
+        function build(n) {
+            s.stage.className = 'mg-stage mg-grid mg-grid-lg';
+            s.stage.style.setProperty('--n', n);
+            s.stage.innerHTML = '';
+            cells = [];
+            for (let i = 0; i < n * n; i++) {
+                const c = document.createElement('button');
+                c.type = 'button';
+                c.className = 'mg-cell mg-tile';
+                c.addEventListener('click', () => {
+                    if (phase !== 'answer') return;
+                    if (tapped.has(i)) { tapped.delete(i); c.classList.remove('is-on'); }
+                    else { tapped.add(i); c.classList.add('is-on'); }
+                });
+                s.stage.appendChild(c);
+                cells.push(c);
+            }
         }
 
-        const draw = (grid) => cells.forEach((c, i) => {
-            c.innerHTML = shapeSvg(grid[i].shape, grid[i].colour.hex, grid[i].rot, grid[i].flip, true);
-        });
+        const draw = (g) => cells.forEach((c, i) =>
+            (c.innerHTML = shapeSvg(g[i].shape, g[i].colour.hex, { rot: g[i].rot, flip: g[i].flip })));
 
         function mutate(cell) {
-            const kind = pick(['colour', 'shape', 'rot', 'flip']);
             const out = Object.assign({}, cell);
-            if (kind === 'colour') {
-                while (out.colour === cell.colour) out.colour = pick(COLOURS);
-            } else if (kind === 'shape') {
-                while (out.shape === cell.shape) out.shape = pick(SHAPES);
-            } else if (kind === 'rot') {
-                out.rot = (cell.rot + pick([90, 180, 270])) % 360;
-            } else {
-                out.flip = !cell.flip;
+            switch (pick(['colour', 'shape', 'rot', 'flip'])) {
+                case 'colour':
+                    out.colour = pick(BRIGHT.filter((c) => c.name !== cell.colour.name));
+                    break;
+                case 'shape':
+                    out.shape = pick(PS.shapes.filter((x) => x !== cell.shape));
+                    break;
+                case 'rot':
+                    out.rot = pick([0, 90, 180, 270].filter((r) => r !== cell.rot));
+                    break;
+                default:
+                    out.flip = pick(PS.flips.filter((f) => f !== cell.flip));
             }
             return out;
         }
 
         function round() {
+            const t = s.tier(), n = PS.grid[t];
             phase = 'study';
+            s.lockTiers(true);
             tapped.clear();
-            cells.forEach((c) => c.classList.remove('is-on', 'is-right', 'is-wrong', 'is-missed'));
-            before = Array.from({ length: N * N }, () => ({
-                shape: pick(SHAPES), colour: pick(COLOURS), rot: pick([0, 90, 180, 270]), flip: false
+            build(n);
+            before = Array.from({ length: n * n }, () => ({
+                shape: pick(PS.shapes), colour: pick(BRIGHT),
+                rot: pick([0, 90, 180, 270]), flip: pick(PS.flips)
             }));
-            changed = shuffle([...Array(N * N).keys()]).slice(0, CHANGES);
+            trap = t >= 2 && Math.random() < 0.1;
+            changed = trap ? [] : shuffle([...Array(n * n).keys()]).slice(0, PS.changes[t]);
             after = before.map((c, i) => (changed.includes(i) ? mutate(c) : c));
             draw(before);
+            noChange.remove();
             s.say('');
             s.go.textContent = 'Studying…';
             s.go.disabled = true;
-            countdown(s, STUDY, 'Study', () => {
+            countdown(s, PS.study[t], 'Study', () => {
                 draw(after);
                 phase = 'answer';
-                s.stat.textContent = CHANGES + ' changed';
+                // From Hard the count is withheld: knowing it would give the
+                // no-change trap away for free.
+                s.stat.textContent = t >= 2 ? 'Tap the changes' : PS.changes[t] + ' changed';
                 s.go.textContent = 'Check';
                 s.go.disabled = false;
+                if (t >= 2) s.foot.insertBefore(noChange, s.msg.nextSibling);
             });
         }
 
-        function check() {
+        function check(saidNoChange) {
+            if (phase !== 'answer') return;
             phase = 'done';
             s.stopAll();
-            let found = 0;
-            cells.forEach((c, i) => {
-                const was = changed.includes(i), got = tapped.has(i);
-                if (was && got) { found++; c.classList.add('is-right'); }
-                else if (was) c.classList.add('is-missed');
-                else if (got) c.classList.add('is-wrong');
-            });
-            const over = tapped.size - found;
-            const score = Math.max(0, 100 - (CHANGES - found) * 25 - over * 10);
+            s.lockTiers(false);
+            noChange.remove();
+            let score;
+            if (trap) {
+                score = saidNoChange ? 110 : 0;
+                s.say(saidNoChange ? 'Nothing changed, and you called it.' : 'Nothing had changed.');
+            } else if (saidNoChange) {
+                score = 0;
+                s.say('Something did change — ' + changed.length + ' of them.');
+                cells.forEach((c, i) => { if (changed.includes(i)) c.classList.add('is-missed'); });
+            } else {
+                let found = 0;
+                cells.forEach((c, i) => {
+                    const was = changed.includes(i), got = tapped.has(i);
+                    if (was && got) { found++; c.classList.add('is-right'); }
+                    else if (was) c.classList.add('is-missed');
+                    else if (got) c.classList.add('is-wrong');
+                });
+                const over = tapped.size - found;
+                score = Math.max(0, 100 - (changed.length - found) * 25 - over * 10);
+                s.say(found + ' of ' + changed.length + ' spotted' + (over ? ', ' + over + ' extra' : ''));
+            }
             s.tally(score);
-            s.say(found + ' of ' + CHANGES + ' spotted' + (over ? ', ' + over + ' extra' : ''));
             s.go.textContent = 'Again';
         }
 
-        s.go.addEventListener('click', () => (phase === 'answer' ? check() : round()));
+        noChange.addEventListener('click', () => check(true));
+        s.go.addEventListener('click', () => (phase === 'answer' ? check(false) : round()));
         s.go.textContent = 'Start';
-        s.say('Two cells will differ.');
+        s.stage.className = 'mg-stage';
+        s.say('Two grids, a few seconds apart.');
         return () => s.stopAll();
     }
 
-    /* ------------------------------------------------------ memory match --- */
-    /* The real one, from lib/features/memory_match. It is a Stroop test wearing
-     * a memory game: a card carries the WORD "RED" printed in some other ink, a
-     * digit in a third ink, and a shape word that need not match the shape
-     * actually drawn. Eight attributes are queryable, and the prompt asks for
-     * two of them from two different slots:
+    /* --------------------------------------------------- transform puzzle --- */
+    /* The rule book flashes, then the inputs appear, then a two-part query. Both
+     * stay on screen — this is a timed application test, not a memory one. From
+     * Expert the second part may chain onto the first's output, and at Master a
+     * rule quietly mutates after you have read the book.
      *
-     *     DIGIT FROM SLOT (2) AND BG COLOR FROM SLOT (3)
-     *
-     * The answer is those two values, space separated, fuzzy-matched a
-     * character either way, and worth half if only one of them lands.
-     *
-     * One departure. In the app the whole card is the background colour and the
-     * ink is drawn straight onto it, which means a yellow word on a yellow card
-     * — I measured the five: as ink on their own faces they run 1.2:1 to 6.3:1,
-     * so several combinations are literally unreadable. Here the face is white
-     * with a colour band, the inks are darkened to clear 4.5:1 on it, and every
-     * attribute stays just as identifiable. */
+     * The app's eighth rule, "Rotate 90 CW", is absent: its result is an
+     * orientation, and there is no way to type one as half of a two-word
+     * answer. */
 
-    const MM_SHAPES = ['triangle', 'circle', 'square', 'rectangle'];
-    const MM_COLOURS = [
-        { name: 'red', band: '#f44336', ink: '#c62828' },
-        { name: 'blue', band: '#2196f3', ink: '#1565c0' },
-        { name: 'green', band: '#4caf50', ink: '#2e7d32' },
-        { name: 'yellow', band: '#ffd21f', ink: '#8a6300' },
-        { name: 'purple', band: '#9c27b0', ink: '#6a1b9a' }
-    ];
-    const MM_ATTRS = [
-        { key: 'shape', label: 'SHAPE', of: (c) => c.shape },
-        { key: 'bgColor', label: 'BG COLOR', of: (c) => c.bg.name },
-        { key: 'colorWord', label: 'COLOR WORD', of: (c) => c.colourWord },
-        { key: 'colorInk', label: 'COLOR INK', of: (c) => c.colourInk.name },
-        { key: 'digit', label: 'DIGIT', of: (c) => String(c.digit) },
-        { key: 'digitInk', label: 'DIGIT INK', of: (c) => c.digitInk.name },
-        { key: 'shapeWord', label: 'SHAPE WORD', of: (c) => c.shapeWord },
-        { key: 'shapeInk', label: 'SHAPE INK', of: (c) => c.shapeInk.name }
-    ];
+    const TP = {
+        rules: [4, 5, 6, 6, 7],
+        flash: [10, 7, 5, 4, 3],
+        answer: [10, 7, 5, 4, 3],
+        cycle: ['red', 'orange', 'yellow', 'green', 'blue', 'purple'],
+        book: [
+            { d: '+2 letters: A→C', kind: 'text',
+              run: (v) => v.replace(/[A-Z]/g, (c) => String.fromCharCode((c.charCodeAt(0) - 65 + 2) % 26 + 65)) },
+            { d: 'Reverse string', kind: 'text', run: (v) => v.split('').reverse().join('') },
+            { d: 'Uppercase all', kind: 'text', run: (v) => v.toUpperCase() },
+            { d: 'Add 3 to number', kind: 'num', run: (v) => String(Number(v) + 3) },
+            { d: 'Multiply by 2', kind: 'num', run: (v) => String(Number(v) * 2) },
+            { d: 'Subtract 5', kind: 'num', run: (v) => String(Number(v) - 5) },
+            { d: 'Next color in cycle', kind: 'colour',
+              run: (v) => TP.cycle[(TP.cycle.indexOf(v) + 1) % TP.cycle.length] }
+        ]
+    };
 
-    function mountMemoryMatch(host) {
-        const SLOTS = 3, STUDY = 5, LIMIT = 10;   // the app's easy tier
-        const s = shell(host, {
-            how: 'Memorise the cards. The words do not have to match their ink, or the shape.'
-        });
-        s.stage.className = 'mg-stage mg-slots';
-
-        let cards = [], query = null, phase = 'idle', started = 0, clockId = 0;
+    function mountTransformPuzzle(host) {
+        const s = shell(host, { how: 'Apply two rules to two inputs. Everything stays on screen; the clock is the test.' });
+        s.stage.className = 'mg-stage mg-rules';
+        let rules = [], inputs = [], want = null, phase = 'idle';
 
         const form = document.createElement('form');
         form.className = 'mg-answer mg-answer-wide';
-        form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="two words">' +
+        form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="two results">' +
             '<button type="submit">Answer</button>';
         const input = form.querySelector('input');
 
-        const card = (c) =>
-            '<div class="mm-card">' +
-                '<div class="mm-band" style="background:' + c.bg.band + '">' +
-                    '<span class="mm-n">' + c.slot + '</span></div>' +
-                '<div class="mm-shape">' + shapeSvg(c.shape, '#2a2e2b', 0, false) + '</div>' +
-                '<div class="mm-lines">' +
-                    '<span style="color:' + c.colourInk.ink + '">' + c.colourWord.toUpperCase() + '</span>' +
-                    '<span style="color:' + c.digitInk.ink + '">' + c.digit + '</span>' +
-                    '<span style="color:' + c.shapeInk.ink + '">' + c.shapeWord.toUpperCase() + '</span>' +
-                '</div>' +
-            '</div>';
+        const kindOf = (v) => (/^-?\d+$/.test(v) ? 'num' : TP.cycle.includes(v) ? 'colour' : 'text');
+
+        const ofKind = (k) => {
+            if (k === 'num') return String(1 + rnd(20));
+            if (k === 'colour') return pick(TP.cycle);
+            const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return Array.from({ length: 3 + rnd(3) }, () => L[rnd(26)]).join('');
+        };
+
+        /* Inputs are dealt AFTER the rules, one guaranteed for every kind of
+         * rule on the table. Dealt independently, a book of three text rules
+         * and a pair of numbers has no legal question in it, and the only way
+         * out was to redeal the whole round — which silently restarted the
+         * study clock under the player. */
+        function makeInputs(t) {
+            const need = [...new Set(rules.map((r) => r.kind))];
+            const n = Math.max(t === 0 ? 2 : 4, need.length);
+            const out = need.map(ofKind);
+            while (out.length < n) out.push(ofKind(pick(need)));
+            return shuffle(out);
+        }
+
+        const rulesHtml = (mut) => '<ol class="mg-rulelist">' + rules.map((r, i) =>
+            '<li' + (i === mut ? ' class="is-mutated"' : '') + '><b>' + (i + 1) + '</b> ' +
+            esc(r.d) + '</li>').join('') + '</ol>';
+        const inputsHtml = () => '<ul class="tp-inputs">' + inputs.map((v, i) =>
+            '<li><b>' + (i + 1) + '</b> ' + esc(v) + '</li>').join('') + '</ul>';
 
         function round() {
-            phase = 'study';
-            // Every attribute is rolled independently, exactly as the app does
-            // it — nothing is kept consistent, which is the whole difficulty.
-            cards = Array.from({ length: SLOTS }, (_, i) => ({
-                slot: i + 1,
-                shape: pick(MM_SHAPES),
-                bg: pick(MM_COLOURS),
-                colourWord: pick(MM_COLOURS).name,
-                colourInk: pick(MM_COLOURS),
-                digit: 1 + rnd(9),
-                digitInk: pick(MM_COLOURS),
-                shapeWord: pick(MM_SHAPES),
-                shapeInk: pick(MM_COLOURS)
-            }));
-            s.stage.innerHTML = cards.map(card).join('');
+            const t = s.tier();
+            phase = 'flash';
+            s.lockTiers(true);
+            rules = shuffle(TP.book).slice(0, Math.min(TP.rules[t], TP.book.length));
+            inputs = makeInputs(t);
+            s.stage.innerHTML = rulesHtml(-1);
             s.say('');
             s.go.textContent = 'Studying…';
             s.go.disabled = true;
-            countdown(s, STUDY, 'Study', ask);
+            countdown(s, TP.flash[t], 'Rules', ask);
         }
 
         function ask() {
+            const t = s.tier();
             phase = 'answer';
-            const attrs = shuffle(MM_ATTRS);
-            const a1 = attrs[0], a2 = attrs[1];
-            const s1 = 1 + rnd(SLOTS);
-            let s2 = 1 + rnd(SLOTS);
-            while (s2 === s1) s2 = 1 + rnd(SLOTS);
-            const c1 = cards[s1 - 1], c2 = cards[s2 - 1];
-            query = {
-                text: a1.label + ' FROM SLOT (' + s1 + ') AND ' + a2.label + ' FROM SLOT (' + s2 + ')',
-                want: [a1.of(c1), a2.of(c2)]
-            };
-            s.stage.innerHTML = '<p class="mg-q mm-prompt">' + query.text + '</p>';
+            let mut = -1;
+            if (t === 4 && Math.random() < 0.2) {
+                mut = rnd(rules.length);
+                const alt = TP.book.filter((r) => r.kind === rules[mut].kind && r.d !== rules[mut].d);
+                if (alt.length) rules[mut] = pick(alt);
+            }
+            // A rule can only be asked of an input it can actually take.
+            const fits = (r) => inputs.map((v, i) => ({ v, i })).filter((x) => kindOf(x.v) === r.kind);
+            const usable = rules.map((r, i) => ({ r, i, ins: fits(r) })).filter((c) => c.ins.length);
+            const a = pick(usable);
+            const pa = pick(a.ins);
+            const r1 = a.r.run(pa.v);
+
+            let second = '', r2;
+            if (t >= 3 && Math.random() < 0.5) {
+                const chainable = rules.map((r, i) => ({ r, i })).filter((c) => c.r.kind === kindOf(r1));
+                if (chainable.length) {
+                    const b = pick(chainable);
+                    r2 = b.r.run(r1);
+                    second = 'rule ' + (b.i + 1) + ' to that result';
+                }
+            }
+            if (!second) {
+                const rest = usable.filter((c) => c.i !== a.i);
+                const b = pick(rest.length ? rest : usable);
+                const pb = pick(b.ins);
+                r2 = b.r.run(pb.v);
+                second = 'rule ' + (b.i + 1) + ' to input ' + (pb.i + 1);
+            }
+            want = [r1, r2];
+
+            s.stage.innerHTML = rulesHtml(mut) + inputsHtml() +
+                '<p class="mg-q">Apply rule ' + (a.i + 1) + ' to input ' + (pa.i + 1) + ', and ' + second + '.</p>';
             s.stage.appendChild(form);
             input.value = '';
-            started = Date.now();
             input.focus();
-            clockId = countdown(s, LIMIT, 'Answer', () => judge(''));
+            countdown(s, TP.answer[t], 'Answer', () => judge(''));
         }
 
         function judge(text) {
             if (phase !== 'answer') return;
             phase = 'done';
             s.stopAll();
-            const hits = scoreWords(text, query.want);
-            let score = Math.round((hits / 2) * 100);
-            if (hits === 1) score = 50;                       // the app's partial credit
-            if (score === 100 && Date.now() - started < LIMIT * 500) score += 10;
-            s.tally(score);
-            s.say(score >= 100 ? 'Both right.'
-                : 'Answer was “' + query.want.join(' ') + '”' + (hits === 1 ? ' — half of it.' : '.'));
+            s.lockTiers(false);
+            const hits = scoreWords(text, want);
+            s.tally(hits === 2 ? 100 : hits === 1 ? 50 : 0);
+            s.say(hits === 2 ? 'Both right.' : 'Answer was “' + want.join(' ') + '”.');
             s.go.textContent = 'Again';
             s.go.disabled = false;
-            input.blur();
         }
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            judge(input.value);
-        });
-
-        s.go.addEventListener('click', () => { if (phase !== 'study') round(); });
+        form.addEventListener('submit', (e) => { e.preventDefault(); judge(input.value); });
+        s.go.addEventListener('click', () => { if (phase !== 'flash') round(); });
         s.go.textContent = 'Start';
-        s.stage.innerHTML = '<p class="mg-q">Three cards, then two things about two of them. ' +
-            'A typo still counts, and getting one of the two is worth half.</p>';
-        s.say('');
+        s.stage.innerHTML = '<p class="mg-q">A rule book, then inputs, then two of them to apply.</p>';
         return () => s.stopAll();
     }
 
-    /* --------------------------------------------------- transform puzzle --- */
-    /* A short rulebook, shown then taken away, and one input to run through it.
-     * The app has text, numeric and visual rules; the visual ones are answered
-     * by picking a shape rather than typing, since you cannot type a rotation. */
+    /* ---------------------------------------------------- light squares --- */
+    /* Lit squares, then a blank grid. Rebuild it exactly — the app scores this
+     * all or nothing — and it times you, keeping your best. Grid size is the
+     * player's, as it is there. */
 
-    function mountTransformPuzzle(host) {
-        const STUDY = 9;
-        const s = shell(host, { how: 'Learn the rules, then apply one from memory.' });
-        s.stage.className = 'mg-stage mg-rules';
+    const LS = { lit: [0.15, 0.25, 0.35, 0.45, 0.55], study: [7, 6, 5, 4, 4] };
 
-        const WORDS = ['ORBIT', 'PLANT', 'STONE', 'RIVER', 'CROWN', 'FLAME', 'GHOST', 'BRICK'];
-        let rules = [], task = null, phase = 'idle';
+    function mountLightSquares(host) {
+        const s = shell(host, { how: 'Rebuild the pattern exactly. Every lit square, and nothing else.' });
+        let size = 5, pattern = [], picked = new Set(), phase = 'idle', started = 0, bestTime = null, cells = [];
 
-        const form = document.createElement('form');
-        form.className = 'mg-answer mg-answer-wide';
-        form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="result">' +
-            '<button type="submit">Answer</button>';
-        const input = form.querySelector('input');
+        const grid = document.createElement('div');
+        const row = document.createElement('div');
+        row.className = 'ls-size';
+        row.innerHTML = 'Grid <input type="range" min="3" max="8" value="5"><span>5×5</span>';
+        const slider = row.querySelector('input');
+        const label = row.querySelector('span');
 
-        function makeRules() {
-            const n1 = 2 + rnd(8), n2 = 2 + rnd(5);
-            const suffix = pick(['ED', 'ING', 'ER']);
-            const all = [
-                { id: 'A', label: 'A · add “' + suffix + '”', kind: 'word',
-                  run: (w) => w + suffix },
-                { id: 'B', label: 'B · + ' + n1, kind: 'num', run: (v) => v + n1 },
-                { id: 'C', label: 'C · × ' + n2, kind: 'num', run: (v) => v * n2 },
-                { id: 'D', label: 'D · reverse it', kind: 'word',
-                  run: (w) => w.split('').reverse().join('') },
-                { id: 'E', label: 'E · drop the first letter', kind: 'word',
-                  run: (w) => w.slice(1) },
-                { id: 'F', label: 'F · rotate a quarter turn', kind: 'visual', run: (r) => (r + 90) % 360 }
-            ];
-            return shuffle(all).slice(0, 4);
+        function build() {
+            grid.className = 'mg-grid';
+            grid.style.setProperty('--n', size);
+            grid.innerHTML = '';
+            cells = [];
+            for (let i = 0; i < size * size; i++) {
+                const c = document.createElement('button');
+                c.type = 'button';
+                c.className = 'mg-cell';
+                c.addEventListener('click', () => {
+                    if (phase !== 'answer') return;
+                    if (picked.has(i)) { picked.delete(i); c.classList.remove('is-on'); }
+                    else { picked.add(i); c.classList.add('is-on'); }
+                });
+                grid.appendChild(c);
+                cells.push(c);
+            }
         }
 
+        slider.addEventListener('input', () => {
+            if (phase === 'study' || phase === 'answer') return;
+            size = Number(slider.value);
+            label.textContent = size + '×' + size;
+            build();
+        });
+
         function round() {
+            const t = s.tier();
             phase = 'study';
-            rules = makeRules();
-            s.stage.innerHTML = '<ul class="mg-rulelist">' +
-                rules.map((r) => '<li>' + r.label + '</li>').join('') + '</ul>';
+            s.lockTiers(true);
+            slider.disabled = true;
+            picked.clear();
+            build();
+            const lit = Math.max(1, Math.round(size * size * LS.lit[t]));
+            pattern = shuffle([...Array(size * size).keys()]).slice(0, lit);
+            cells.forEach((c, i) => c.classList.toggle('is-on', pattern.includes(i)));
             s.say('');
             s.go.textContent = 'Studying…';
             s.go.disabled = true;
-            countdown(s, STUDY, 'Study', ask);
+            countdown(s, LS.study[t], 'Study', () => {
+                cells.forEach((c) => c.classList.remove('is-on'));
+                phase = 'answer';
+                started = Date.now();
+                s.stat.textContent = 'Rebuild ' + lit;
+                s.go.textContent = 'Check';
+                s.go.disabled = false;
+            });
         }
 
-        function ask() {
-            phase = 'answer';
-            const r = pick(rules);
-            if (r.kind === 'visual') {
-                const shape = pick(['triangle', 'star', 'diamond', 'square']);
-                const from = pick([0, 90, 180, 270]);
-                const want = r.run(from);
-                const opts = shuffle([want, (want + 90) % 360, (want + 180) % 360, (want + 270) % 360]);
-                s.stage.innerHTML = '<p class="mg-q">Apply rule ' + r.id + ' to this.</p>' +
-                    '<div class="mg-given">' + shapeSvg(shape, '#e8a33d', from, false, true) + '</div>' +
-                    '<div class="mg-opts">' + opts.map((o) =>
-                        '<button type="button" data-r="' + o + '">' +
-                        shapeSvg(shape, '#5fbdb8', o, false, true) + '</button>').join('') + '</div>';
-                s.stage.querySelectorAll('.mg-opts button').forEach((b) =>
-                    b.addEventListener('click', () => judge(Number(b.dataset.r) === want ? 'ok' : 'no', String(want) + '°')));
-            } else {
-                const given = r.kind === 'num' ? String(3 + rnd(18)) : pick(WORDS);
-                task = { want: String(r.run(r.kind === 'num' ? Number(given) : given)) };
-                s.stage.innerHTML = '<p class="mg-q">Apply rule ' + r.id + ' to <b>' + given + '</b></p>';
-                s.stage.appendChild(form);
-                input.value = '';
-                input.focus();
-            }
-            s.stat.textContent = 'Answer';
-        }
-
-        function judge(text, shown) {
+        function check() {
+            if (phase !== 'answer') return;
             phase = 'done';
             s.stopAll();
-            const ok = shown ? text === 'ok' : near(text, task.want);
-            const score = ok ? 100 : 0;
-            s.tally(score);
-            s.say(ok ? 'Right.' : 'It was “' + (shown || task.want) + '”.');
+            s.lockTiers(false);
+            slider.disabled = false;
+            const secs = (Date.now() - started) / 1000;
+            const hit = pattern.filter((i) => picked.has(i)).length;
+            const exact = picked.size === pattern.length && hit === pattern.length;
+            cells.forEach((c, i) => {
+                const want = pattern.includes(i), got = picked.has(i);
+                if (want && got) c.classList.add('is-right');
+                else if (want) c.classList.add('is-missed');
+                else if (got) c.classList.add('is-wrong');
+            });
+            if (exact && (bestTime === null || secs < bestTime)) bestTime = secs;
+            s.tally(exact ? 100 : 0, bestTime === null ? null : 'best ' + bestTime.toFixed(1) + 's');
+            s.say(exact ? 'Exact, in ' + secs.toFixed(1) + 's.'
+                : hit + ' of ' + pattern.length + ', ' + (picked.size - hit) + ' wrong.');
             s.go.textContent = 'Again';
-            s.go.disabled = false;
         }
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (phase === 'answer') judge(input.value, null);
+        s.go.addEventListener('click', () => {
+            if (phase === 'answer') return check();
+            cells.forEach((c) => c.classList.remove('is-right', 'is-wrong', 'is-missed'));
+            round();
         });
 
-        s.go.addEventListener('click', () => { if (phase !== 'study') round(); });
+        s.stage.className = 'mg-stage ls-stage';
+        s.stage.appendChild(grid);
+        s.stage.appendChild(row);
+        build();
         s.go.textContent = 'Start';
-        s.stage.innerHTML = '<p class="mg-q">Four rules, nine seconds, then one of them comes back.</p>';
-        s.say('');
+        s.say('Exact or nothing.');
         return () => s.stopAll();
     }
 
     window.jgMindOverride = {
-        lightSquares: mountLightSquares,
+        memoryMatch: mountMemoryMatch,
+        patternSpot: mountPatternSpot,
         quantumCount: mountQuantumCount,
         wordFlash: mountWordFlash,
-        patternSpot: mountPatternSpot,
-        memoryMatch: mountMemoryMatch,
         transformPuzzle: mountTransformPuzzle,
-        _tools: { lev, near, scoreWords, shuffle, shapeSvg, shell, countdown, SHAPES, COLOURS, rnd, pick }
+        lightSquares: mountLightSquares
     };
 })();

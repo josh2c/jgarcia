@@ -84,6 +84,18 @@ function makeEl(tag) {
     };
     el.getAttribute = (k) => el.attrs[k];
     el.appendChild = (c) => { c.parent = el; el.children.push(c); return c; };
+    el.insertBefore = (c, ref) => {
+        c.parent = el;
+        const i = el.children.indexOf(ref);
+        if (i < 0) el.children.push(c); else el.children.splice(i, 0, c);
+        return c;
+    };
+    el.insertAdjacentHTML = (where, html) => {
+        const kids = parse(String(html));
+        kids.forEach((k) => { if (k.tag) k.parent = el; });
+        if (where === 'afterbegin') el.children.unshift(...kids);
+        else el.children.push(...kids);
+    };
     el.remove = () => {};
     el.focus = () => {};
     el.blur = () => {};
