@@ -8,9 +8,9 @@
 
 :root {
     /* Sky */
-    --jg-bg: #5fbdb8;
-    --jg-sky-hi: #8ed6d1;
-    --jg-sky-lo: #4aa9a4;
+    --jg-bg: #2e7f92;
+    --jg-sky-hi: #4aa3b4;
+    --jg-sky-lo: #24697d;
     --jg-grid: rgba(255, 255, 255, 0.14);
     --jg-grid-step: 34px;
 

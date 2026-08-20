@@ -57,10 +57,15 @@
        streaks and its screen-space grid show straight through the plane and
        cross it at the wrong angle — three grids fighting at once. */
     background-color: var(--jg-bg);
+    /* Light through water: broad soft pools over the grid, so the plane reads
+       as being under the surface the wave washes down from. */
     background-image:
-        linear-gradient(rgba(42, 46, 43, 0.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(42, 46, 43, 0.055) 1px, transparent 1px);
-    background-size: 65px 65px;
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        radial-gradient(30% 22% at 22% 18%, rgba(150, 226, 236, 0.16), transparent 70%),
+        radial-gradient(26% 20% at 74% 62%, rgba(120, 205, 230, 0.14), transparent 70%),
+        radial-gradient(34% 24% at 48% 88%, rgba(170, 235, 240, 0.10), transparent 72%);
+    background-size: 65px 65px, 65px 65px, 100% 100%, 100% 100%, 100% 100%;
 }
 
 /* ---------- cards ---------- */

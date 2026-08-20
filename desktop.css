@@ -520,32 +520,28 @@ html { height: 100%; }
     transform: scale(1.09);
 }
 
-/* The desktop's own ground — a deep gradient, because frosted panels need
-   something saturated behind them or they read as flat grey. */
+/* The desktop's ground: a photograph. Frosted glass wants real texture behind
+   it — the colour fields this replaces were standing in for exactly that. */
 .dt-veil {
     position: fixed;
     inset: 0;
     z-index: 40;
     pointer-events: none;
-    background: var(--ground);
+    background-image: url('img/beach.webp');
+    background-size: cover;
+    background-position: center 62%;
     transition: opacity 380ms ease-out;
 }
 
-/* Soft colour fields over the gradient. Without these the glass has nothing to
-   blur — a blurred flat gradient is the same flat gradient, so the panels read
-   as tints rather than frosted material. Also lifts the dice off the ground. */
+/* Normalising scrim. Without it, contrast swings with whatever the tile
+   happens to sit over — dark sky versus white foam. */
 .dt-veil::after {
     content: '';
     position: absolute;
     inset: 0;
-    /* Enough variation for the frosting to have something to smear, far below
-       the strength where the fields read as blotches on the ground itself. */
     background:
-        radial-gradient(46rem 34rem at 50% 46%, rgba(255, 255, 255, 0.22), transparent 72%),
-        radial-gradient(34rem 30rem at 8% 12%, rgba(255, 246, 220, 0.20), transparent 70%),
-        radial-gradient(38rem 30rem at 92% 22%, rgba(120, 205, 255, 0.18), transparent 72%),
-        radial-gradient(32rem 28rem at 84% 88%, rgba(255, 196, 160, 0.16), transparent 70%),
-        radial-gradient(34rem 28rem at 12% 92%, rgba(150, 240, 210, 0.18), transparent 72%);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.38) 100%),
+        radial-gradient(42rem 30rem at 50% 46%, rgba(255, 255, 255, 0.22), transparent 72%);
 }
 
 .is-board .dt-veil { opacity: 0; }

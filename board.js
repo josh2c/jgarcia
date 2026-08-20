@@ -149,11 +149,6 @@ function render() {
 
 /* ------------------------------------------------------- desktop <-> board -- */
 
-/* Kept in step with the durations in desktop.css and board.css. The desktop
- * sits above the board, so the tip has to wait for the reveal to clear. */
-const REVEAL = 300;   // ms until the desktop has faded out of the way
-const TIP = 900;      // ms the plane takes to rotate
-
 /* The menubar shows which layer you are on. */
 function markMenubar(which) {
     const d = document.getElementById('mb-desktop');
@@ -165,45 +160,43 @@ function markMenubar(which) {
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
-    document.body.classList.remove('is-desktop');
-    document.body.classList.add('is-board');
-    markMenubar('board');
 
-    coverageIso = true;      // widen coverage BEFORE the tip, or corners tear
-    render();
-
-    if (instant) {
+    // Everything the eye could catch happens while the water covers the
+    // screen. Changing layers first and washing over afterwards would show
+    // the swap and then hide the finished result — backwards.
+    const swap = () => {
+        document.body.classList.remove('is-desktop');
+        document.body.classList.add('is-board');
+        markMenubar('board');
         ISO = true;
+        coverageIso = true;
         document.body.classList.add('is-iso');
         render();
-        return;
-    }
+        markView('iso');
+    };
 
-    document.body.classList.add('is-entering');
-    // The desktop and its ground sit ABOVE the board, so starting the tip
-    // immediately runs it behind a curtain — you would only ever see the tail
-    // of it, which reads as arriving already isometric. Hold until the reveal
-    // has cleared, then tip in full view.
-    setTimeout(() => setView('iso'), REVEAL);
-    setTimeout(() => document.body.classList.remove('is-entering'), REVEAL + TIP + 120);
+    if (instant || !window.jgWave) { swap(); return; }
+    window.jgWave.play(swap);
 }
 
-/* Back out: the plane tips flat again and the desktop returns. Same page. */
+/* Back out: the same wash in reverse. */
 function leaveBoard() {
     if (!entered) return;
     entered = false;
-    document.body.classList.remove('is-board');
-    document.body.classList.add('is-desktop');
-    markMenubar('desktop');
-    document.body.classList.add('is-entering');
-    setView('flat');
-    // Leaving is the reverse: tip back first, and only then bring the desktop
-    // over the top, so the tip is not hidden behind it either.
-    setTimeout(() => {
-        document.body.classList.remove('is-entering');
+
+    const swap = () => {
+        document.body.classList.remove('is-board');
+        document.body.classList.add('is-desktop');
+        markMenubar('desktop');
+        ISO = false;
         coverageIso = false;
+        document.body.classList.remove('is-iso');
         render();
-    }, TIP + 120);
+        markView('flat');
+    };
+
+    if (!window.jgWave) { swap(); return; }
+    window.jgWave.play(swap);
 }
 
 window.jgEnterBoard = () => enterBoard(false);
@@ -218,19 +211,23 @@ document.querySelectorAll('[data-leave-board]').forEach((el) => {
 
 /* ----------------------------------------------------------- view toggle -- */
 
+function markView(mode) {
+    document.querySelectorAll('.bv-btn').forEach((b) => {
+        b.classList.toggle('is-current', b.dataset.view === mode);
+    });
+}
+
 function setView(mode) {
     const next = mode === 'iso';
     if (entered && next !== ISO) {
         document.body.classList.add('is-entering');
-        setTimeout(() => document.body.classList.remove('is-entering'), TIP + 120);
+        setTimeout(() => document.body.classList.remove('is-entering'), 1000);
     }
     ISO = next;
     coverageIso = ISO;
     document.body.classList.toggle('is-iso', ISO);
     render();
-    document.querySelectorAll('.bv-btn').forEach((b) => {
-        b.classList.toggle('is-current', b.dataset.view === mode);
-    });
+    markView(mode);
 }
 
 document.querySelectorAll('.bv-btn').forEach((b) => {
