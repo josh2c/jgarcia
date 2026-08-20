@@ -73,6 +73,8 @@
 
     /* One folder colour for all five, so the glyph is what distinguishes
        them. Amber against the teal ground. */
+    /* Fallback only — each folder carries its own hex and derives these three
+       from it in desktop.js. */
     --fold-back:    #d98f28;
     --fold-front:   #f3b44a;
     --fold-front-2: #e79a2c;

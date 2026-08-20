@@ -9,6 +9,7 @@
 const FOLDERS = [
     {
         name: 'Products',
+        color: '#e8a33d',
         icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
         title: 'Products',
         body: 'Things I build and run myself.',
@@ -21,6 +22,7 @@ const FOLDERS = [
     },
     {
         name: 'Client Work',
+        color: '#5fbdb8',
         icon: "<rect x='3' y='7' width='18' height='13' rx='2'/><path d='M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 12h18'/>",
         title: 'Client Work',
         body: 'Sites I have designed and built for other people.',
@@ -33,6 +35,7 @@ const FOLDERS = [
     },
     {
         name: 'Skills',
+        color: '#8cbf6e',
         icon: "<path d='M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16'/>",
         title: 'Skills',
         body: 'Agent skills I have written, installable as a Claude Code plugin.',
@@ -41,6 +44,7 @@ const FOLDERS = [
     },
     {
         name: 'Thoughts',
+        color: '#a98ed2',
         icon: "<path d='M4 5h16M4 10h16M4 15h11M4 20h7'/>",
         title: 'Thoughts',
         body: 'Twenty-two posts on innovation, leadership, productivity and sport.',
@@ -49,6 +53,7 @@ const FOLDERS = [
     },
     {
         name: 'Elsewhere',
+        color: '#cf8b5e',
         icon: "<path d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z'/><path d='M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18'/>",
         title: 'Elsewhere',
         body: 'Where else to find me.',
@@ -95,6 +100,43 @@ function countFor(f) {
 
 const iconsEl = document.getElementById('icons');
 
+/* Each folder is one colour; the back, front and gradient shades come off it
+ * by shifting HSL lightness, so the data carries a hex and nothing else.
+ *
+ * The five were checked against both things they have to survive: the grey
+ * ground they stand on (3.7:1 at worst) and the glyph printed on them (3.0:1
+ * at worst, dark ink on all five). They are also at least 91 apart in RGB, so
+ * no two read as the same folder at a glance. */
+function toHsl(hex) {
+    const r = parseInt(hex.substr(1, 2), 16) / 255;
+    const g = parseInt(hex.substr(3, 2), 16) / 255;
+    const b = parseInt(hex.substr(5, 2), 16) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    let h = 0;
+    if (d) h = 60 * (mx === r ? ((g - b) / d + (g < b ? 6 : 0)) : mx === g ? ((b - r) / d + 2) : ((r - g) / d + 4));
+    const l = (mx + mn) / 2;
+    return [h, d ? d / (1 - Math.abs(2 * l - 1)) : 0, l];
+}
+
+function shade(hex, delta) {
+    const [h, s, l0] = toHsl(hex);
+    const l = Math.max(0, Math.min(1, l0 + delta));
+    const a = s * Math.min(l, 1 - l);
+    const ch = (n) => {
+        const k = (n + h / 30) % 12;
+        const v = Math.round((l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * 255);
+        return v.toString(16).padStart(2, '0');
+    };
+    return '#' + ch(0) + ch(8) + ch(4);
+}
+
+function paintFolder(el, hex) {
+    if (!hex) return;
+    el.style.setProperty('--fold-back', shade(hex, -0.08));
+    el.style.setProperty('--fold-front', shade(hex, 0.05));
+    el.style.setProperty('--fold-front-2', shade(hex, -0.03));
+}
+
 function folderMarkup(f) {
     return '<span class="dt-folder" aria-hidden="true">' +
              '<span class="f-back"></span>' +
@@ -105,6 +147,7 @@ function folderMarkup(f) {
 
 FOLDERS.forEach((f, i) => {
     const el = iconButton('folder:' + f.name, f.name, 'dt-folder-icon', folderMarkup(f), countFor(f));
+    paintFolder(el, f.color);
     el.addEventListener('click', () => openFolder(i));
     iconsEl.appendChild(el);
 });

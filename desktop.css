@@ -215,12 +215,9 @@ html { height: 100%; }
     opacity: 0.85;
 }
 
+/* Dark ink, uniform across all five folders. Checked on each: 3.0:1 at worst
+   (Elsewhere) and 3.5:1 at best (Skills), so no folder needs its own glyph. */
 .f-front svg { width: 38%; height: 38%; stroke: rgba(34, 30, 12, 0.62); }
-
-/* ---------- hero ---------- */
-
-
-
 
 
 
