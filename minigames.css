@@ -165,16 +165,17 @@
 .mm-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.55rem; }
 
 .mm-card {
-    width: 6.6rem;
-    min-height: 8.4rem;
+    width: 9rem;
+    min-height: 11.4rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    gap: 0.2rem;
-    padding: 0.45rem 0.35rem;
-    border: 2px solid rgba(0, 0, 0, 0.45);
-    border-radius: 8px;
+    gap: 0.35rem;
+    padding: 0.7rem 0.5rem;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .mm-back {
@@ -184,24 +185,35 @@
 
 .mm-back span {
     font-family: var(--jg-display);
-    font-size: 2.6rem;
+    font-size: 3.2rem;
     font-weight: 700;
     color: #fff;
 }
 
+/* Outlined with four shadows rather than a stroke. A stroke is drawn INTO the
+   glyph, so at this size bold mono turns to mush — which is what made these
+   read as smudges. --o is set per word from the ink's own luminance. */
+.mm-word,
+.mm-digit {
+    text-shadow:
+        -1px -1px 0 var(--o), 1px -1px 0 var(--o),
+        -1px 1px 0 var(--o), 1px 1px 0 var(--o),
+        0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
 .mm-word {
     font-family: var(--jg-mono);
-    font-size: 0.68rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.15;
 }
 
 .mm-mid {
     position: relative;
-    width: 3.4rem;
-    height: 3.4rem;
+    width: 4.9rem;
+    height: 4.9rem;
     display: grid;
     place-items: center;
 }
@@ -210,7 +222,7 @@
 
 .mm-inner {
     position: absolute;
-    inset: 28%;
+    inset: 30%;
     display: grid;
     place-items: center;
 }
@@ -220,7 +232,7 @@
 .mm-digit {
     position: absolute;
     font-family: var(--jg-display);
-    font-size: 1.35rem;
+    font-size: 1.7rem;
     font-weight: 700;
     line-height: 1;
 }
@@ -265,6 +277,19 @@
 /* ---------- answers ---------- */
 
 .mg-answer { display: flex; gap: 0.4rem; align-items: center; flex: none; }
+.mg-answer input:disabled { background: #eceae2; color: var(--jg-dim); }
+
+.mg-clock {
+    font-family: var(--jg-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    min-width: 2.2rem;
+    text-align: right;
+    color: var(--jg-muted);
+}
+
+.mg-clock.is-low { color: #c0392b; }
 
 .mg-answer input {
     font: inherit;

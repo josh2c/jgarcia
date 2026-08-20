@@ -230,29 +230,40 @@
         const form = document.createElement('form');
         form.className = 'mg-answer mg-answer-wide';
         form.innerHTML = '<input type="text" autocomplete="off" spellcheck="false" placeholder="two words">' +
-            '<button type="submit">Answer</button>';
+            '<button type="submit">Answer</button><span class="mg-clock"></span>';
         const input = form.querySelector('input');
+        const clockEl = form.querySelector('.mg-clock');
+
+        /* Nothing may sit on something it cannot be told apart from. The colours
+         * are still random and still deliberately contradict the words — but a
+         * shape the same colour as its card, or a digit the same colour as the
+         * shape behind it, is not a hard question, it is an unanswerable one. */
+        const other = (...taken) => {
+            const names = taken.map((c) => c.name);
+            return pick(PALETTE.filter((c) => !names.includes(c.name)));
+        };
 
         function makeCard(slot) {
             const bg = pick(PALETTE);
-            let outerCol = pick(PALETTE);
-            while (outerCol.name === bg.name) outerCol = pick(PALETTE);
-            let innerCol = pick(PALETTE);
-            while (innerCol.name === outerCol.name) innerCol = pick(PALETTE);
+            const outerCol = other(bg);
+            const innerCol = other(outerCol, bg);
             return {
                 slot, bg,
                 outer: pick(MM.shapes), outerCol,
                 inner: pick(MM.shapes), innerCol,
-                digit: 1 + rnd(9), digitInk: pick(PALETTE),
-                colourWord: pick(PALETTE).name, colourInk: pick(PALETTE),
-                shapeWord: pick(MM.shapes), shapeInk: pick(PALETTE),
+                digit: 1 + rnd(9), digitInk: other(innerCol),
+                colourWord: pick(PALETTE).name, colourInk: other(bg),
+                shapeWord: pick(MM.shapes), shapeInk: other(bg),
                 swapped: Math.random() < 0.5
             };
         }
 
+        /* text-shadow rather than -webkit-text-stroke: the stroke eats into the
+         * glyph and turns small bold type to mush, which is most of why these
+         * read as smudges. */
         const word = (text, ink) =>
-            '<span class="mm-word" style="color:' + ink.hex + ';-webkit-text-stroke:0.6px ' +
-            outline(ink.hex) + '">' + esc(String(text).toUpperCase()) + '</span>';
+            '<span class="mm-word" style="color:' + ink.hex + ';--o:' + outline(ink.hex) + '">' +
+            esc(String(text).toUpperCase()) + '</span>';
 
         function face(c) {
             const w = [word(c.colourWord, c.colourInk), word(c.shapeWord, c.shapeInk)];
@@ -260,7 +271,7 @@
             return '<div class="mm-card" style="background:' + c.bg.hex + '">' + w[0] +
                 '<span class="mm-mid">' + shapeSvg(c.outer, c.outerCol.hex) +
                     '<span class="mm-inner">' + shapeSvg(c.inner, c.innerCol.hex) + '</span>' +
-                    '<span class="mm-digit" style="color:' + c.digitInk.hex + ';-webkit-text-stroke:0.7px ' +
+                    '<span class="mm-digit" style="color:' + c.digitInk.hex + ';--o:' +
                         outline(c.digitInk.hex) + '">' + c.digit + '</span>' +
                 '</span>' + w[1] + '</div>';
         }
@@ -299,26 +310,46 @@
                 '<p class="mm-q">' + esc(query.text.toUpperCase()) + '</p>';
             s.stage.appendChild(form);
             input.value = '';
+            clockEl.textContent = '';
             started = Date.now();
+            input.disabled = false;
             input.focus();
-            countdown(s, MM.answer[t], 'Answer', () => judge(''));
+            // Also beside the box. In the corner it is not where you are looking
+            // while you type, so the first you know of it is a zero.
+            let left = MM.answer[t];
+            const paint = () => {
+                clockEl.textContent = Math.max(0, left) + 's';
+                clockEl.classList.toggle('is-low', left <= 3);
+                s.stat.textContent = 'Answer ' + Math.max(0, left) + 's';
+            };
+            paint();
+            const tk = s.every(1000, () => {
+                left--;
+                paint();
+                if (left <= 0) { s.stop(tk); judge(null); }
+            });
         }
 
         function judge(text) {
             if (phase !== 'answer') return;
+            const ranOut = text === null;
             phase = 'done';
             s.stopAll();
             s.lockTiers(false);
-            const hits = scoreWords(text, query.want);
+            const hits = ranOut ? 0 : scoreWords(text, query.want);
             let score = hits === 2 ? 100 : hits === 1 ? 50 : 0;
             if (score === 100 && Date.now() - started < MM.answer[s.tier()] * 500) score += 10;
             s.tally(score);
             s.stage.insertAdjacentHTML('beforeend',
                 '<p class="mm-reveal">Real numbers: ' + order.map((c) => c.slot).join(' ') +
                 '<br>Solution: ' + esc(query.want.join(' ').toUpperCase()) + '</p>');
-            s.say(hits === 2 ? 'Both right.' : hits === 1 ? 'Half of it.' : 'Neither.');
+            // "Neither" on a lapsed clock reads as "you were wrong", which is a
+            // different and much more annoying message than the true one.
+            s.say(ranOut ? 'Out of time.' : hits === 2 ? 'Both right.' : hits === 1 ? 'Half of it.' : 'Neither.');
             s.go.textContent = 'Again';
             s.go.disabled = false;
+            // Dead box, visibly dead — rather than swallowing a right answer.
+            input.disabled = true;
             input.blur();
         }
 

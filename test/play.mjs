@@ -190,7 +190,26 @@ run('Memory Match', () => {
     ok('the answer phase is timed', /Answer \d+s/.test(stat(h)), stat(h));
     tick(15000);
     ok('running out of time scores zero', score(h) === 0, stat(h));
+    ok('and says so, rather than "neither"', /Out of time/.test(msg(h)), msg(h));
+    ok('the box goes visibly dead instead of swallowing a right answer',
+        h.querySelector('input').disabled === true);
     c();
+
+    // Nothing may sit on something it cannot be told apart from.
+    let clashes = 0;
+    for (let n = 0; n < 60; n++) {
+        const hh = fresh();
+        const cc = games.memoryMatch(hh);
+        setTier(hh, 4);
+        go(hh).dispatch('click');
+        past(MM_STUDY[4]);
+        for (const f of readFaces(hh)) {
+            if (f.outerCol === f.bg) clashes++;
+            if (f.innerCol === f.outerCol) clashes++;
+        }
+        cc();
+    }
+    ok('a shape is never the colour of what it sits on', clashes === 0, clashes + ' clashes in 60 deals');
 });
 
 /* ---------- Word Flash ---------- */
