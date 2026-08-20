@@ -60,7 +60,8 @@ const FILES = [
 
 const DOCK = [
     { name: 'Paint', glyph: '🖌', game: 'paint' },
-    { name: 'Pong', glyph: '🏓', game: 'pong' }
+    { name: 'Pong', glyph: '🏓', game: 'pong' },
+    { name: 'Paintball', glyph: '🎯', mode: 'paintball' }
 ];
 
 /* ----------------------------------------------------------- rendering --- */
@@ -158,6 +159,11 @@ function openFile(i) {
 
 function openGame(i) {
     const d = DOCK[i];
+    // Paintball is a mode over the whole page, not something in a window.
+    if (d.mode === 'paintball') {
+        if (window.jgPaintball) window.jgPaintball.toggle();
+        return;
+    }
     if (!win()) return;
     if (d.game === 'pong' && typeof mountPong === 'function') { win().mount(d.name, mountPong); return; }
     if (d.game === 'paint' && typeof mountPaint === 'function') { win().mount(d.name, mountPaint); return; }
