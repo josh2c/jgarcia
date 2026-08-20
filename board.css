@@ -52,26 +52,42 @@
        streaks and its screen-space grid show straight through the plane and
        cross it at the wrong angle — three grids fighting at once. */
     background-color: var(--jg-bg);
-    /* Same ground as the desktop. Only the grid marks it as a plane. */
+    /* Same ground as the desktop. Only the grid marks it as a plane.
+       The size is CELL from boarddata.js and the tile is a whole number of
+       them, so the lines run unbroken across every seam — at 72px against a
+       3050px tile they used to restart at each one. */
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-    background-size: 72px 72px;
+        linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    background-size: 380px 380px;
 }
 
 /* ---------- cards ---------- */
 
 .bi {
-    --tilt: 0deg;
     position: absolute;
     overflow: hidden;
     background: var(--jg-paper);
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: var(--r-md);
     color: var(--jg-ink);
-    transform: rotate(var(--tilt));
-    transition: box-shadow 0.15s linear;
+    transform: translateY(0) scale(1);
+    /* --in-delay is set per card by board.js, from its distance to the dice. */
+    transition: opacity 460ms ease-out var(--in-delay, 0ms),
+                transform 520ms cubic-bezier(0.2, 0.9, 0.3, 1.1) var(--in-delay, 0ms),
+                box-shadow 0.15s linear;
 }
+
+/* On the desktop the board is bare ground: the dice is the only card on it.
+   Entering brings the rest in, nearest first, so the board assembles outward
+   from the piece you were already looking at. */
+.is-desktop .bi:not(.bi-piece) {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+}
+
+/* Leaving is a retreat, not a reverse assembly — no staggered exit. */
+.is-desktop .bi { transition-delay: 0ms; }
 
 /* Hard offset shadow, no blur — drawn objects, not floating ones. */
 .is-iso .bi { box-shadow: 0 14px 30px rgba(12, 46, 66, 0.22); }
@@ -183,10 +199,10 @@
 }
 
 /* --- the dice card ---
-   A card lying WITH the plane, like every other image on the board. Standing
-   it upright made it a cut-out: a flat billboard with a hard edge where it met
-   the ground. Lying down, it also tips as you enter — the dice lay themselves
-   onto the board rather than being swapped onto it. */
+   One square like everything else, lying WITH the plane. Standing it upright
+   made it a cut-out: a flat billboard with a hard edge where it met the
+   ground. Lying down, it tips as you enter — the dice lay themselves onto the
+   board rather than being swapped onto it. */
 
 .bi-piece {
     display: flex;

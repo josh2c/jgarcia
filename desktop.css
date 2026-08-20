@@ -207,8 +207,9 @@ html { height: 100%; }
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 560px;
-    height: 248px;
+    /* Exactly the dice card underneath: one grid square, CELL - 40. */
+    width: 340px;
+    height: 340px;
     max-width: 88vw;
     background: none;
     border: 0;
@@ -657,10 +658,6 @@ html { height: 100%; }
     pointer-events: none;
     transform: scale(1.04);
 }
-
-/* The hero and the board piece are the same dice in the same place. Only one
-   is drawn at a time, so the exchange is invisible. */
-.is-board 
 
 /* ---------- paintball ----------
    A canvas over everything, plus the marker itself. Inert until armed, so it

@@ -51,9 +51,6 @@ function buildItem(item, index) {
     el.style.width = item.w + 'px';
     el.style.height = item.h + 'px';
     el.style.zIndex = String(10 + (index % 40));
-    // Tilt lives in a custom property so CSS owns the whole transform, which
-    // lets the flat -> isometric change animate on a class toggle.
-    el.style.setProperty('--tilt', item.rot + 'deg');
     // Staggered by distance from the dice, so the board assembles outward from
     // the card you were already looking at.
     el.style.setProperty('--in-delay', item.stagger + 'ms');
