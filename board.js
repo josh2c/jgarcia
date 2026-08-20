@@ -29,7 +29,7 @@ function screenToBoard(sx, sy) {
 
 let ISO = false;            // the desktop shows the board flat; entering tips it
 let entered = false;
-let drifting = true;        // the board idles behind the desktop
+
 
 /* ------------------------------------------------------------- build DOM -- */
 
@@ -149,31 +149,9 @@ function render() {
 
 /* ------------------------------------------------------- desktop <-> board -- */
 
-/* A slow diagonal drift, so the board is alive behind the desktop without
- * being busy. Stops the moment you enter. */
-function markMenubar(which) {
-    const d = document.getElementById('mb-desktop');
-    const b = document.getElementById('mb-board');
-    if (d) d.classList.toggle('is-current', which === 'desktop');
-    if (b) b.classList.toggle('is-current', which === 'board');
-}
-
-function startDrift() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const step = () => {
-        if (!drifting) return;
-        camX += 0.18;
-        camY += 0.09;
-        render();
-        requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-}
-
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
-    drifting = false;
     document.body.classList.remove('is-desktop');
     document.body.classList.add('is-board');
     markMenubar('board');
@@ -205,8 +183,6 @@ function leaveBoard() {
     setTimeout(() => {
         document.body.classList.remove('is-entering');
         coverageIso = false;
-        drifting = true;
-        startDrift();
         render();
     }, 1000);
 }
@@ -387,4 +363,3 @@ render();
 // Links from elsewhere arrive as index.html#board and should land on the board
 // rather than making you cross the desktop again.
 if (location.hash.includes('board')) enterBoard(true);
-else startDrift();
