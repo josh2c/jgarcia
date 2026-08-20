@@ -40,30 +40,29 @@
     /* ---------- glass ----------
        Frosted panels need something saturated behind them or they read as
        flat grey. The ground gradient below is what they blur. */
-    /* Light glass with ink type, not white-on-dark. White type over this
-       palette tops out around 4.3:1 even on the deepest ramp — darkening the
-       ground enough to fix it would have meant abandoning the teal. */
-    --glass:        rgba(255, 255, 255, 0.28);
-    --glass-strong: rgba(255, 255, 255, 0.45);
-    --glass-solid:  rgba(255, 255, 255, 0.80);
-    --glass-edge:   rgba(255, 255, 255, 0.55);
-    --glass-edge-soft: rgba(255, 255, 255, 0.34);
+    /* Dark glass on a dark ground. Ink on light glass measures only 3.0:1
+       over #3C4142; white on a low-alpha panel is 7.2:1, so the material
+       flips rather than the ground being lightened back up. */
+    --glass:        rgba(255, 255, 255, 0.12);
+    --glass-strong: rgba(255, 255, 255, 0.19);
+    --glass-solid:  rgba(255, 255, 255, 0.28);
+    --glass-edge:   rgba(255, 255, 255, 0.22);
+    --glass-edge-soft: rgba(255, 255, 255, 0.13);
     --glass-blur:   saturate(180%) blur(22px);
-    --glass-lift:   0 10px 34px rgba(12, 46, 66, 0.26);
-    --glass-inset:  inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    --glass-lift:   0 12px 34px rgba(0, 0, 0, 0.42);
+    --glass-inset:  inset 0 1px 0 rgba(255, 255, 255, 0.16);
 
-    /* Type on glass — ink, at 5.8:1 or better across the whole ground. */
-    --on-glass:       #22302e;
-    --on-glass-soft:  rgba(34, 48, 46, 0.78);
-    --on-glass-faint: rgba(34, 48, 46, 0.58);
+    /* Type on glass — white, 7.2:1 on a panel and 5.2:1 at the soft weight. */
+    --on-glass:       #f4f6f6;
+    --on-glass-soft:  rgba(244, 246, 246, 0.78);
+    --on-glass-faint: rgba(244, 246, 246, 0.55);
 
-    /* The ground the glass sits on — the palette, deepened so it has range. */
-    --ground: linear-gradient(163deg,
-        #8fded4 0%,
-        #5fbdb8 28%,
-        #57a8c4 58%,
-        #5b8fc9 84%,
-        #6b8ca3 100%);
+    /* A flat dark ground. The faint lift keeps it from reading as dead paint
+       and gives the frosting a little to work with. */
+    --desk: #3c4142;
+    --ground:
+        radial-gradient(60% 44% at 50% 40%, rgba(255, 255, 255, 0.055), transparent 72%),
+        linear-gradient(180deg, #434849 0%, #3c4142 55%, #343839 100%);
 
     /* One folder colour for all five, so the glyph is what distinguishes
        them. Amber against the teal ground. */
@@ -314,6 +313,6 @@ body.board-page {
 /* Safari and Firefox without backdrop-filter get a solid fill instead of an
    unreadable transparent panel. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass { background: rgba(255, 255, 255, 0.62); }
-    .glass-strong { background: rgba(255, 255, 255, 0.8); }
+    .glass { background: rgba(255, 255, 255, 0.18); }
+    .glass-strong { background: rgba(255, 255, 255, 0.26); }
 }

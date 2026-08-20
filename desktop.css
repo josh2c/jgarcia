@@ -63,7 +63,7 @@ html { height: 100%; }
     z-index: 30;
     cursor: grabbing;
     transform: scale(1.06);
-    filter: drop-shadow(0 12px 18px rgba(12, 46, 66, 0.32));
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
 }
 
 .dt-icons.is-free .dt-icon.is-dragging { transition: none; }
@@ -123,7 +123,7 @@ html { height: 100%; }
     inset: 0.35rem 0 0 0;
     background: var(--fold-back);
     border-radius: 0.7rem;
-    box-shadow: 0 8px 18px rgba(12, 46, 66, 0.24);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.42);
 }
 
 .f-back::before {
@@ -147,7 +147,7 @@ html { height: 100%; }
     margin-left: -31%;
     background: #fbfaf6;
     border-radius: 0.34rem;
-    box-shadow: 0 2px 6px rgba(12, 46, 66, 0.18);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 
@@ -211,7 +211,7 @@ html { height: 100%; }
     width: clamp(19rem, 42vw, 36rem);
     cursor: pointer;
     /* A contact shadow so they sit on the board rather than float over it. */
-    filter: drop-shadow(0 22px 26px rgba(42, 46, 43, 0.26));
+    filter: drop-shadow(0 22px 30px rgba(0, 0, 0, 0.5));
     transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 
@@ -507,29 +507,17 @@ html { height: 100%; }
     transform: scale(1.09);
 }
 
-/* The desktop's ground: a photograph. Frosted glass wants real texture behind
-   it — the colour fields this replaces were standing in for exactly that. */
+/* The desktop's ground. */
 .dt-veil {
     position: fixed;
     inset: 0;
     z-index: 40;
     pointer-events: none;
-    background-image: url('img/beach.webp');
-    background-size: cover;
-    background-position: center 62%;
+    background: var(--ground);
+    background-color: var(--desk);
     transition: opacity 380ms ease-out;
 }
 
-/* Normalising scrim. Without it, contrast swings with whatever the tile
-   happens to sit over — dark sky versus white foam. */
-.dt-veil::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.38) 100%),
-        radial-gradient(42rem 30rem at 50% 46%, rgba(255, 255, 255, 0.22), transparent 72%);
-}
 
 .is-board .dt-veil { opacity: 0; }
 
@@ -596,7 +584,7 @@ html { height: 100%; }
     transform: translateY(60%) rotate(-8deg);
     transform-origin: 80% 80%;
     transition: opacity 260ms ease-out, transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
-    filter: drop-shadow(-8px 10px 0 rgba(42, 46, 43, 0.22));
+    filter: drop-shadow(-8px 10px 0 rgba(0, 0, 0, 0.35));
 }
 
 .is-armed .pb-gun { opacity: 1; transform: translateY(0) rotate(-8deg); }
@@ -626,9 +614,12 @@ html { height: 100%; }
     display: none;
     gap: 0.5rem;
     align-items: center;
-    background: var(--jg-paper);
-    border: 2px solid var(--jg-ink);
-    padding: 0.45rem 0.7rem;
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--r-pill);
+    padding: 0.45rem 0.8rem;
     font-family: var(--jg-mono);
     font-size: 0.64rem;
     letter-spacing: 0.1em;
@@ -642,12 +633,13 @@ html { height: 100%; }
     font: inherit;
     cursor: pointer;
     background: transparent;
-    border: 2px solid var(--jg-ink);
-    color: var(--jg-ink);
-    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--r-pill);
+    color: var(--on-glass);
+    padding: 0.15rem 0.5rem;
 }
 
-.pb-exit button:hover { background: var(--jg-accent); }
+.pb-exit button:hover { background: var(--jg-accent); color: #1a1c1c; }
 
 @media (prefers-reduced-motion: reduce) {
     .pb-gun, .pb-gun.is-kick { transition: none; animation: none; }
