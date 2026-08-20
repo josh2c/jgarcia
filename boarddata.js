@@ -19,7 +19,7 @@ export const TILE_H = 2300;
 export const HOME_X = 1420;
 export const HOME_Y = 1854;
 
-export const ITEMS = [
+const RAW = [
     /* The dice: a piece standing ON the board rather than a card lying on it.
        Centred on HOME so it is where the desktop hero already was. */
     { type: 'piece', x: HOME_X - 280, y: HOME_Y - 124, w: 560, h: 248, rot: 0,
@@ -111,3 +111,14 @@ export const ITEMS = [
       text: 'Vision carries heft, it’s not a light thing.', attr: 'Vision’s Weight',
       href: 'posts/visions-weight.html' }
 ];
+
+
+/* Fade-in order: outward from the dice, so entering reads as the board
+ * assembling around the card you are already looking at. */
+const far = Math.hypot(TILE_W, TILE_H);
+export const ITEMS = RAW.map((it) => {
+    const dx = (it.x + it.w / 2) - HOME_X;
+    const dy = (it.y + it.h / 2) - HOME_Y;
+    const d = Math.hypot(dx, dy) / far;
+    return { ...it, stagger: it.type === 'piece' ? 0 : Math.round(60 + d * 620) };
+});

@@ -351,17 +351,11 @@ function openGame(i) {
     }
 }
 
-/* The hero is the way in: the board is already behind the desktop, so this
- * clears the furniture rather than loading a page. */
-const heroEl = document.querySelector('.dt-hero');
-if (heroEl) {
-    heroEl.addEventListener('click', () => window.jgEnterBoard && window.jgEnterBoard());
-    heroEl.setAttribute('role', 'button');
-    heroEl.setAttribute('tabindex', '0');
-    heroEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.jgEnterBoard && window.jgEnterBoard(); }
-    });
-}
+/* The door sits over the dice card on the board below. The card is never
+ * duplicated, so there is nothing to hand off — entering just clears the
+ * furniture and tips the plane the card is already lying on. */
+const doorEl = document.getElementById('door');
+if (doorEl) doorEl.addEventListener('click', () => window.jgEnterBoard && window.jgEnterBoard());
 
 /* Menubar entries that need script. */
 const mbThoughts = document.getElementById('mb-thoughts');

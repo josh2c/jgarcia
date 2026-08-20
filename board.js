@@ -54,6 +54,9 @@ function buildItem(item, index) {
     // Tilt lives in a custom property so CSS owns the whole transform, which
     // lets the flat -> isometric change animate on a class toggle.
     el.style.setProperty('--tilt', item.rot + 'deg');
+    // Staggered by distance from the dice, so the board assembles outward from
+    // the card you were already looking at.
+    el.style.setProperty('--in-delay', item.stagger + 'ms');
 
     if (item.type === 'note') {
         el.innerHTML =
@@ -191,7 +194,7 @@ function enterBoard(instant) {
         render();
         markView('iso');
     });
-    setTimeout(() => document.body.classList.remove('is-entering'), 1100);
+    setTimeout(() => document.body.classList.remove('is-entering'), 1050);
 }
 
 function leaveBoard() {
@@ -212,7 +215,7 @@ function leaveBoard() {
         markMenubar('desktop');
         coverageIso = false;
         render();
-    }, 1000);
+    }, 1050);
 }
 
 window.jgEnterBoard = () => enterBoard(false);
@@ -236,8 +239,9 @@ function markView(mode) {
 function setView(mode) {
     const next = mode === 'iso';
     if (entered && next !== ISO) {
+        // Must outlive the 950ms plane tip in board.css.
         document.body.classList.add('is-entering');
-        setTimeout(() => document.body.classList.remove('is-entering'), 1000);
+        setTimeout(() => document.body.classList.remove('is-entering'), 1050);
     }
     ISO = next;
     coverageIso = ISO;

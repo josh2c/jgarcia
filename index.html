@@ -40,7 +40,6 @@
     <div class="board-viewport" id="viewport">
         <div class="board-surface" id="surface"></div>
     </div>
-    <div class="dt-veil" aria-hidden="true"></div>
 
     <!-- ---------- desktop layer ---------- -->
     <div class="dt-layer" id="desktop">
@@ -50,10 +49,12 @@
                  anywhere, the way a real desktop works. -->
             <div class="dt-icons" id="icons"></div>
 
-            <div class="dt-hero" title="Enter the board">
-                <img src="board/img/dice.webp" alt="" aria-hidden="true">
-                <span class="dt-hero-cue">Enter the board →</span>
-            </div>
+            <!-- An invisible target over the dice card on the board below.
+                 The card itself is never duplicated. -->
+            <button type="button" class="dt-door" id="door" aria-label="Enter the board">
+                <span class="dt-door-cue">Enter the board →</span>
+            </button>
+
 
             <aside class="dt-widgets">
                 <div class="dt-widget dt-clock">

@@ -39,12 +39,7 @@
 
 /* Only while entering — otherwise the plane would spin on every load. */
 .is-entering .board-surface {
-    transition: transform 900ms cubic-bezier(0.7, 0, 0.25, 1);
-}
-
-.is-entering .bi {
-    transition: transform 900ms cubic-bezier(0.7, 0, 0.25, 1),
-                box-shadow 900ms linear;
+    transition: transform 950ms cubic-bezier(0.32, 0.02, 0.16, 1);
 }
 
 .board-tile {

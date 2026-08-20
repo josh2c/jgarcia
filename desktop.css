@@ -198,68 +198,216 @@ html { height: 100%; }
 
 .f-front svg { width: 38%; height: 38%; stroke: rgba(34, 30, 12, 0.62); }
 
-/* ---------- hero ---------- */
+/* ---------- the door ----------
+   A transparent target sitting exactly over the dice card on the board below,
+   so the card is never duplicated and never has to be handed off. */
 
-.dt-hero {
+.dt-door {
     position: absolute;
-    z-index: 10;
-    /* Dead centre and a fixed width, because the board piece renders at the
-       camera's resting point — exactly the middle of the viewport — at exactly
-       560px. Any difference would show as a jump during the handoff. */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* Matches the board card exactly — same size, same padding, same fill —
-       so the handoff is one object continuing, not two swapping. */
     width: 560px;
     height: 248px;
     max-width: 88vw;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 22px;
-    background: var(--jg-panel);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: var(--r-md);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+    background: none;
+    border: 0;
+    padding: 0;
     cursor: pointer;
-    transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
-                box-shadow 260ms ease-out, opacity 420ms ease-out;
+    z-index: 10;
 }
 
-.dt-hero img { transition: transform 3.4s ease-in-out; }
+.is-board .dt-door { opacity: 0; pointer-events: none; }
+.dt-door { transition: opacity 300ms ease-out; }
 
-/* A slow idle drift, and a tilt on hover — they are dice, they should look
-   like they are about to be thrown. */
-@media (prefers-reduced-motion: no-preference) {
-    .dt-hero img { animation: dice-drift 6s ease-in-out infinite; }
+.dt-door-cue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 1rem);
+    text-align: center;
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--on-glass);
+    opacity: 0.75;
+    transition: color 0.15s linear, opacity 0.15s linear;
 }
 
-@keyframes dice-drift {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50%      { transform: translateY(-4px) rotate(-1.2deg); }
+.dt-door:hover .dt-door-cue,
+.dt-door:focus-visible .dt-door-cue { color: var(--jg-accent); opacity: 1; }
+.dt-door:focus-visible { outline: 2px solid var(--jg-accent); outline-offset: 8px; border-radius: var(--r-md); }
+
+/* ---------- icon layer ----------
+   Every icon sits in one layer so any of them can be dragged anywhere. Below
+   the breakpoint they fall back to flow: dragging on a phone fights scrolling
+   and there is no room to arrange anything. */
+
+.dt-icons {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.dt-hero:hover {
-    transform: translate(-50%, -52%) scale(1.03);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+.dt-icons.is-free {
+    position: static;
+    display: block;
 }
 
-.dt-hero img { display: block; width: 100%; height: 100%; object-fit: contain; }
-
-/* ---------- desktop files ---------- */
-
-.dt-file { width: 6.5rem; }
-
-.dt-file-thumb {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: contain;
-    background: #ffffff;
-    border: 2px solid var(--dt-ink);
-    padding: 0.5rem;
+.dt-icons.is-free .dt-icon {
+    position: fixed;
+    width: 6.2rem;
+    margin: 0;
+    touch-action: none;
 }
+
+.dt-icon.is-dragging {
+    z-index: 30;
+    cursor: grabbing;
+    transform: scale(1.06);
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
+}
+
+.dt-icons.is-free .dt-icon.is-dragging { transition: none; }
+
+/* ---------- folders ---------- */
+
+.dt-icon {
+    transition: transform 0.14s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.35rem;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.dt-icon:hover,
+.dt-icon:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--glass-edge-soft);
+    outline: none;
+}
+
+.dt-icon-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-glass);
+}
+
+/* Folder: three layers — a back panel, contents peeking between, and a front
+   panel that tips forward on hover so it reads as opening. Solid rather than
+   frosted; the chunky solidity is the point, and a glass folder would be a
+   ghost of one. */
+.dt-folder {
+    position: relative;
+    width: 5.4rem;
+    height: 4.4rem;
+    perspective: 520px;
+    transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.dt-icon:hover .dt-folder,
+.dt-icon:focus-visible .dt-folder { transform: translateY(-5px); }
+
+/* Back panel, with the tab. */
+.f-back {
+    position: absolute;
+    inset: 0.35rem 0 0 0;
+    background: var(--fold-back);
+    border-radius: 0.7rem;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.42);
+}
+
+.f-back::before {
+    content: '';
+    position: absolute;
+    left: 0.1rem;
+    top: -0.42rem;
+    width: 46%;
+    height: 0.7rem;
+    background: var(--fold-back);
+    border-radius: 0.45rem 0.45rem 0 0;
+}
+
+/* Contents. They sit between the panels and rise as it opens. */
+.f-card {
+    position: absolute;
+    left: 50%;
+    bottom: 1.15rem;
+    width: 62%;
+    height: 2.5rem;
+    margin-left: -31%;
+    background: #fbfaf6;
+    border-radius: 0.34rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.f-card:nth-child(2) { transform: translateY(0) rotate(-4deg) scale(0.94); }
+.f-card:nth-child(3) { transform: translateY(0) rotate(2deg) scale(0.97); }
+.f-card:nth-child(4) { transform: translateY(0) rotate(0deg); }
+
+.dt-icon:hover .f-card:nth-child(2) { transform: translateY(-13px) rotate(-11deg) scale(0.94); }
+.dt-icon:hover .f-card:nth-child(3) { transform: translateY(-16px) rotate(7deg) scale(0.97); }
+.dt-icon:hover .f-card:nth-child(4) { transform: translateY(-19px) rotate(-1deg); }
+
+/* Front panel. Tips forward from its bottom edge. */
+.f-front {
+    position: absolute;
+    inset: 1.15rem 0 0 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(168deg, var(--fold-front) 0%, var(--fold-front-2) 100%);
+    border-radius: 0.7rem;
+    transform-origin: bottom center;
+    transform: rotateX(0deg);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+.dt-icon:hover .f-front,
+.dt-icon:focus-visible .f-front { transform: rotateX(-28deg); }
+
+/* Item count under the name. */
+.dt-icon-count {
+    font-family: var(--jg-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    color: var(--on-glass-soft);
+}
+
+.f-front svg,
+.dt-tool svg {
+    width: 46%;
+    height: 46%;
+    fill: none;
+    stroke: var(--on-glass);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+}
+
+.f-front svg { width: 38%; height: 38%; stroke: rgba(34, 30, 12, 0.62); }
+
+/* ---------- hero ---------- */
+
+
+
+
+
 
 .dt-file .dt-icon-label {
     margin-top: 0.5rem;
@@ -479,27 +627,14 @@ html { height: 100%; }
         width: auto;
         margin: 2.5rem 0 0;
     }
-    .dt-hero { display: none; }
-    .dt-files {
-        position: static;
-        transform: none;
-        margin-top: 2.5rem;
-        flex-wrap: wrap;
-    }
-    .dt-dock, .dt-trash, .dt-foot { position: static; transform: none; }
+    .dt-door { display: none; }        /* no room to enter by the card here */
     .dt-surface {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         padding-bottom: 3rem;
     }
-    .dt-dock { margin-top: 2.5rem; }
-    .dt-trash { margin-top: 1.5rem; align-items: flex-start; }
     .dt-foot { margin: 3rem auto 0; text-align: center; }
-}
-
-@media (max-width: 560px) {
-    .dt-folders { grid-template-columns: repeat(2, 8rem); }
 }
 
 /* ---------- desktop as a layer over the board ----------
@@ -525,56 +660,7 @@ html { height: 100%; }
 
 /* The hero and the board piece are the same dice in the same place. Only one
    is drawn at a time, so the exchange is invisible. */
-.is-board .dt-hero { opacity: 0; }
-.is-desktop .bi-piece { opacity: 1; }
-
-/* The desktop's ground. */
-.dt-veil {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    pointer-events: none;
-    background: var(--ground);
-    background-color: var(--desk);
-    transition: opacity 420ms ease-out;
-}
-
-
-.is-board .dt-veil { opacity: 0; }
-
-/* The board stays visible throughout: both sides share a ground, so there is
-   nothing to reveal. Its CARDS fade, leaving only the dice — which is the
-   desktop hero — so the handoff has nothing to give itself away with. */
-.is-desktop .bi:not(.bi-piece) { opacity: 0; }
-.bi { transition: opacity 420ms ease-out; }
-
-/* While the desktop is up the board is scenery and must not catch a drag. */
-.is-desktop .board-viewport { pointer-events: none; cursor: default; }
-.is-desktop .board-hint { opacity: 0; pointer-events: none; }
-
-/* The hero is the door in. */
-.dt-hero:focus-visible { outline: 2px solid var(--jg-accent); outline-offset: 6px; }
-
-.dt-hero-cue {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 0.9rem);
-    text-align: center;
-    font-family: var(--jg-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--on-glass);
-    opacity: 0.9;
-    transition: color 0.15s linear, opacity 0.15s linear;
-}
-
-.dt-hero:hover .dt-hero-cue { color: var(--jg-accent); opacity: 1; }
-
-@media (max-width: 1100px) {
-    .dt-hero { display: block; }
-}
+.is-board 
 
 /* ---------- paintball ----------
    A canvas over everything, plus the marker itself. Inert until armed, so it
@@ -616,7 +702,7 @@ html { height: 100%; }
 /* Armed: the page becomes a target, but the rail and dock stay usable. */
 .is-armed { cursor: crosshair; }
 .is-armed .menubar,
-.is-armed .dt-dock,
+.is-armed .dt-icon,
 .is-armed .menubar { cursor: default; }
 
 .pb-exit {
