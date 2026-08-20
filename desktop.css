@@ -1,0 +1,506 @@
+/* Desktop — the landing page as an OS desktop: folders, files, widgets, dock. */
+
+:root {
+    --dt-bg: #f6f6f3;
+    --dt-grid: rgba(16, 16, 20, 0.055);
+    --dt-ink: #101014;
+    --dt-muted: rgba(16, 16, 20, 0.55);
+    --dt-faint: rgba(16, 16, 20, 0.3);
+    --dt-line: rgba(16, 16, 20, 0.14);
+    --dt-panel: rgba(255, 255, 255, 0.92);
+    --dt-folder-a: #ffffff;
+    --dt-folder-b: #e6e6e1;
+    --dt-red: #e03a2d;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { height: 100%; }
+
+.desktop-page {
+    margin: 0;
+    min-height: 100%;
+    background-color: var(--dt-bg);
+    /* The faint white grid, carried over from the board so the two pages feel
+       like the same world. */
+    background-image:
+        linear-gradient(var(--dt-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--dt-grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    color: var(--dt-ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- nav ---------- */
+
+.dt-nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem clamp(1rem, 3vw, 2.5rem);
+}
+
+.dt-nav-link {
+    color: var(--dt-ink);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.72;
+    transition: opacity 0.12s linear;
+}
+
+.dt-nav-link:hover { opacity: 1; }
+
+/* Struck through, the way the reference marks the page you are on. */
+.dt-nav-link.is-current {
+    opacity: 1;
+    text-decoration: line-through;
+    text-decoration-color: var(--dt-red);
+    text-decoration-thickness: 2px;
+}
+
+/* ---------- surface ---------- */
+
+.dt-surface {
+    position: relative;
+    min-height: 100vh;
+    padding: 4.75rem clamp(1rem, 3vw, 2.5rem) 8.5rem;
+}
+
+/* ---------- folders ---------- */
+
+.dt-folders {
+    position: relative;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(3, 8.5rem);
+    gap: 1.1rem 0.4rem;
+    justify-content: start;
+}
+
+.dt-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.6rem 0.3rem;
+    background: none;
+    border: 1px solid transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.dt-icon:hover,
+.dt-icon:focus-visible {
+    background: rgba(16, 16, 20, 0.05);
+    border-color: var(--dt-line);
+    outline: none;
+}
+
+.dt-icon-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dt-ink);
+}
+
+/* Folder drawn in CSS: a tab, then the body sitting over it. */
+.dt-folder {
+    position: relative;
+    width: 4.6rem;
+    height: 3.5rem;
+}
+
+.dt-folder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 55%;
+    height: 0.6rem;
+    background: var(--dt-folder-a);
+    border: 1px solid var(--dt-line);
+    border-bottom: 0;
+    border-radius: 3px 8px 0 0;
+}
+
+.dt-folder::after {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(160deg, var(--dt-folder-a), var(--dt-folder-b));
+    border: 1px solid var(--dt-line);
+    border-radius: 3px;
+}
+
+.dt-icon:hover .dt-folder::after { border-color: rgba(16, 16, 20, 0.34); }
+
+/* ---------- hero ---------- */
+
+.dt-hero {
+    position: absolute;
+    z-index: 10;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(15rem, 30vw, 26rem);
+    pointer-events: none;
+    /* A soft floor glow so the sprite is not just pasted onto the black. */
+    filter: drop-shadow(0 26px 34px rgba(16, 16, 20, 0.22));
+}
+
+.dt-hero img { display: block; width: 100%; height: auto; }
+
+/* ---------- desktop files ---------- */
+
+.dt-files {
+    position: absolute;
+    z-index: 20;
+    left: 50%;
+    top: 62%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1.75rem;
+}
+
+.dt-file { width: 6.5rem; }
+
+.dt-file-thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    background: #ffffff;
+    border: 1px solid var(--dt-line);
+    padding: 0.5rem;
+}
+
+.dt-file .dt-icon-label {
+    margin-top: 0.5rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-size: 0.64rem;
+    color: var(--dt-muted);
+}
+
+/* ---------- widgets ---------- */
+
+.dt-widgets {
+    position: absolute;
+    z-index: 30;
+    top: 4.75rem;
+    right: clamp(1rem, 3vw, 2.5rem);
+    width: min(23rem, 34vw);
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.dt-widget {
+    background: var(--dt-panel);
+    border: 1px solid var(--dt-line);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.dt-clock { padding: 1.35rem 1.5rem 1.5rem; }
+
+.dt-time {
+    font-size: 2.4rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.dt-date {
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--dt-muted);
+}
+
+.dt-rule {
+    border: 0;
+    border-top: 1px solid var(--dt-line);
+    margin: 1.1rem 0;
+}
+
+.dt-status {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dt-status-sub {
+    margin-top: 0.35rem;
+    font-size: 0.74rem;
+    color: var(--dt-muted);
+}
+
+.dt-panel-bar {
+    padding: 0.7rem 1rem;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dt-muted);
+    border-bottom: 1px solid var(--dt-line);
+}
+
+.dt-panel-body {
+    display: block;
+    padding: 1.1rem 1.25rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.dt-panel-body:hover { background: rgba(16, 16, 20, 0.04); }
+
+.dt-panel-title { display: block; font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
+.dt-panel-meta { display: block; margin-top: 0.45rem; font-size: 0.7rem; color: var(--dt-muted); }
+.dt-panel-cta { display: block; margin-top: 0.85rem; font-size: 0.74rem; color: var(--dt-red); font-weight: 600; }
+
+/* ---------- dock + trash ---------- */
+
+.dt-dock {
+    position: absolute;
+    z-index: 30;
+    left: clamp(1rem, 3vw, 2.5rem);
+    bottom: 2.25rem;
+    display: flex;
+    gap: 1.25rem;
+}
+
+.dt-trash {
+    position: absolute;
+    z-index: 30;
+    right: clamp(1rem, 3vw, 2.5rem);
+    bottom: 2.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    background: none;
+    border: 1px solid transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    padding: 0.6rem;
+}
+
+.dt-trash:hover { background: rgba(16, 16, 20, 0.05); border-color: var(--dt-line); }
+
+/* A bin: tapered body plus a lid bar. */
+.dt-trash-icon {
+    position: relative;
+    display: block;
+    width: 2.6rem;
+    height: 3rem;
+    background: linear-gradient(160deg, #ffffff, #dedeD8);
+    border: 1px solid var(--dt-line);
+    clip-path: polygon(12% 0, 88% 0, 78% 100%, 22% 100%);
+}
+
+.dt-trash-icon::before {
+    content: '';
+    position: absolute;
+    top: -0.45rem;
+    left: -0.35rem;
+    right: -0.35rem;
+    height: 0.45rem;
+    background: #d7d7d1;
+    border: 1px solid var(--dt-line);
+    border-radius: 2px;
+}
+
+.dt-tool {
+    width: 4.2rem;
+    height: 3.4rem;
+    border: 1px solid var(--dt-line);
+    background: linear-gradient(160deg, #ffffff, #e4e4de);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+
+/* ---------- footer ---------- */
+
+.dt-foot {
+    position: absolute;
+    z-index: 25;
+    left: 50%;
+    bottom: 2rem;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.dt-mark {
+    width: 2.1rem;
+    height: 2.1rem;
+    margin: 0 auto 0.7rem;
+    border: 1px solid var(--dt-faint);
+    border-radius: 50%;
+    position: relative;
+}
+
+.dt-mark::before,
+.dt-mark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--dt-faint);
+    border-radius: 50%;
+}
+
+.dt-mark::before { transform: scaleX(0.42); }
+.dt-mark::after { transform: scaleY(0.42); }
+
+.dt-foot-line,
+.dt-foot-sub {
+    margin: 0;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+}
+
+.dt-foot-sub { margin-top: 0.3rem; color: var(--dt-muted); }
+
+/* ---------- window ---------- */
+/* `display: flex` below outranks the UA stylesheet's [hidden] rule, so the
+   attribute needs restating or the empty window shows permanently. */
+[hidden] { display: none !important; }
+
+
+.dt-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(16, 16, 20, 0.42);
+}
+
+.dt-window {
+    position: fixed;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(680px, calc(100vw - 32px));
+    max-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid rgba(16, 16, 20, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.dt-window-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.75rem 0.7rem 1.1rem;
+    background: #f0f0ec;
+    border-bottom: 1px solid var(--dt-line);
+}
+
+.dt-window-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.dt-window-close {
+    border: 0;
+    background: transparent;
+    color: var(--dt-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    line-height: 1;
+}
+
+.dt-window-close:hover { background: rgba(16, 16, 20, 0.09); color: var(--dt-ink); }
+
+.dt-window-body {
+    padding: 1.25rem;
+    overflow: auto;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.dt-window-body p { margin: 0 0 0.75rem; }
+.dt-window-body a { color: var(--dt-red); }
+.dt-window-body img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+.dt-window-body canvas { display: block; width: 100%; background: #f0f0ec; border-radius: 8px; }
+.dt-window-body .bw-note { font-size: 0.75rem; color: var(--dt-muted); margin-top: 0.75rem; }
+
+.dt-links { list-style: none; margin: 0; padding: 0; }
+.dt-links li { border-top: 1px solid var(--dt-line); }
+.dt-links li:first-child { border-top: 0; }
+
+.dt-links a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    text-decoration: none;
+    color: var(--dt-ink);
+}
+
+.dt-links a:hover { color: var(--dt-red); }
+.dt-links .dt-link-meta { color: var(--dt-muted); font-size: 0.78rem; }
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1100px) {
+    .dt-widgets {
+        position: static;
+        width: auto;
+        margin: 2.5rem 0 0;
+    }
+    .dt-hero { display: none; }
+    .dt-files {
+        position: static;
+        transform: none;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+    }
+    .dt-dock, .dt-trash, .dt-foot { position: static; transform: none; }
+    .dt-surface {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 3rem;
+    }
+    .dt-dock { margin-top: 2.5rem; }
+    .dt-trash { margin-top: 1.5rem; align-items: flex-start; }
+    .dt-foot { margin: 3rem auto 0; text-align: center; }
+}
+
+@media (max-width: 560px) {
+    .dt-folders { grid-template-columns: repeat(2, 8rem); }
+    .dt-nav { flex-wrap: wrap; gap: 0.75rem 1.1rem; }
+}

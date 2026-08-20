@@ -1,0 +1,236 @@
+/* City — full-bleed WebGL stage with the shared rail over it. */
+
+.city-page { overflow: hidden; height: 100%; }
+
+#stage {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: grab;
+}
+
+#stage.is-dragging { cursor: grabbing; }
+#stage.is-over { cursor: pointer; }
+
+.city-side { background: rgba(244, 241, 232, 0.9); }
+.city-credit { margin: 0; font-family: var(--jg-mono); font-size: 0.62rem; color: var(--jg-dim); }
+
+/* ---------- loading ---------- */
+
+.city-loading {
+    position: fixed;
+    z-index: 80;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    background: var(--jg-bg);
+    transition: opacity 0.5s ease-in;
+}
+
+.city-loading.is-done { opacity: 0; pointer-events: none; }
+
+.city-loading-bar {
+    display: block;
+    width: min(18rem, 60vw);
+    height: 8px;
+    background: var(--jg-paper);
+    border: 2px solid var(--jg-ink);
+}
+
+.city-loading-bar i {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--jg-accent);
+    transition: width 0.2s linear;
+}
+
+.city-loading-text {
+    font-family: var(--jg-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--jg-muted);
+}
+
+/* ---------- hint ---------- */
+
+.city-hint {
+    position: fixed;
+    z-index: 60;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.55rem 1rem;
+    background: var(--jg-paper);
+    border: 2px solid var(--jg-ink);
+    font-family: var(--jg-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--jg-muted);
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.city-hint.is-hidden { opacity: 0; }
+
+@media (max-width: 860px) {
+    .city-side { position: fixed; width: 100%; height: auto; }
+}
+
+/* ---------- window ----------
+   board.html does not load desktop.css, so the window it opens needs its own
+   styling here. `display: flex` outranks the UA [hidden] rule, so restate it. */
+
+[hidden] { display: none !important; }
+
+.dt-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(31, 42, 40, 0.35);
+}
+
+.dt-window {
+    position: fixed;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    background: var(--jg-panel);
+    border: 2px solid var(--jg-ink);
+    box-shadow: 6px 6px 0 var(--jg-ink);
+    overflow: hidden;
+}
+
+.dt-window-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.75rem 0.7rem 1.1rem;
+    background: var(--jg-blue);
+    border-bottom: 2px solid var(--jg-ink);
+}
+
+.dt-window-title {
+    color: #fff;
+    font-family: var(--jg-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.dt-window-close {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+}
+
+.dt-window-close:hover { background: rgba(0, 0, 0, 0.18); color: #fff; }
+
+.dt-window-body {
+    padding: 1.25rem;
+    overflow: auto;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--jg-ink);
+}
+
+.dt-window-body p { margin: 0 0 0.9rem; }
+.dt-window-body canvas { display: block; width: 100%; background: var(--jg-stone); border: 2px solid var(--jg-ink); }
+.dt-window-body .bw-note { font-size: 0.75rem; color: var(--jg-dim); margin-top: 0.75rem; }
+
+.dt-links { list-style: none; margin: 0; padding: 0; }
+.dt-links li { border-top: 1px solid var(--jg-line); }
+.dt-links li:first-child { border-top: 0; }
+
+.dt-links a {
+    display: block;
+    padding: 0.7rem 0;
+    color: var(--jg-blue);
+    text-decoration: none;
+    font-family: var(--jg-mono);
+    font-size: 0.8rem;
+}
+
+.dt-links a:hover { color: var(--jg-accent); }
+
+/* ---------- intro overlay ----------
+   The intro is a camera pose on the same scene, so this is only the text and
+   button that sit over it — everything visual behind is the live 3D world. */
+
+.intro {
+    position: fixed;
+    z-index: 70;
+    left: 0;
+    right: 0;
+    bottom: clamp(2rem, 12vh, 7rem);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(1.5rem, 6vw, 6rem);
+    padding: 0 clamp(1rem, 4vw, 3rem);
+    transition: opacity 700ms ease-in;
+}
+
+.is-entered .intro { opacity: 0; pointer-events: none; }
+
+.intro-name {
+    margin: 0;
+    font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--jg-ink);
+    font-family: var(--jg-display);
+}
+
+.intro-sub {
+    margin: 0.6rem 0 0;
+    font-family: var(--jg-mono);
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: var(--jg-dim);
+}
+
+.intro-enter { display: flex; flex-direction: column; gap: 0.65rem; }
+
+.intro-note {
+    margin: 0;
+    font-family: var(--jg-mono);
+    font-size: 0.62rem;
+    color: var(--jg-dim);
+    max-width: 18rem;
+}
+
+/* The rail only belongs to the world, so it arrives with it. */
+.is-intro .city-side { opacity: 0; pointer-events: none; }
+.city-side { transition: opacity 700ms ease-out 600ms; }
+
+/* The hint is for the board, not the intro. */
+.is-intro .city-hint { opacity: 0; }
+
+@media (max-width: 640px) {
+    .intro { flex-direction: column; align-items: flex-start; }
+    .jg-btn { min-width: 0; width: 100%; }
+}
