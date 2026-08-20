@@ -167,8 +167,12 @@ function enterBoard(instant) {
     }
 
     document.body.classList.add('is-entering');
-    requestAnimationFrame(() => setView('iso'));
-    setTimeout(() => document.body.classList.remove('is-entering'), 1000);
+    // The desktop and its ground sit ABOVE the board, so starting the tip
+    // immediately runs it behind a curtain — you would only ever see the tail
+    // of it, which reads as arriving already isometric. Hold until the reveal
+    // has cleared, then tip in full view.
+    setTimeout(() => setView('iso'), REVEAL);
+    setTimeout(() => document.body.classList.remove('is-entering'), REVEAL + TIP + 120);
 }
 
 /* Back out: the plane tips flat again and the desktop returns. Same page. */
@@ -180,11 +184,13 @@ function leaveBoard() {
     markMenubar('desktop');
     document.body.classList.add('is-entering');
     setView('flat');
+    // Leaving is the reverse: tip back first, and only then bring the desktop
+    // over the top, so the tip is not hidden behind it either.
     setTimeout(() => {
         document.body.classList.remove('is-entering');
         coverageIso = false;
         render();
-    }, 1000);
+    }, TIP + 120);
 }
 
 window.jgEnterBoard = () => enterBoard(false);
@@ -203,7 +209,7 @@ function setView(mode) {
     const next = mode === 'iso';
     if (entered && next !== ISO) {
         document.body.classList.add('is-entering');
-        setTimeout(() => document.body.classList.remove('is-entering'), 1000);
+        setTimeout(() => document.body.classList.remove('is-entering'), TIP + 120);
     }
     ISO = next;
     coverageIso = ISO;
