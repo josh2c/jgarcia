@@ -34,9 +34,9 @@ function makeEl(tag) {
         id: ++ids,
         children: [],
         attrs: {},
-        dataset: {},
         style: { setProperty() {}, removeProperty() {} },
         listeners: {},
+        _attrsRef: null,
         _classes: new Set(),
         value: '',
         disabled: false,
@@ -59,6 +59,22 @@ function makeEl(tag) {
         },
         set: (v) => { el._text = String(v); el.children = []; }
     });
+    /* In a real DOM `el.dataset.id = 'x'` sets the data-id ATTRIBUTE, which is
+       what [data-id="x"] selectors then match on. A plain object does not, so
+       any code that writes a dataset and reads it back by selector silently
+       finds nothing. */
+    el._attrsRef = el.attrs;
+    el.dataset = new Proxy({}, {
+        set(t, k, v) {
+            t[k] = String(v);
+            el._attrsRef['data-' + String(k).replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())] = String(v);
+            return true;
+        },
+        get(t, k) { return t[k]; },
+        has(t, k) { return k in t; },
+        deleteProperty(t, k) { delete t[k]; return true; }
+    });
+
     el.classList = {
         add: (...c) => c.forEach((x) => el._classes.add(x)),
         remove: (...c) => c.forEach((x) => el._classes.delete(x)),
@@ -99,6 +115,8 @@ function makeEl(tag) {
     el.remove = () => {};
     el.focus = () => {};
     el.blur = () => {};
+    el.setPointerCapture = () => {};
+    el.releasePointerCapture = () => {};
     el.getBoundingClientRect = () => ({ width: 400, height: 320, top: 0, left: 0 });
     el.getContext = () => ctx2d;
     el.addEventListener = (t, fn) => { (el.listeners[t] ||= []).push(fn); };
@@ -114,7 +132,13 @@ function makeEl(tag) {
         const parts = sel.split(',').map((s) => s.trim());
         const one = (n, t) => {
             if (t.startsWith('.')) return n._classes.has(t.slice(1));
-            if (t.startsWith('[')) return t.slice(1, -1) in n.attrs;
+            if (t.startsWith('#')) return n.attrs.id === t.slice(1);
+            if (t.startsWith('[')) {
+                const m = /^\[([\w-]+)(?:=["']?(.*?)["']?)?\]$/.exec(t);
+                if (!m) return false;
+                return m[2] === undefined ? m[1] in n.attrs
+                    : String(n.attrs[m[1]]) === m[2].replace(/\\(.)/g, '$1');
+            }
             return n.tag === t;
         };
         /* Descendant selectors have to walk up. Matching only the last part
@@ -137,6 +161,23 @@ function makeEl(tag) {
         return out;
     };
     el.querySelector = (sel) => el.querySelectorAll(sel)[0] || null;
+    /* Walks up, not down. Every delegated handler on the page uses it, so
+       without it the first pointerdown throws. */
+    el.closest = (sel) => {
+        const parts = sel.split(',').map((s) => s.trim());
+        const hit = (n, t) => {
+            if (t.startsWith('.')) return n._classes.has(t.slice(1));
+            if (t.startsWith('#')) return n.attrs.id === t.slice(1);
+            if (t.startsWith('[')) return t.slice(1, -1).split('=')[0] in n.attrs;
+            return n.tag === t;
+        };
+        let n = el;
+        while (n && n.tag) {
+            if (parts.some((p) => hit(n, p.split(/\s+/).pop()))) return n;
+            n = n.parent;
+        }
+        return null;
+    };
     return el;
 }
 

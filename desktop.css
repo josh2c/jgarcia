@@ -51,12 +51,23 @@ html { height: 100%; }
     display: block;
 }
 
-.dt-icons.is-free .dt-icon {
+/* Anything you can pick up is .dt-drag — the folders, the dock, the trash, and
+   the two widgets. Being fixed lifts the widgets out of their column, so they
+   need their width back explicitly. */
+.dt-surface.is-free .dt-drag {
     position: fixed;
-    width: 6.2rem;
     margin: 0;
     touch-action: none;
 }
+
+.dt-surface.is-free .dt-icon { width: 6.2rem; }
+.dt-surface.is-free .dt-widget { width: min(23rem, 34vw); }
+
+.dt-drag.is-dragging { cursor: grabbing; }
+
+/* The pad drags by its title bar, like a window. */
+.dt-pad-bar { cursor: grab; user-select: none; }
+.dt-clock { cursor: grab; }
 
 .dt-icon.is-dragging {
     z-index: 30;
@@ -65,7 +76,7 @@ html { height: 100%; }
     filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
 }
 
-.dt-icons.is-free .dt-icon.is-dragging { transition: none; }
+.dt-surface.is-free .dt-drag.is-dragging { transition: none; }
 
 /* ---------- folders ---------- */
 
@@ -363,6 +374,16 @@ html { height: 100%; }
 }
 
 /* ---------- dock + trash ---------- */
+
+/* Lit while something is hovering over it, so a drop is never a guess. */
+.dt-trash-icon-wrap.is-over .dt-trash-icon {
+    background: var(--jg-accent);
+    border-color: var(--jg-accent);
+    transform: scale(1.12);
+}
+
+.dt-trash-icon-wrap.is-full .dt-trash-icon { border-color: var(--jg-accent); }
+.dt-trash-icon-wrap.is-full .dt-icon-count { color: var(--jg-accent); }
 
 
 /* A tile like the others, with the bin drawn inside it rather than the tile
