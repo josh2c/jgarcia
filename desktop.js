@@ -52,6 +52,21 @@ const FOLDERS = [
         count: '22 posts'
     },
     {
+        name: 'Games',
+        color: '#d97ba0',
+        icon: "<rect x='2' y='7' width='20' height='11' rx='4'/><path d='M7 11v3M5.5 12.5h3'/><circle cx='16' cy='12' r='1'/><circle cx='18.5' cy='14.5' r='1'/>",
+        title: 'Games',
+        body: 'Six minigames from Mind Override, a cognitive-training app I built in Flutter. Rebuilt here in plain JavaScript — same rules and scoring, without the XP ladder.',
+        games: [
+            { label: 'Light Squares', fn: 'lightSquares', meta: 'Visual memory' },
+            { label: 'Pattern Spot', fn: 'patternSpot', meta: 'Perception' },
+            { label: 'Quantum Count', fn: 'quantumCount', meta: 'Estimation' },
+            { label: 'Word Flash', fn: 'wordFlash', meta: 'Verbal memory' },
+            { label: 'Memory Match', fn: 'memoryMatch', meta: 'Recall' },
+            { label: 'Transform Puzzle', fn: 'transformPuzzle', meta: 'Logic' }
+        ]
+    },
+    {
         name: 'Elsewhere',
         color: '#cf8b5e',
         icon: "<path d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z'/><path d='M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18'/>",
@@ -92,6 +107,7 @@ function iconButton(id, label, className, inner, count) {
 function countFor(f) {
     if (f.count) return f.count;
     if (f.skills) return 'loading…';
+    if (f.games) return f.games.length + ' games';
     const n = (f.links || []).length;
     return n ? n + (n === 1 ? ' item' : ' items') : '';
 }
@@ -349,16 +365,41 @@ function openFolder(i) {
             '<span class="dt-link-meta">' + l.meta + '</span></a></li>';
     }).join('');
 
+    // A games folder lists launchers, not links: each opens the game in its own
+    // window, so the folder can stay open while you pick another.
+    const games = (f.games || []).map((g, n) =>
+        '<li><button type="button" data-game="' + n + '">' +
+        '<span>' + g.label + '</span>' +
+        '<span class="dt-link-meta">' + g.meta + '</span></button></li>').join('');
+
     W.open({
         id: 'folder:' + f.name,
         title: f.title,
         width: 560,
         height: 400,
         mount: (body) => {
-            body.innerHTML = '<p>' + f.body + '</p><ul class="dt-links">' + links + '</ul>' +
+            body.innerHTML = '<p>' + f.body + '</p><ul class="dt-links">' + links + games + '</ul>' +
                 (f.skills ? '<div id="skills-list"></div>' : '');
             if (f.skills) loadSkills(body.querySelector('#skills-list'));
+            body.querySelectorAll('[data-game]').forEach((b) =>
+                b.addEventListener('click', () => launchGame(f.games[Number(b.dataset.game)])));
         }
+    });
+}
+
+/* Mind Override. The module fills the window body and hands back a cleanup,
+ * which the window manager runs on close — these carry timers and an animation
+ * loop, so a closed window still running would be a real leak. */
+function launchGame(g) {
+    const W = window.jgWindows;
+    const games = window.jgMindOverride;
+    if (!W || !games || !games[g.fn]) return;
+    W.open({
+        id: 'mo:' + g.fn,
+        title: g.label,
+        width: 520,
+        height: 560,
+        mount: (body) => games[g.fn](body)
     });
 }
 

@@ -244,18 +244,28 @@
 .dt-links li { border-top: 1px solid var(--jg-line); }
 .dt-links li:first-child { border-top: 0; }
 
-.dt-links a {
+/* A row is a link out, or a button that launches a game in place. Both look
+   the same, so the button has to be stripped back to the anchor's shape. */
+.dt-links a,
+.dt-links button {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     gap: 1rem;
+    width: 100%;
     padding: 0.65rem 0;
     color: var(--jg-ink);
     text-decoration: none;
     font-family: var(--jg-mono);
     font-size: 0.78rem;
+    text-align: left;
+    background: none;
+    border: 0;
+    cursor: pointer;
 }
 
-.dt-links a:hover { color: var(--jg-accent); }
+.dt-links a:hover,
+.dt-links button:hover { color: var(--jg-accent); }
 .dt-link-meta { color: var(--jg-dim); flex: none; }
 
 /* ---------- reader ---------- */
