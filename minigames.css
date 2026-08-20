@@ -130,10 +130,17 @@
     transition: background 0.1s linear, border-color 0.1s linear;
 }
 
+/* Three results, three unmistakable states. Missed used to be a pale wash of
+   the same amber as a live selection, which is the one pair you most need to
+   tell apart afterwards. */
 .mg-cell.is-on { background: var(--jg-accent); border-color: #c8862c; }
-.mg-cell.is-right { background: #22c55e; border-color: #16a34a; }
-.mg-cell.is-wrong { background: #e0574a; border-color: #c0392b; }
-.mg-cell.is-missed { background: rgba(232, 163, 61, 0.35); border-color: var(--jg-accent); }
+.mg-cell.is-right { background: #22c55e; border-color: #15803d; }
+.mg-cell.is-wrong { background: #d92d20; border-color: #912018; }
+.mg-cell.is-missed {
+    background: repeating-linear-gradient(45deg,
+        rgba(232, 163, 61, 0.55) 0 5px, rgba(232, 163, 61, 0.2) 5px 10px);
+    border-color: var(--jg-accent);
+}
 
 .mg-grid-lg { gap: 7px; }
 

@@ -905,6 +905,11 @@
             const exact = picked.size === pattern.length && hit === pattern.length;
             cells.forEach((c, i) => {
                 const want = pattern.includes(i), got = picked.has(i);
+                // Drop the selection colour first. Leaving it on means the
+                // result only shows because is-wrong happens to be declared
+                // after is-on — a marking that depends on rule order is a
+                // marking waiting to break.
+                c.classList.remove('is-on');
                 if (want && got) c.classList.add('is-right');
                 else if (want) c.classList.add('is-missed');
                 else if (got) c.classList.add('is-wrong');
