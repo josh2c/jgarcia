@@ -444,9 +444,9 @@ fetch('blog.html')
         const date = post.querySelector('.date');
         const cat = post.querySelector('.category');
         const href = post.querySelector('.read-more');
-        const t = document.querySelector('.dt-panel-title');
-        const m = document.querySelector('.dt-panel-meta');
-        const a = document.querySelector('.dt-panel-body');
+        const t = document.querySelector('.dt-pad-title');
+        const m = document.querySelector('.dt-pad-meta');
+        const a = document.querySelector('.dt-pad-body');
         if (t && title) t.textContent = title.textContent;
         if (m && date) m.textContent = date.textContent + (cat ? ' · ' + cat.textContent : '');
         if (a && href) a.setAttribute('href', href.getAttribute('href'));

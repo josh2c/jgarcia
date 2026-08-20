@@ -8,7 +8,6 @@
     --dt-muted: var(--jg-muted);
     --dt-faint: var(--jg-dim);
     --dt-line: var(--jg-line);
-    --dt-panel: var(--jg-panel);
     --dt-paper: var(--jg-paper);
     --dt-folder-a: var(--jg-paper);
     --dt-folder-b: var(--jg-stone);
@@ -283,28 +282,89 @@ html { height: 100%; }
     color: var(--on-glass-soft);
 }
 
-.dt-panel-bar {
-    padding: 0.7rem 1rem;
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--on-glass-faint);
-    border-bottom: 1px solid var(--glass-edge-soft);
+/* ---------- the pad ----------
+   Paper, not glass. The clock stays a glass panel; this one is a legal pad, so
+   the two widgets stop reading as a matched pair of dark holes punched in a
+   bright board.
+
+   It overrides .dt-widget's glass wholesale: background, blur, edge and the
+   white type all have to go, or a light card inherits type meant for a dark
+   one. Ink measures 12.8:1 on the pad and the pad itself is 9.6:1 against the
+   desktop ground. */
+
+.dt-pad {
+    background: #fdf8d0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 1px solid rgba(42, 46, 43, 0.4);
+    color: var(--jg-ink);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
 
-.dt-panel-body {
+/* The wire binding: evenly spaced holes across a slightly darker strip. */
+.dt-pad-rings {
     display: block;
-    padding: 1.1rem 1.25rem 1.25rem;
+    height: 1.2rem;
+    background-color: #f2e9b8;
+    background-image: radial-gradient(circle at 0.6rem 50%,
+        rgba(42, 46, 43, 0.62) 0 0.15rem, transparent 0.16rem);
+    background-size: 1.55rem 100%;
+    background-repeat: repeat-x;
+    border-bottom: 1px solid rgba(42, 46, 43, 0.22);
+}
+
+.dt-pad-body {
+    display: block;
+    padding: 0.9rem 1.15rem 1.15rem 2.5rem;
     text-decoration: none;
     color: inherit;
+    /* Ruled lines, and a red margin down the left. */
+    background-image:
+        linear-gradient(90deg, transparent 0 2rem,
+            rgba(190, 60, 60, 0.5) 2rem calc(2rem + 1px), transparent calc(2rem + 1px)),
+        repeating-linear-gradient(180deg, transparent 0 1.5rem,
+            rgba(70, 120, 175, 0.28) 1.5rem calc(1.5rem + 1px));
 }
 
-.dt-panel-body:hover { background: rgba(255, 255, 255, 0.12); }
+.dt-pad-body:hover { background-color: rgba(255, 255, 255, 0.35); }
 
-.dt-panel-title { display: block; font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
-.dt-panel-meta { display: block; margin-top: 0.45rem; font-size: 0.7rem; color: var(--on-glass-soft); }
-.dt-panel-cta { display: block; margin-top: 0.85rem; font-size: 0.74rem; color: var(--jg-accent); font-weight: 600; }
+.dt-pad-kicker {
+    display: block;
+    font-family: var(--jg-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--jg-muted);
+}
+
+/* Handwritten, because it is a pad. Caveat is already loaded for the board. */
+.dt-pad-title {
+    display: block;
+    margin-top: 0.2rem;
+    font-family: 'Caveat', var(--jg-display), cursive;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--jg-ink);
+}
+
+.dt-pad-meta {
+    display: block;
+    margin-top: 0.45rem;
+    font-family: var(--jg-mono);
+    font-size: 0.66rem;
+    color: var(--jg-muted);
+}
+
+/* Ballpoint. 7.7:1 on the pad — the amber accent only manages 4.1 there. */
+.dt-pad-cta {
+    display: block;
+    margin-top: 0.7rem;
+    font-family: 'Caveat', var(--jg-display), cursive;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a4f8a;
+}
 
 /* ---------- dock + trash ---------- */
 
