@@ -337,10 +337,11 @@ body.board-page {
    #212121 with #f1f1f1. That is the whole idea — it is a pencil on paper, and
    then the same pencil seen as a negative.
 
-   Themes are set on <html data-theme>. The default follows the system, and an
-   explicit choice pins it, which is why the dark values appear twice: once
-   under the media query for people who have chosen nothing, and once under
-   the attribute for people who have. */
+   Themes are set on <html data-theme>. Light is the default and dark is opt
+   in — deliberately NOT following prefers-color-scheme. This is a page of
+   writing before it is an application, and a reader arriving from a link
+   should get the paper it was designed on unless they have said otherwise
+   here. The toggle stores that choice. */
 
 :root {
     /* --- Pencil Light --- */
@@ -383,42 +384,7 @@ body.board-page {
     --ui-radius-lg: 6px;
 }
 
-/* --- Pencil Dark --- */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) {
-        --ui-bg:        #212121;
-        --ui-bg-soft:   #2c2c2c;
-        --ui-raise:     #303030;
-
-        --ui-text:      #f1f1f1;
-        --ui-text-2:    #d9d9d9;
-        --ui-text-3:    #989898;
-
-        --ui-line:      rgba(241, 241, 241, 0.14);
-        --ui-line-2:    rgba(241, 241, 241, 0.26);
-        --ui-hover:     rgba(241, 241, 241, 0.08);
-        --ui-active:    rgba(241, 241, 241, 0.16);
-
-        /* Lightened from Pencil's bright red #fb007a, which is 4.1:1 on
-           #212121 and just misses. This clears 5:1. */
-        --ui-accent:    #ff4d94;
-        --ui-accent-2:  #ff7fb2;
-        --ui-accent-bg: rgba(251, 0, 122, 0.16);
-
-        --ui-link:      #20bbfc;
-        --ui-link-2:    #6fd3ff;
-
-        --ui-focus:     #20bbfc;
-
-        --ui-c-red:     #fb007a;
-        --ui-c-green:   #5fd7af;
-        --ui-c-yellow:  #c0b100;
-        --ui-c-blue:    #20bbfc;
-        --ui-c-purple:  #6855de;
-        --ui-c-cyan:    #4fb8cc;
-    }
-}
-
+/* --- Pencil Dark, opt in --- */
 :root[data-theme='dark'] {
     --ui-bg:        #212121;
     --ui-bg-soft:   #2c2c2c;

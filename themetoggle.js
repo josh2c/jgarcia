@@ -1,8 +1,8 @@
 /* Theme — Pencil Light and Pencil Dark.
  *
- * Three states, not two: light, dark, and "whatever the system says", which is
- * the default and the one most people should stay on. Choosing either of the
- * other two pins it and stores that choice.
+ * Two states. Light is the default and dark is opt in; the system preference
+ * is deliberately not consulted, because this is a page of writing before it
+ * is an application and it should arrive as the paper it was designed on.
  *
  * The attribute has to be on <html> before the first paint or the page flashes
  * the wrong theme, so the read-and-apply half of this is inlined in the head
@@ -14,24 +14,16 @@
 const KEY = 'jg-theme';
 const root = document.documentElement;
 
-const stored = () => {
-    try { return localStorage.getItem(KEY); } catch (err) { return null; }
-};
-
-/* What is actually on screen right now, whether that came from a stored
- * choice or from the system. */
+/* What is on screen right now. No attribute means the default, which is
+ * light — the stylesheet has no dark branch that can apply on its own. */
 function active() {
-    const pinned = root.getAttribute('data-theme');
-    if (pinned) return pinned;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }
 
 function apply(mode) {
-    if (mode === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', mode);
+    root.setAttribute('data-theme', mode);
     try {
-        if (mode === 'system') localStorage.removeItem(KEY);
-        else localStorage.setItem(KEY, mode);
+        localStorage.setItem(KEY, mode);
     } catch (err) { /* private window — the choice just will not survive */ }
     paint();
 }
@@ -65,12 +57,6 @@ function mount() {
     buttons.forEach((b) => b.addEventListener('click', toggle));
     paint();
 }
-
-/* Following the system means following it as it changes, not only at load. */
-const mq = window.matchMedia('(prefers-color-scheme: dark)');
-const onSystem = () => { if (!stored()) paint(); };
-if (mq.addEventListener) mq.addEventListener('change', onSystem);
-else if (mq.addListener) mq.addListener(onSystem);
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mount);

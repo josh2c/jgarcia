@@ -34,9 +34,49 @@ const SECTIONS = [
         tint: 'var(--ui-c-yellow)',
         icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
         links: [
-            { label: 'Trezure — football-first fantasy', href: 'https://playtrezure.com', meta: 'Live' },
-            { label: 'Busy Cab — browser arcade taxi game', href: 'https://busycabgame.com', meta: 'Live' },
-            { label: 'Nodal — cheap, durable git worktree environments', href: 'https://github.com/josh2c/nodal', meta: 'Rust' }
+            {
+                label: 'Trezure',
+                href: 'https://playtrezure.com',
+                meta: 'Live',
+                page: {
+                    kind: 'Product',
+                    standfirst: 'A football-first fantasy app \u2014 season-long leagues, weekly contests and collectable player cards, three ways to play in one place.',
+                    body: [
+                        'Most fantasy apps make you pick one format and live in it for the season. Trezure runs all three side by side, so a league, a weekly contest and a card collection are the same account and the same players.',
+                        'Built in Flutter on Supabase, with real-time NFL and NBA stats arriving through a set of sync workers. Pack Draft and Dynasty are the two modes with the most in them.'
+                    ],
+                    linkLabel: 'playtrezure.com'
+                }
+            },
+            {
+                label: 'Busy Cab',
+                href: 'https://busycabgame.com',
+                meta: 'Live',
+                page: {
+                    kind: 'Product',
+                    standfirst: 'An arcade taxi game in the browser: pick up passengers, floor it, and get paid before the clock runs out.',
+                    body: [
+                        'One global countdown that every drop-off extends, so the game ends when you stop being quick rather than at a fixed time. Faster deliveries pay bigger tips. Stop inside the beacon ring to pick up and drop off.',
+                        'Three.js and TypeScript, wrapped with Capacitor so the same build runs on iOS and Android. Steering is on-screen buttons on a phone and WASD on a keyboard. Every asset is original or CC0.'
+                    ],
+                    linkLabel: 'busycabgame.com'
+                }
+            },
+            {
+                label: 'Nodal',
+                href: 'https://github.com/josh2c/nodal',
+                meta: 'Rust',
+                page: {
+                    kind: 'Product',
+                    standfirst: 'Git made branches cheap. Worktrees made branches parallel. Nodal makes their environments cheap, durable and manageable.',
+                    body: [
+                        'Run it in a repository it has never been told about and it reads the worktrees you already have, then answers the questions you actually have about them: what is finished, what is unique to a checkout, how far behind it is, what it costs on disk. It writes nothing to do it.',
+                        'It also refuses to flatter you. Behind is only as fresh as your last fetch, so it says how old that number is rather than fetching to make it look current.',
+                        'Rust, MIT licensed, and pre-alpha \u2014 the foundation is built and tested, parts of the command surface are not, and the on-disk formats may still change.'
+                    ],
+                    linkLabel: 'View on GitHub'
+                }
+            }
         ]
     },
     {
@@ -94,11 +134,37 @@ function rowInner(label, meta, external) {
         (meta ? '<span class="cv-meta">' + esc(meta) + '</span>' : '');
 }
 
+/* Anything with a `page` opens here rather than sending you away. The
+ * destination is still one click further on, at the top of that page, but it
+ * is worth a sentence about what a thing IS before the link to it — a bare
+ * external link off the front page tells a reader nothing and spends their
+ * attention on a tab they have to come back from. */
+const PAGES = [];
+
 function linkRow(l) {
+    if (l.page) {
+        PAGES.push(l);
+        return '<li><button type="button" class="cv-row cv-item" data-page="' +
+            (PAGES.length - 1) + '">' + rowInner(l.label, l.meta, false) + '</button></li>';
+    }
     const ext = isExternal(l.href);
     return '<li><a class="cv-row cv-item" href="' + esc(l.href) + '"' +
         (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
         rowInner(l.label, l.meta, ext) + '</a></li>';
+}
+
+function openPage(l) {
+    const R = window.jgReader;
+    if (!R) { window.open(l.href, '_blank', 'noopener'); return; }
+    const p = l.page;
+    R.open({
+        kind: p.kind,
+        title: l.label,
+        standfirst: p.standfirst,
+        html: (p.body || []).map((t) => '<p>' + esc(t) + '</p>').join(''),
+        source: l.href,
+        sourceLabel: (p.linkLabel || 'Open') + ' \u2197'
+    });
 }
 
 function groupEl(s) {
@@ -125,6 +191,9 @@ function build() {
         if (s.games) mountGames(list, s.games);
         if (s.posts) mountPosts(list);
         if (s.skills) mountSkills(list);
+
+        list.querySelectorAll('[data-page]').forEach((b) =>
+            b.addEventListener('click', () => openPage(PAGES[Number(b.dataset.page)])));
 
         col.appendChild(el);
     });
