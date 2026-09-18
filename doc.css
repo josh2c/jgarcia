@@ -264,3 +264,46 @@
 /* The layer takes focus when it opens so the keyboard follows the page. It is
    a container, not a control, so it must not draw a ring for doing so. */
 .doc-layer:focus { outline: none; }
+
+/* ---------- stage ----------
+   A game, on the page. It keeps the size the window used to give it: these
+   size their canvas off the box they are handed, and a board that can grow to
+   the width of a monitor plays badly. */
+
+.doc-stage {
+    width: 100%;
+    /* Left, not centred: the title and the kind label above it are left
+       aligned, and a narrow game floating to the middle of them reads as a
+       mistake rather than a choice. */
+    margin: 0;
+    /* The games are ink-on-light by design — they were written to sit on the
+       opaque paper of a window body, which is what this is now. */
+    color: var(--jg-ink);
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
+
+/* Carried over from the window body, which used to provide them. */
+.doc-stage canvas {
+    display: block;
+    width: 100%;
+    background: var(--jg-stone);
+    border: 2px solid var(--jg-ink);
+}
+
+.doc-stage .bw-note {
+    font-size: 0.75rem;
+    color: var(--jg-dim);
+    margin-top: 0.75rem;
+}
+
+.doc-stage p { margin: 0 0 0.9rem; }
+
+@media (max-width: 640px) {
+    /* A fixed height is a promise the phone cannot keep; let it size itself. */
+    .doc-stage { height: auto !important; min-height: 26rem; }
+}
+
+/* Prose is capped for readability; a game is not prose. It gets the room it
+   was built for, and nothing else on the page changes. */
+.doc-layer.is-stage .doc-col { width: min(46rem, 100%); }

@@ -24,6 +24,9 @@ let metaEl = null;
 let standEl = null;
 let srcEl = null;
 let lastFocus = null;
+/* A mounted thing (a game) owns timers and an animation loop, so closing the
+ * page has to tear it down. A closed page still running would be a real leak. */
+let cleanup = null;
 
 function build() {
     if (layer) return;
@@ -71,8 +74,16 @@ document.addEventListener('keydown', (e) => {
     }
 }, true);
 
+function runCleanup() {
+    if (typeof cleanup === 'function') {
+        try { cleanup(); } catch (err) { /* a game that fails to stop must not trap the page */ }
+    }
+    cleanup = null;
+}
+
 function open(doc) {
     build();
+    runCleanup();
     lastFocus = document.activeElement;
 
     kindEl.textContent = doc.kind || '';
@@ -94,7 +105,19 @@ function open(doc) {
         srcEl.hidden = true;
     }
 
-    bodyEl.innerHTML = doc.html || '';
+    /* A mounted thing gets a stage to fill; everything else is just markup. */
+    let stage = null;
+    layer.classList.toggle('is-stage', !!doc.mount);
+    if (doc.mount) {
+        bodyEl.innerHTML = '<div class="doc-stage"></div>';
+        stage = bodyEl.firstElementChild;
+        if (doc.stage) {
+            stage.style.maxWidth = doc.stage.width + 'px';
+            stage.style.height = doc.stage.height + 'px';
+        }
+    } else {
+        bodyEl.innerHTML = doc.html || '';
+    }
 
     layer.hidden = false;
     layer.scrollTop = 0;
@@ -106,11 +129,16 @@ function open(doc) {
     void layer.offsetHeight;
     layer.classList.add('is-open');
     layer.focus();
+
+    /* Mounted last, and only once the layer is on screen: a hidden element has
+     * no width, and these size their canvas off the stage they are given. */
+    if (stage) cleanup = doc.mount(stage) || null;
 }
 
 function close() {
     if (!layer || layer.hidden) return;
     layer.classList.remove('is-open');
+    runCleanup();
     /* Must outlive the fade in doc.css, or the next open starts mid-flight. */
     setTimeout(() => {
         layer.hidden = true;

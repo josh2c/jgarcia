@@ -144,15 +144,19 @@ function mountGames(list, games) {
     list.querySelectorAll('[data-game]').forEach((b) => {
         b.addEventListener('click', () => {
             const g = games[Number(b.dataset.game)];
-            const W = window.jgWindows;
+            const R = window.jgReader;
             const mount = (window.jgMindOverride && window.jgMindOverride[g.fn]) || window[g.fn];
-            if (!W || typeof mount !== 'function') return;
-            W.open({
-                id: 'game:' + g.fn,
+            if (!R || typeof mount !== 'function') return;
+            /* A game opens as a page like everything else. The dimensions the
+             * window used are kept, but as the size of the stage rather than
+             * of a pane — these size their canvas off the box they are handed,
+             * and a game that can grow to the width of a monitor plays badly. */
+            R.open({
+                kind: 'Game',
                 title: g.label,
-                width: g.width || 660,
-                height: g.height || 620,
-                mount: (body) => mount(body)
+                standfirst: g.meta,
+                mount,
+                stage: { width: g.width || 660, height: g.height || 620 }
             });
         });
     });
