@@ -16,8 +16,8 @@
     overflow-y: auto;
     overflow-x: hidden;
     background:
-        radial-gradient(120% 80% at 50% 0%, #fdfdfd 0%, #f7f7f7 55%, #f1f1f0 100%);
-    color: #1b1b1b;
+        var(--nt-bg);
+    color: var(--nt-text);
     font-family: var(--jg-sans);
     -webkit-font-smoothing: antialiased;
     opacity: 0;
@@ -53,37 +53,37 @@
     gap: 1rem;
     padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
     /* The strip has to stay readable over whatever scrolls under it. */
-    background: linear-gradient(to bottom, #fbfbfb 40%, rgba(251, 251, 251, 0));
+    background: linear-gradient(to bottom, var(--nt-bg) 55%, rgba(255, 255, 255, 0));
     pointer-events: none;
 }
 
 .doc-top > * { pointer-events: auto; }
 
+/* Flat, the way a Notion control is: no border, no shadow, no pill. It is
+   invisible until you are near it, and then it is a grey fill. A raised pill
+   on a flat white page was the only thing claiming to be a physical object,
+   which is what made these look borrowed from another site. */
 .doc-back, .doc-src {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
     font: inherit;
-    font-size: 0.88rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    color: #3a3a3a;
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 999px;
-    padding: 0.42rem 0.95rem;
+    color: var(--nt-text-2);
+    background: transparent;
+    border: 0;
+    border-radius: var(--nt-radius);
+    padding: 0.34rem 0.6rem;
     cursor: pointer;
     text-decoration: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: color 0.16s linear, border-color 0.16s linear, box-shadow 0.16s linear;
+    transition: background 0.12s ease, color 0.12s ease;
 }
 
-.doc-back:hover, .doc-src:hover {
-    color: #111;
-    border-color: rgba(0, 0, 0, 0.22);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
-}
+.doc-back:hover, .doc-src:hover { background: var(--nt-hover); color: var(--nt-text); }
+.doc-back:active, .doc-src:active { background: var(--nt-active); }
 
-.doc-back:focus-visible, .doc-src:focus-visible { outline: 2px solid #d2691e; outline-offset: 2px; }
+.doc-back:focus-visible, .doc-src:focus-visible { outline: 2px solid var(--nt-blue); outline-offset: 1px; }
 
 /* ---------- masthead ---------- */
 
@@ -92,7 +92,7 @@
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #d2691e;
+    color: var(--nt-orange);
     margin: 0 0 0.9rem;
 }
 
@@ -102,24 +102,24 @@
     font-weight: 600;
     line-height: 1.18;
     letter-spacing: -0.02em;
-    color: #141414;
+    color: var(--nt-text);
 }
 
 .doc-standfirst {
     margin: 0 0 1.2rem;
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #6a6a6a;
+    color: var(--nt-text-2);
 }
 
 .doc-meta {
     margin: 0 0 2.6rem;
     padding-bottom: 2.2rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    border-bottom: 1px solid var(--nt-line);
     font-size: 0.82rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #a8a8a8;
+    color: var(--nt-text-3);
 }
 
 /* ---------- prose ---------- */
@@ -129,7 +129,7 @@
 .doc-body {
     font-size: 1.06rem;
     line-height: 1.78;
-    color: #3d3d3d;
+    color: var(--nt-text);
 }
 
 .doc-body > :first-child { margin-top: 0; }
@@ -137,7 +137,7 @@
 .doc-body p { margin: 0 0 1.35rem; }
 
 .doc-body h1, .doc-body h2, .doc-body h3, .doc-body h4 {
-    color: #141414;
+    color: var(--nt-text);
     font-weight: 600;
     letter-spacing: -0.012em;
     line-height: 1.3;
@@ -146,18 +146,18 @@
 
 .doc-body h1, .doc-body h2 { font-size: 1.32rem; }
 .doc-body h3 { font-size: 1.12rem; }
-.doc-body h4 { font-size: 1rem; color: #5a5a5a; }
+.doc-body h4 { font-size: 1rem; color: var(--nt-text-2); }
 
 .doc-body a {
-    color: #b8571a;
+    color: var(--nt-orange);
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-thickness: 1px;
 }
 
-.doc-body a:hover { color: #8a3f10; }
+.doc-body a:hover { color: var(--nt-orange-2); }
 
-.doc-body strong { font-weight: 650; color: #1b1b1b; }
+.doc-body strong { font-weight: 650; color: var(--nt-text); }
 .doc-body em { font-style: italic; }
 
 .doc-body ul, .doc-body ol { margin: 0 0 1.35rem; padding-left: 1.4rem; }
@@ -166,15 +166,15 @@
 .doc-body blockquote {
     margin: 0 0 1.35rem;
     padding: 0.2rem 0 0.2rem 1.1rem;
-    border-left: 2px solid rgba(0, 0, 0, 0.14);
-    color: #6a6a6a;
+    border-left: 2px solid var(--nt-line-2);
+    color: var(--nt-text-2);
 }
 
 .doc-body blockquote p:last-child { margin-bottom: 0; }
 
 .doc-body hr {
     border: 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--nt-line);
     margin: 2.4rem 0;
 }
 
@@ -185,7 +185,7 @@
 .doc-body code {
     font-family: var(--jg-mono);
     font-size: 0.82em;
-    background: rgba(0, 0, 0, 0.055);
+    background: var(--nt-line);
     border-radius: 4px;
     padding: 0.12em 0.36em;
 }
@@ -193,8 +193,8 @@
 .doc-body pre {
     margin: 0 0 1.5rem;
     padding: 1rem 1.15rem;
-    background: #f4f4f2;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--nt-gray-bg);
+    border: 1px solid var(--nt-line);
     border-radius: 12px;
     overflow-x: auto;
 }
@@ -219,7 +219,7 @@
     text-align: left;
     vertical-align: top;
     padding: 0.55rem 0.8rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    border-bottom: 1px solid var(--nt-line);
 }
 
 .doc-body th {
@@ -227,13 +227,13 @@
     font-size: 0.68rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #8e8e8e;
+    color: var(--nt-text-3);
     white-space: nowrap;
 }
 
 .doc-body tr:last-child td { border-bottom: 0; }
 
-.doc-note { color: #a0a0a0; font-size: 0.95rem; }
+.doc-note { color: var(--nt-text-3); font-size: 0.95rem; }
 
 @media (prefers-reduced-motion: reduce) {
     .doc-layer, .doc-col { transition: none; }
@@ -248,18 +248,18 @@
 /* The blog index, when the whole list is opened rather than one post. */
 .doc-index { list-style: none; margin: 0; padding: 0; }
 
-.doc-index li { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+.doc-index li { border-bottom: 1px solid var(--nt-line); }
 .doc-index li:last-child { border-bottom: 0; }
 
 .doc-index a {
     display: block;
     padding: 0.85rem 0;
-    color: #4a4a4a;
+    color: var(--nt-text);
     text-decoration: none;
     transition: color 0.14s linear;
 }
 
-.doc-index a:hover { color: #111; }
+.doc-index a:hover { color: var(--nt-text); }
 
 /* The layer takes focus when it opens so the keyboard follows the page. It is
    a container, not a control, so it must not draw a ring for doing so. */

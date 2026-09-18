@@ -6,14 +6,14 @@
  * languages and search, and all four are queries over one list.
  */
 
-.eng-page { margin: 0; height: 100%; overflow: hidden; background: #f7f7f7; }
+.eng-page { margin: 0; height: 100%; overflow: hidden; background: var(--nt-bg); }
 
 .eng-layer {
     position: fixed;
     inset: 0;
     background:
-        radial-gradient(120% 80% at 50% 0%, #fdfdfd 0%, #f7f7f7 55%, #f1f1f0 100%);
-    color: #1b1b1b;
+        var(--nt-bg);
+    color: var(--nt-text);
     font-family: var(--jg-sans);
     -webkit-font-smoothing: antialiased;
 }
@@ -31,43 +31,40 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
-    background: linear-gradient(to bottom, #fbfbfb 45%, rgba(251, 251, 251, 0));
+    background: linear-gradient(to bottom, var(--nt-bg) 55%, rgba(255, 255, 255, 0));
 }
 
 .eng-mark {
     font-size: 0.94rem;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: #1b1b1b;
+    color: var(--nt-text);
     text-decoration: none;
     white-space: nowrap;
 }
 
-.eng-mark:hover { color: #b8571a; }
+.eng-mark:hover { color: var(--nt-orange); }
 
+/* A Notion search field: a flat grey well that fills a shade on focus. */
 .eng-find {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 999px;
-    padding: 0.36rem 0.9rem 0.36rem 0.8rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.16s linear, box-shadow 0.16s linear;
+    gap: 0.45rem;
+    background: var(--nt-hover);
+    border: 0;
+    border-radius: var(--nt-radius);
+    padding: 0.36rem 0.7rem;
+    transition: background 0.12s ease;
 }
 
-.eng-find:focus-within {
-    border-color: rgba(0, 0, 0, 0.26);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-}
+.eng-find:focus-within { background: var(--nt-active); }
 
 .eng-find-i svg {
     display: block;
     width: 0.9rem;
     height: 0.9rem;
     fill: none;
-    stroke: #9a9a9a;
+    stroke: var(--nt-text-3);
     stroke-width: 1.9;
     stroke-linecap: round;
 }
@@ -78,11 +75,11 @@
     border: 0;
     outline: none;
     background: none;
-    color: #1b1b1b;
+    color: var(--nt-text);
     width: clamp(7rem, 22vw, 13rem);
 }
 
-.eng-find input::placeholder { color: #a8a8a8; }
+.eng-find input::placeholder { color: var(--nt-text-3); }
 .eng-find input::-webkit-search-cancel-button { display: none; }
 
 /* ---------- column ---------- */
@@ -111,7 +108,7 @@
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #d2691e;
+    color: var(--nt-orange);
 }
 
 .eng-lead { margin: 0 0 2.4rem; }
@@ -122,28 +119,32 @@
     font-weight: 600;
     line-height: 1.18;
     letter-spacing: -0.02em;
-    color: #141414;
+    color: var(--nt-text);
 }
 
 .eng-standfirst {
     margin: 0;
     font-size: 1.08rem;
     line-height: 1.6;
-    color: #6a6a6a;
+    color: var(--nt-text-2);
 }
 
-.eng-byline { margin: 0; font-size: 1rem; color: #8a8a8a; }
+.eng-byline { margin: 0; font-size: 1rem; color: var(--nt-text-3); }
 
 .eng-back {
-    display: inline-block;
-    margin: 0 0 2rem;
-    font-size: 0.86rem;
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 2rem -0.6rem;
+    padding: 0.34rem 0.6rem;
+    border-radius: var(--nt-radius);
+    font-size: 0.875rem;
     font-weight: 500;
-    color: #6a6a6a;
+    color: var(--nt-text-2);
     text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
 }
 
-.eng-back:hover { color: #111; }
+.eng-back:hover { background: var(--nt-hover); color: var(--nt-text); }
 
 /* ---------- sections ---------- */
 
@@ -156,16 +157,16 @@
     gap: 1rem;
     margin: 0 0 0.35rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    border-bottom: 1px solid var(--nt-line);
     font-family: var(--jg-mono);
     font-size: 0.68rem;
     font-weight: 400;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #a0a0a0;
+    color: var(--nt-text-3);
 }
 
-.eng-more { color: #b8571a; text-decoration: none; }
+.eng-more { color: var(--nt-orange); text-decoration: none; }
 
 /* ---------- rows ---------- */
 
@@ -178,21 +179,21 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.72rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.055);
+    border-bottom: 1px solid var(--nt-line);
     text-decoration: none;
-    color: #4a4a4a;
+    color: var(--nt-text);
     transition: color 0.14s linear;
 }
 
 .eng-row:last-child { border-bottom: 0; }
-.eng-row:hover { color: #111; }
+.eng-row:hover { color: var(--nt-text); }
 .eng-row-static { cursor: default; }
 
 .eng-row-main { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; }
 
 .eng-row-label { font-size: 1.02rem; line-height: 1.35; }
 
-.eng-row-sub { font-size: 0.86rem; color: #9a9a9a; line-height: 1.4; }
+.eng-row-sub { font-size: 0.86rem; color: var(--nt-text-3); line-height: 1.4; }
 
 .eng-row-meta {
     flex: none;
@@ -200,7 +201,7 @@
     font-size: 0.68rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #b4b4b4;
+    color: var(--nt-text-3);
 }
 
 /* ---------- provenance blocks ---------- */
@@ -220,7 +221,7 @@
     font-weight: 400;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #a0a0a0;
+    color: var(--nt-text-3);
 }
 
 .eng-by {
@@ -228,42 +229,42 @@
     font-size: 0.78rem;
     letter-spacing: 0;
     text-transform: none;
-    color: #b8571a;
+    color: var(--nt-orange);
 }
 
 .eng-block p {
     margin: 0;
     font-size: 1.04rem;
     line-height: 1.75;
-    color: #3d3d3d;
+    color: var(--nt-text);
 }
 
 /* Mine get a rule down the side, so at a glance you can see which words on
    the page are my opinion and which are the source's. */
 .eng-block-note, .eng-block-workflow {
     padding-left: 1rem;
-    border-left: 2px solid rgba(210, 105, 30, 0.35);
+    border-left: 2px solid var(--nt-orange);
 }
 
 .eng-credit {
     margin: 0 0 1.4rem;
     padding: 0.85rem 1rem;
-    background: rgba(210, 105, 30, 0.06);
+    background: var(--nt-orange-bg);
     border-radius: 10px;
     font-size: 0.95rem;
-    color: #6a5040;
+    color: var(--nt-text);
 }
 
-.eng-credit a { color: #b8571a; }
+.eng-credit a { color: var(--nt-orange); }
 
 .eng-note {
     margin: 0 0 1.2rem;
     font-size: 0.92rem;
     line-height: 1.65;
-    color: #9a9a9a;
+    color: var(--nt-text-3);
 }
 
-.eng-note a, .eng-links a { color: #b8571a; }
+.eng-note a, .eng-links a { color: var(--nt-orange); }
 
 .eng-links { margin: 0 0 1.6rem; font-size: 0.95rem; }
 .eng-out { text-decoration: none; margin-right: 1rem; }
@@ -275,20 +276,20 @@
 
 .eng-tag {
     font-size: 0.8rem;
-    color: #6a6a6a;
-    background: rgba(0, 0, 0, 0.045);
+    color: var(--nt-text-2);
+    background: var(--nt-gray-bg);
     border-radius: 999px;
     padding: 0.22rem 0.62rem;
 }
 
-.eng-list { margin: 0.9rem 0 0; padding-left: 1.3rem; color: #4a4a4a; line-height: 1.7; }
+.eng-list { margin: 0.9rem 0 0; padding-left: 1.3rem; color: var(--nt-text); line-height: 1.7; }
 .eng-list li { margin: 0 0 0.35rem; }
 
 .eng-pre {
     margin: 0.9rem 0 0;
     padding: 1rem 1.15rem;
-    background: #f4f4f2;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--nt-gray-bg);
+    border: 1px solid var(--nt-line);
     border-radius: 12px;
     overflow-x: auto;
 }
@@ -298,7 +299,7 @@
     font-size: 0.78rem;
     line-height: 1.7;
     white-space: pre;
-    color: #3d3d3d;
+    color: var(--nt-text);
 }
 
 @media (max-width: 640px) {
@@ -314,12 +315,12 @@
 .eng-rule {
     margin: 0 0 2.2rem;
     padding: 1rem 1.15rem;
-    background: rgba(210, 105, 30, 0.06);
+    background: var(--nt-orange-bg);
     border-radius: 12px;
     font-size: 1.04rem;
     line-height: 1.6;
     font-weight: 500;
-    color: #7a4a20;
+    color: var(--nt-text);
 }
 
 /* A sequence, numbered, because the order is the technique. `checks` uses
@@ -338,7 +339,7 @@
     padding: 0.42rem 0 0.42rem 2.2rem;
     font-size: 1.02rem;
     line-height: 1.5;
-    color: #3d3d3d;
+    color: var(--nt-text);
 }
 
 .eng-flow li::before {
@@ -349,7 +350,7 @@
     width: 1.5rem;
     font-family: var(--jg-mono);
     font-size: 0.68rem;
-    color: #c08040;
+    color: var(--nt-orange);
     text-align: right;
 }
 
@@ -362,7 +363,7 @@
     top: 1.5rem;
     bottom: -0.1rem;
     width: 1px;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--nt-line);
 }
 
 .eng-flow li:last-child::after { display: none; }
@@ -381,7 +382,7 @@
     text-align: left;
     vertical-align: top;
     padding: 0.55rem 0.7rem 0.55rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--nt-line);
 }
 
 /* Headings hold their line; cells wrap. Six columns do not fit the reading
@@ -396,15 +397,15 @@
     font-size: 0.64rem;
     letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: #a0a0a0;
+    color: var(--nt-text-3);
     font-weight: 400;
 }
 
-.eng-table td { color: #3d3d3d; }
+.eng-table td { color: var(--nt-text); }
 
 /* A table printed for its shape rather than its contents still needs to look
    like a table, so the empty body gets a floor to sit on. */
-.eng-table thead:only-child th { border-bottom-color: rgba(0, 0, 0, 0.14); }
+.eng-table thead:only-child th { border-bottom-color: var(--nt-line-2); }
 
 .eng-table tr:last-child td { border-bottom: 0; }
 
