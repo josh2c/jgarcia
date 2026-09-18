@@ -1,0 +1,266 @@
+/* The document layer — a post or a skill, read as a page.
+ *
+ * Reading belongs with the cover, not with the windows. A window is a small
+ * dark pane you drag around, which is right for a game and wrong for two
+ * thousand words: the same near-white paper, the same column, the same
+ * restraint as the cover, with the writing given the width it needs.
+ *
+ * It sits above everything, including the board, because reading is a mode
+ * rather than another thing on the desk.
+ */
+
+.doc-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background:
+        radial-gradient(120% 80% at 50% 0%, #fdfdfd 0%, #f7f7f7 55%, #f1f1f0 100%);
+    color: #1b1b1b;
+    font-family: var(--jg-sans);
+    -webkit-font-smoothing: antialiased;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.32s ease, visibility 0.32s;
+}
+
+.doc-layer.is-open { opacity: 1; visibility: visible; }
+
+/* Coming from the cover, the page arrives from below — the only movement,
+   and enough to say a layer opened rather than the column being replaced. */
+.doc-col {
+    width: min(38rem, 100%);
+    margin: 0 auto;
+    padding: 6.5rem clamp(1.5rem, 6vw, 2.5rem) 9rem;
+    transform: translateY(10px);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.doc-layer.is-open .doc-col { transform: none; }
+
+/* ---------- top strip ---------- */
+
+.doc-top {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
+    /* The strip has to stay readable over whatever scrolls under it. */
+    background: linear-gradient(to bottom, #fbfbfb 40%, rgba(251, 251, 251, 0));
+    pointer-events: none;
+}
+
+.doc-top > * { pointer-events: auto; }
+
+.doc-back, .doc-src {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #3a3a3a;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+    padding: 0.42rem 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: color 0.16s linear, border-color 0.16s linear, box-shadow 0.16s linear;
+}
+
+.doc-back:hover, .doc-src:hover {
+    color: #111;
+    border-color: rgba(0, 0, 0, 0.22);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+.doc-back:focus-visible, .doc-src:focus-visible { outline: 2px solid #d2691e; outline-offset: 2px; }
+
+/* ---------- masthead ---------- */
+
+.doc-kind {
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #d2691e;
+    margin: 0 0 0.9rem;
+}
+
+.doc-title {
+    margin: 0 0 0.7rem;
+    font-size: clamp(1.7rem, 4.2vw, 2.3rem);
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    color: #141414;
+}
+
+.doc-standfirst {
+    margin: 0 0 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #6a6a6a;
+}
+
+.doc-meta {
+    margin: 0 0 2.6rem;
+    padding-bottom: 2.2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a8a8a8;
+}
+
+/* ---------- prose ---------- */
+
+/* Measured for reading rather than for filling the column: a shade larger
+   than the index, and loose enough to hold a long paragraph together. */
+.doc-body {
+    font-size: 1.06rem;
+    line-height: 1.78;
+    color: #3d3d3d;
+}
+
+.doc-body > :first-child { margin-top: 0; }
+
+.doc-body p { margin: 0 0 1.35rem; }
+
+.doc-body h1, .doc-body h2, .doc-body h3, .doc-body h4 {
+    color: #141414;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    line-height: 1.3;
+    margin: 2.4rem 0 0.85rem;
+}
+
+.doc-body h1, .doc-body h2 { font-size: 1.32rem; }
+.doc-body h3 { font-size: 1.12rem; }
+.doc-body h4 { font-size: 1rem; color: #5a5a5a; }
+
+.doc-body a {
+    color: #b8571a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+
+.doc-body a:hover { color: #8a3f10; }
+
+.doc-body strong { font-weight: 650; color: #1b1b1b; }
+.doc-body em { font-style: italic; }
+
+.doc-body ul, .doc-body ol { margin: 0 0 1.35rem; padding-left: 1.4rem; }
+.doc-body li { margin: 0 0 0.5rem; }
+
+.doc-body blockquote {
+    margin: 0 0 1.35rem;
+    padding: 0.2rem 0 0.2rem 1.1rem;
+    border-left: 2px solid rgba(0, 0, 0, 0.14);
+    color: #6a6a6a;
+}
+
+.doc-body blockquote p:last-child { margin-bottom: 0; }
+
+.doc-body hr {
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 2.4rem 0;
+}
+
+.doc-body img { max-width: 100%; height: auto; border-radius: 10px; }
+
+/* Code */
+
+.doc-body code {
+    font-family: var(--jg-mono);
+    font-size: 0.82em;
+    background: rgba(0, 0, 0, 0.055);
+    border-radius: 4px;
+    padding: 0.12em 0.36em;
+}
+
+.doc-body pre {
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.15rem;
+    background: #f4f4f2;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+/* The block already carries the panel; the span inside must not paint a
+   second one over it. */
+.doc-body pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    white-space: pre;
+}
+
+/* A table has a width of its own and the column does not, so it scrolls
+   inside its own box rather than widening the page. */
+.doc-scroll { overflow-x: auto; margin: 0 0 1.5rem; }
+
+.doc-body table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+
+.doc-body th, .doc-body td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+.doc-body th {
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8e8e8e;
+    white-space: nowrap;
+}
+
+.doc-body tr:last-child td { border-bottom: 0; }
+
+.doc-note { color: #a0a0a0; font-size: 0.95rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    .doc-layer, .doc-col { transition: none; }
+    .doc-col { transform: none; }
+}
+
+@media (max-width: 640px) {
+    .doc-col { padding: 5.5rem 1.4rem 6rem; }
+    .doc-body { font-size: 1.02rem; }
+}
+
+/* The blog index, when the whole list is opened rather than one post. */
+.doc-index { list-style: none; margin: 0; padding: 0; }
+
+.doc-index li { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+.doc-index li:last-child { border-bottom: 0; }
+
+.doc-index a {
+    display: block;
+    padding: 0.85rem 0;
+    color: #4a4a4a;
+    text-decoration: none;
+    transition: color 0.14s linear;
+}
+
+.doc-index a:hover { color: #111; }
+
+/* The layer takes focus when it opens so the keyboard follows the page. It is
+   a container, not a control, so it must not draw a ring for doing so. */
+.doc-layer:focus { outline: none; }

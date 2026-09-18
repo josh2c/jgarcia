@@ -28,20 +28,8 @@ const SECTIONS = [
         icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
         links: [
             { label: 'Trezure — football-first fantasy', href: 'https://playtrezure.com', meta: 'Live' },
-            { label: 'Trezure pitch deck', href: 'pitch.html', meta: 'Deck' },
             { label: 'Busy Cab — browser arcade taxi game', href: 'https://busycabgame.com', meta: 'Live' },
-            { label: 'Bemore Labz — product & engineering lab', href: 'https://bemorelabz.com', meta: 'Live' }
-        ]
-    },
-    {
-        name: 'Client Work',
-        tint: '#2f8f89',
-        icon: "<rect x='3' y='7' width='18' height='13' rx='2'/><path d='M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 12h18'/>",
-        links: [
-            { label: 'The Recovery Lab Society', href: 'https://github.com/josh2c/recovery-lab-society', meta: 'Catalog' },
-            { label: 'Snow Motorsports', href: 'https://github.com/josh2c/shnowmotorsports-website', meta: 'Next.js' },
-            { label: 'HotStart VC', href: 'https://github.com/josh2c/hotstartvc-website', meta: 'Fund site' },
-            { label: 'AI Brokerage Pitch', href: 'https://github.com/josh2c/ai-brokerage-pitch', meta: 'Deck' }
+            { label: 'Nodal — cheap, durable git worktree environments', href: 'https://github.com/josh2c/nodal', meta: 'Rust' }
         ]
     },
     {
@@ -226,24 +214,49 @@ function mountPosts(list) {
 const SKILLS_CACHE = 'jg-skills';
 const SKILLS_TTL = 864e5;
 
-function mountSkills(list) {
-    const pending = note(list, 'Loading…');
+/* Some skills are only a pointer at another one — `atlas` exists so that the
+ * word works, and does nothing but call system-atlas. Listing both invites the
+ * reasonable question of which is the real one, so the aliases are dropped and
+ * the skill they point at is the one shown. They say so themselves, in their
+ * own description, which is why this reads the frontmatter rather than keeping
+ * a list of names here that would go stale. */
+const isAlias = (meta) => /\balias for\b/i.test(meta && meta.description || '');
 
+function mountSkills(list) {
+    const pending = note(list, 'Loading\u2026');
+
+    /* A skill opens as a page here rather than as a repo on GitHub. The link
+     * to the source stays, at the top of that page. */
     const render = (names) => {
-        if (!names.length) { pending.remove(); measure(); return; }
         pending.remove();
-        /* Before the repo link, not after it — the link is the footnote. */
-        list.insertAdjacentHTML('afterbegin', names.map((n) => linkRow({
-            label: n,
-            href: 'https://github.com/josh2c/skills/tree/main/skills/' + n,
-            meta: 'Skill'
-        })).join(''));
+        if (names.length) {
+            /* Before the repo link, not after it — the link is the footnote. */
+            list.insertAdjacentHTML('afterbegin', names.map((n) =>
+                '<li><button type="button" class="cv-row cv-item" data-skill="' + esc(n) + '">' +
+                rowInner(n, 'Skill', false) + '</button></li>').join(''));
+
+            list.querySelectorAll('[data-skill]').forEach((b) => {
+                b.addEventListener('click', () => {
+                    if (window.jgSkills) window.jgSkills.open(b.dataset.skill);
+                });
+            });
+        }
         measure();
+    };
+
+    /* The directory listing gives the names; each skill's own frontmatter says
+     * what it is and whether it is an alias. If the frontmatter cannot be read
+     * the names are still shown — an unfiltered list beats no list. */
+    const describe = (names) => {
+        if (!window.jgSkills) return render(names);
+        Promise.all(names.map((n) =>
+            window.jgSkills.meta(n).then((m) => (isAlias(m) ? null : n)).catch(() => n)
+        )).then((kept) => render(kept.filter(Boolean)));
     };
 
     try {
         const hit = JSON.parse(localStorage.getItem(SKILLS_CACHE) || 'null');
-        if (hit && Date.now() - hit.at < SKILLS_TTL) { render(hit.names); return; }
+        if (hit && Date.now() - hit.at < SKILLS_TTL) { describe(hit.names); return; }
     } catch (err) { /* ignore a bad cache */ }
 
     fetch('https://api.github.com/repos/josh2c/skills/contents/skills')
@@ -254,7 +267,7 @@ function mountSkills(list) {
             try {
                 localStorage.setItem(SKILLS_CACHE, JSON.stringify({ at: Date.now(), names }));
             } catch (err) { /* storage full */ }
-            render(names);
+            describe(names);
         })
         .catch(() => { pending.remove(); measure(); });
 }

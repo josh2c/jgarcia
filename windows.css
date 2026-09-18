@@ -291,83 +291,8 @@
 /* ---------- reader ---------- */
 
 .win-body.rd { padding: 0; }
-.rd-pad { padding: 1.1rem 1.2rem; }
-.rd-note { font-family: var(--jg-mono); font-size: 0.72rem; color: var(--jg-dim); }
-
-.rd-head {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.6rem 1.2rem;
-    background: #f0f0ec;
-    border-bottom: 1px solid var(--jg-line);
-    font-family: var(--jg-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--jg-muted);
-}
-
-.rd-back, .rd-open {
-    font: inherit;
-    background: none;
-    border: 0;
-    padding: 0;
-    color: var(--jg-blue);
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.rd-back:hover, .rd-open:hover { color: var(--jg-accent); }
-
-.rd-list { list-style: none; margin: 0; padding: 0; }
-.rd-list li { border-bottom: 1px solid var(--jg-line); }
-
-.rd-item {
-    display: grid;
-    gap: 0.3rem;
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: 0;
-    padding: 1rem 1.2rem;
-    cursor: pointer;
-    font: inherit;
-    color: inherit;
-}
-
-.rd-item:hover { background: rgba(232, 163, 61, 0.12); }
-
-.rd-item-title {
-    font-family: var(--jg-display);
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.3;
-}
-
-.rd-item-meta {
-    font-family: var(--jg-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--jg-dim);
-}
-
-.rd-item-exc { font-size: 0.85rem; color: var(--jg-muted); line-height: 1.55; }
-
-.rd-post { padding: 1.4rem 1.6rem 2.5rem; max-width: 38rem; }
-.rd-post h2 {
-    font-family: var(--jg-display);
-    font-size: 1.5rem;
-    line-height: 1.2;
-    margin: 0.4rem 0 1.2rem;
-    text-wrap: balance;
-}
-.rd-post p { margin: 0 0 1.15rem; line-height: 1.8; }
+/* The in-window reader is gone: a post and a skill are read as a page now
+   (doc.css), not in a pane you drag around. Its styles went with it. */
 
 /* ---------- narrow ---------- */
 
