@@ -100,10 +100,10 @@ function home() {
     return '<header class="eng-lead">' +
             '<p class="eng-kind">Engineering</p>' +
             '<h1>How I build with AI</h1>' +
-            '<p class="eng-standfirst">The public half of a working playbook: the principles ' +
-            'that survived distillation, the people I took them from, and what I am reading ' +
-            'now. The playbook itself stays private — it is operational, and it is most useful ' +
-            'while it is still messy.</p>' +
+            '<p class="eng-standfirst">The public half of my engineering library: the ' +
+            'principles that survived distillation, the people I took them from, and what I ' +
+            'am reading now. The working notes stay private — they are operational, and most ' +
+            'useful while they are still messy.</p>' +
         '</header>' +
 
         section('Principles',
@@ -147,7 +147,7 @@ function principle(id) {
             (src.by ? ' by ' + esc(src.by) : '') + '.' +
         '</div>' : '') +
 
-        '<p class="eng-note">From the playbook: ' + esc(p.from) + '</p>' +
+        '<p class="eng-note">From my notes on ' + esc(p.from) + '.</p>' +
 
         section('Related sources', related.length ? related.map(entryRow).join('') : '') +
 

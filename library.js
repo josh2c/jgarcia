@@ -1,9 +1,13 @@
-/* The library — the public half of the AI engineering playbook.
+/* The library — the public half of the AI engineering notes.
  *
- * The playbook itself is not on this site and should not be. It is long,
- * operational, and most useful while it is still messy. What is here is the
+ * The working notes are not on this site and should not be. They are long,
+ * operational, and most useful while they are still messy. What is here is the
  * part that survives distillation: the principles, the sources they came from,
  * and the notes that are actually mine.
+ *
+ * Not to be confused with Playbook (github.com/josh2c/playbook), which is a
+ * separate project. The source document calls itself a playbook; this does
+ * not, so that the two names do not collide on one site.
  *
  * ---------------------------------------------------------------- schema ---
  *
@@ -40,8 +44,8 @@
 
 /* ------------------------------------------------------------ principles --- */
 
-/* Distilled from the playbook. Each carries where it came from, and where it
- * came from someone else, `source` points at their entry — a principle I
+/* Distilled from the working notes. Each carries where it came from, and where
+ * it came from someone else, `source` points at their entry — a principle I
  * adopted is not a principle I originated, and the page says so. */
 const PRINCIPLES = [
     {
@@ -435,7 +439,7 @@ const LANGS = [
 
 /* ------------------------------------------------------------- practices --- */
 
-/* The distilled workflows — one per topic, and only where the playbook has
+/* The distilled workflows — one per topic, and only where the notes have
  * something worth stating in public. This is the layer that makes a topic page
  * worth landing on: not a list of links, but how I actually work the problem.
  *
