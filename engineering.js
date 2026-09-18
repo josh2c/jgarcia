@@ -38,15 +38,20 @@ const langById = (id) => L.LANGS.find((l) => l.id === id);
 /* A topic exists because entries carry it, not because it is in a list. */
 function topics() {
     const count = {};
-    PUBLIC.forEach((e) => (e.topics || []).forEach((t) => { count[t] = (count[t] || 0) + 1; }));
-    L.PRINCIPLES.forEach((p) => (p.topics || []).forEach((t) => {
-        if (count[t] === undefined) count[t] = 0;
-    }));
+    const bump = (t, n) => { count[t] = (count[t] || 0) + n; };
+
+    PUBLIC.forEach((e) => (e.topics || []).forEach((t) => bump(t, 1)));
+    L.PRINCIPLES.forEach((p) => (p.topics || []).forEach((t) => bump(t, 1)));
+    /* A written-up practice is reason enough for a topic to exist — those are
+     * the pages worth landing on even before a source is filed under them. */
+    (L.PRACTICES || []).forEach((w) => bump(w.topic, 1));
+
     return Object.keys(count)
-        .filter((t) => count[t] > 0)
         .sort((a, b) => count[b] - count[a] || a.localeCompare(b))
-        .map((id) => ({ id, name: L.TOPIC_NAMES[id] || id, n: count[id] }));
+        .map((id) => ({ id, name: L.TOPIC_NAMES[id] || id, has: !!practiceFor(id) }));
 }
+
+const practiceFor = (t) => (L.PRACTICES || []).find((w) => w.topic === t);
 
 const topicName = (id) => L.TOPIC_NAMES[id] || id;
 const entriesForTopic = (t) => PUBLIC.filter((e) => (e.topics || []).includes(t));
@@ -105,7 +110,7 @@ function home() {
             L.PRINCIPLES.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
 
         section('Topics',
-            ts.map((t) => rowLink('#/t/' + t.id, t.name, String(t.n), '')).join('')) +
+            ts.map((t) => rowLink('#/t/' + t.id, t.name, t.has ? 'Workflow' : '', '')).join('')) +
 
         section('Languages',
             L.LANGS.map((l) => rowLink('#/l/' + l.id, l.name,
@@ -194,15 +199,49 @@ function entry(id) {
 function topic(id) {
     const es = entriesForTopic(id);
     const ps = L.PRINCIPLES.filter((p) => (p.topics || []).includes(id));
-    if (!es.length && !ps.length) return notFound();
+    const w = practiceFor(id);
+    if (!es.length && !ps.length && !w) return notFound();
 
     return back() +
         '<header class="eng-lead">' +
             '<p class="eng-kind">Topic</p>' +
             '<h1>' + esc(topicName(id)) + '</h1>' +
+            (w && w.intro ? '<p class="eng-standfirst">' + esc(w.intro) + '</p>' : '') +
         '</header>' +
+        practice(w) +
         section('Principles', ps.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
         section('Sources', es.map(entryRow).join(''));
+}
+
+/* The distilled workflow. `flow` is a sequence and reads as one; `checks` is
+ * an unordered list of things to look at and must not pretend to be ordered. */
+function practice(w) {
+    if (!w) return '';
+
+    const flow = w.flow && w.flow.length ?
+        '<section class="eng-sec">' +
+            '<h2 class="eng-sec-h">The sequence</h2>' +
+            '<ol class="eng-flow">' + w.flow.map((f) =>
+                '<li>' + esc(f) + '</li>').join('') + '</ol>' +
+        '</section>' : '';
+
+    const checks = w.checks && w.checks.length ?
+        '<section class="eng-sec">' +
+            '<h2 class="eng-sec-h">What I look at</h2>' +
+            '<ul class="eng-list">' + w.checks.map((c) =>
+                '<li>' + esc(c) + '</li>').join('') + '</ul>' +
+        '</section>' : '';
+
+    const rule = w.rule ?
+        '<p class="eng-rule">' + esc(w.rule) + '</p>' : '';
+
+    const prompt = w.prompt ?
+        '<section class="eng-sec">' +
+            '<h2 class="eng-sec-h">The prompt I use</h2>' +
+            '<pre class="eng-pre"><code>' + esc(w.prompt) + '</code></pre>' +
+        '</section>' : '';
+
+    return rule + flow + checks + prompt;
 }
 
 function language(id) {
@@ -281,11 +320,14 @@ function search(q) {
 
     const ps = L.PRINCIPLES.filter((p) => hit(p.title) || hit(p.body) || hit(p.from));
 
+    const ws = (L.PRACTICES || []).filter((w) => hit(topicName(w.topic)) || hit(w.intro) ||
+        hit(w.rule) || (w.flow || []).some(hit) || (w.checks || []).some(hit));
+
     const ls = L.LANGS.filter((l) => hit(l.name) || hit(l.philosophy) ||
         (l.engineers || []).some((n) => hit(n.name) || hit(n.what)) ||
         (l.areas || []).some(hit));
 
-    const total = es.length + ps.length + ls.length;
+    const total = es.length + ps.length + ls.length + ws.length;
 
     return back() +
         '<header class="eng-lead">' +
@@ -294,6 +336,7 @@ function search(q) {
             '<p class="eng-standfirst">' + total + (total === 1 ? ' result' : ' results') + '</p>' +
         '</header>' +
         section('Principles', ps.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
+        section('Topics', ws.map((w) => rowLink('#/t/' + w.topic, topicName(w.topic), 'Workflow', '')).join('')) +
         section('Languages', ls.map((l) => rowLink('#/l/' + l.id, l.name, '', '')).join('')) +
         section('Sources', es.map(entryRow).join('')) +
         (total ? '' : '<p class="eng-note">Nothing yet. The library is small on purpose ' +

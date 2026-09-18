@@ -433,6 +433,135 @@ const LANGS = [
     }
 ];
 
+/* ------------------------------------------------------------- practices --- */
+
+/* The distilled workflows — one per topic, and only where the playbook has
+ * something worth stating in public. This is the layer that makes a topic page
+ * worth landing on: not a list of links, but how I actually work the problem.
+ *
+ * `flow` is the sequence. `checks` is what to look at. `rule` is the one line
+ * that matters most. Everything here is mine unless a principle on the same
+ * page credits somebody else.
+ */
+const PRACTICES = [
+    {
+        topic: 'codebase-understanding',
+        intro: 'Before changing unfamiliar code, map it. The map is the deliverable — the instruction that matters is "do not modify anything yet", because without it the model starts editing at the first plausible cause and the map never gets made.',
+        flow: ['User action', 'UI', 'Event handler', 'API', 'Business logic', 'Database', 'Response', 'UI state'],
+        checks: ['Entry point', 'Call path', 'Functions involved', 'Data flow', 'Database interactions', 'External services', 'Side effects', 'Relevant types', 'Tests covering the behavior'],
+        rule: 'Where does data enter, where does it change, who owns the behavior, and where do the side effects happen?'
+    },
+    {
+        topic: 'debugging',
+        intro: 'Call-path first. The visible error is usually not the root cause, and the fastest way to find that out is to walk the path before proposing anything.',
+        flow: ['Reproduce', 'Trace call path', 'Identify ownership', 'Explain behavior', 'Form hypothesis', 'Predict it yourself', 'Test the hypothesis', 'Fix', 'Regression test'],
+        checks: ['What receives the input?', 'What transforms it?', 'Where does state change?', 'Where does the failure first appear?', 'What owns the behavior?', 'What assumptions are being violated?', 'Is the visible error actually the root cause?'],
+        rule: 'Predict the problem yourself before the model proposes a fix. If you cannot, you do not understand it yet.',
+        prompt: 'Before touching anything, walk me through the call path involved in this bug.\n\nShow me which functions own what behavior.\n\nExplain the relevant language constructs.\n\nThen let me predict the problem before you propose a fix.'
+    },
+    {
+        topic: 'testing',
+        intro: 'Coverage says the line ran. Mutation testing says the suite would have noticed if the line were wrong. Those are very different claims, and only the second one is worth much on generated code.',
+        flow: ['Implementation', 'Tests', 'Mutation testing', 'Surviving mutants', 'Identify missing assertions', 'Improve tests', 'Run mutation testing again'],
+        checks: ['Coverage', 'Missing branches', 'Missing edge cases', 'Weak assertions', 'Duplicate tests', 'Error paths', 'Integration boundaries', 'Regression coverage'],
+        rule: 'A test suite should demonstrate that it can detect meaningful changes in behavior, not merely execute lines of code.'
+    },
+    {
+        topic: 'audit',
+        intro: 'Auditing is its own mode, run read-only and in parallel, with one orchestrator holding the inventory and doing the ranking. The moment an agent can fix what it finds, it stops reporting.',
+        flow: ['Inventory every subsystem', 'Launch fresh read-only agents', 'One standardized prompt', 'Validate findings', 'Deduplicate', 'Rank opportunities', 'Audit report'],
+        rule: 'Audit only. Never let the agents modify the codebase in the same pass.'
+    },
+    {
+        topic: 'deslop',
+        intro: 'Most AI slop is not wrong code. It is unnecessary code — every piece defensible on its own line and indefensible as a whole.',
+        checks: ['Excessive complexity', 'Dead code', 'Redundant code', 'Duplicate logic', 'Unnecessary abstractions', 'Excessive wrappers', 'Giant functions', 'Giant files', 'Excessive conditionals', 'Weak typing', 'any / unknown', 'Repeated validation', 'AI boilerplate', 'Unused configuration', 'Code that does not match repository conventions'],
+        flow: ['Identify suspicious code', 'Explain why', 'Provide evidence', 'Decide whether the complexity is justified', 'Propose simplification', 'Get approval if architectural', 'Implement', 'Test'],
+        rule: 'Make the smallest change that produces the required behavior while preserving existing architecture and conventions.'
+    },
+    {
+        topic: 'security',
+        intro: 'A pass in a fixed order, because the expensive findings cluster at the front. The output is a table — severity, finding, attack scenario, affected code, fix, verification — so that a finding without an attack scenario does not count as a finding.',
+        flow: ['Secrets', 'Authentication', 'Authorization', 'Database / RLS', 'Input validation', 'API exposure', 'Sessions', 'File uploads', 'Rate limiting', 'Security headers', 'Dependencies', 'Infrastructure'],
+        checks: ['Keys hidden, secrets purged from git, environment and logs and client bundles inspected', 'Only the public database key exposed, RLS enabled and its policies verified', 'Server-side auth enforced, sessions secure, authorization verified separately from authentication', 'Queries parameterized, input validated, user content escaped, uploads restricted', 'API responses trimmed, sensitive endpoints rate limited', 'Login rate limiting, bot and brute-force protection', 'HTTPS, security headers, dependency scanning, network exposure review']
+    },
+    {
+        topic: 'performance',
+        intro: 'The whole discipline is refusing to act on intuition. Every step exists to make sure something was measured before and after.',
+        flow: ['Measure', 'Find the bottleneck', 'Explain the bottleneck', 'Propose a change', 'Implement', 'Measure again'],
+        checks: ['N+1 queries', 'Sequential requests', 'Waterfalls', 'Missing indexes', 'Large payloads', 'Slow APIs', 'Rendering', 'Bundle size', 'Caching', 'Memory', 'CPU'],
+        rule: 'Measure before optimizing.'
+    },
+    {
+        topic: 'database',
+        intro: 'Schema outward. Most query problems are schema problems that have been paid for repeatedly rather than fixed once.',
+        flow: ['Schema', 'Relationships', 'Constraints', 'Queries', 'Indexes', 'RLS', 'Transactions', 'Performance', 'Migration safety']
+    },
+    {
+        topic: 'architecture',
+        intro: 'The job is laying out the options and their costs, not picking one quietly. An architecture chosen without a stated tradeoff is a decision nobody made.',
+        checks: ['Viable approaches', 'Tradeoffs of each', 'Failure modes', 'Operational complexity', 'Assumptions', 'What needs to be measured or validated'],
+        rule: 'Do not silently choose an architecture when a material tradeoff requires a human decision.',
+        prompt: 'Given these requirements and constraints:\n\n1. Identify the viable architectural approaches.\n2. Explain the tradeoffs of each.\n3. Identify failure modes.\n4. Identify operational complexity.\n5. Identify assumptions.\n6. Identify what needs to be measured or validated.\n\nDo not silently choose an architecture when a material tradeoff requires a human decision.'
+    },
+    {
+        topic: 'review',
+        intro: 'Reviewed in this order, because a correctness bug and a naming preference are not the same kind of finding and should never appear in the same list.',
+        flow: ['Correctness', 'Security', 'Data integrity', 'Performance', 'Maintainability', 'Type safety', 'Error handling', 'Tests', 'Regression risk', 'Repository consistency'],
+        rule: 'Do not report stylistic preferences as defects.'
+    },
+    {
+        topic: 'refactoring',
+        intro: 'Refactoring is the one mode with a hard constraint attached, and it is the constraint an agent is most likely to quietly break.',
+        checks: ['Simplify control flow', 'Remove duplication', 'Remove dead code', 'Improve types', 'Split large functions', 'Simplify abstractions', 'Improve naming', 'Improve data structures'],
+        rule: 'Behavior must remain unchanged unless a behavior change was explicitly requested.'
+    },
+    {
+        topic: 'documentation',
+        intro: 'Documentation carries what the code cannot: why, architecture, business rules, external constraints, operational procedure, and the decisions that are no longer visible in the source.',
+        checks: ['README', 'Architecture docs', 'API docs', 'Database docs', 'Setup instructions', 'Deployment docs', 'Runbooks', 'Troubleshooting', 'ADRs', 'Security docs', 'Contributing guides'],
+        rule: 'Write it in Simplified Technical English, document actual behavior, and do not let it sound generated.'
+    },
+    {
+        topic: 'git',
+        intro: 'One worktree per agent. Parallel work stops being frightening when the agents cannot reach each other\u2019s files.',
+        checks: ['Parallel work', 'Isolated changes', 'Lower collision risk', 'Easier review', 'Easier rollback', 'Independent experiments']
+    },
+    {
+        topic: 'requirements',
+        intro: 'The cheapest place to catch an ambiguity is before it becomes an architecture.',
+        flow: ['Problem', 'Requirement', 'Acceptance criteria', 'Architecture', 'Implementation', 'Tests'],
+        checks: ['Ambiguous requirements', 'Missing edge cases', 'Conflicting requirements', 'Roles', 'Permissions', 'Business rules', 'State transitions', 'Acceptance criteria']
+    },
+    {
+        topic: 'observability',
+        intro: 'Observability is worth what it can answer. If the logs, metrics, traces, error tracking and deployment history cannot answer these six questions, they are decoration.',
+        checks: ['What happened?', 'When did it start?', 'What changed?', 'Why did it happen?', 'What was affected?', 'How do we know the fix worked?']
+    },
+    {
+        topic: 'incident',
+        intro: 'Contain before you investigate. The timeline is what turns an incident into something you can actually learn from.',
+        flow: ['Detect', 'Contain', 'Investigate', 'Establish timeline', 'Identify root cause', 'Fix', 'Verify', 'Document']
+    },
+    {
+        topic: 'release',
+        intro: 'Shipping is a sequence with a way back out of it. The last step is the one people skip.',
+        flow: ['Audit', 'Test', 'Build', 'Deploy', 'Smoke test', 'Monitor', 'Verify', 'Roll back if required']
+    },
+    {
+        topic: 'orchestration',
+        intro: 'Large runs get a table before they get code. The confidence column is where the rework hides; the open-questions column is what stops decisions being made silently.',
+        flow: ['Understand requirements', 'Inventory relevant code', 'Identify dependencies', 'Create implementation table', 'Identify uncertainty', 'Resolve important questions', 'Define acceptance criteria', 'Implement', 'Test', 'Audit', 'Report progress', 'Update the table'],
+        checks: ['Feature or part', 'Completion percentage', 'Level of effort', 'Model confidence it understands the implementation', 'Questions needed for intent parity', 'Current status'],
+        rule: 'An updated implementation table at every progress or stop point.'
+    },
+    {
+        topic: 'cloud',
+        intro: 'The operational surface I expect an agent to be competent across before letting it near a box that serves traffic.',
+        checks: ['Linux', 'SSH', 'Users and groups', 'Firewall', 'Docker', 'Docker Compose', 'Reverse proxy', 'Nginx', 'Caddy', 'SSL', 'DNS', 'Backups', 'Monitoring', 'Logs', 'Resource management', 'Database hosting', 'Deployment', 'Recovery']
+    }
+];
+
 /* ---------------------------------------------------------------- topics --- */
 
 /* Labels only. Which topics exist at all is derived from the entries, so a
@@ -453,7 +582,13 @@ const TOPIC_NAMES = {
     'cloud': 'Cloud & agents',
     'automation': 'Automation',
     'requirements': 'Requirements',
-    'languages': 'Languages'
+    'languages': 'Languages',
+    'review': 'Code review',
+    'observability': 'Observability',
+    'incident': 'Incident response',
+    'release': 'Release',
+    'performance': 'Performance',
+    'database': 'Databases'
 };
 
-window.jgLibrary = { PRINCIPLES, ENTRIES, LANGS, TOPIC_NAMES };
+window.jgLibrary = { PRINCIPLES, ENTRIES, LANGS, PRACTICES, TOPIC_NAMES };

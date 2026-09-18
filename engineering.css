@@ -306,3 +306,63 @@
     .eng-find input { width: 7rem; }
     .eng-row-meta { display: none; }
 }
+
+/* ---------- practice ---------- */
+
+/* The one line that matters most on a topic page, so it gets to be the first
+   thing under the standfirst and the only thing set at that weight. */
+.eng-rule {
+    margin: 0 0 2.2rem;
+    padding: 1rem 1.15rem;
+    background: rgba(210, 105, 30, 0.06);
+    border-radius: 12px;
+    font-size: 1.04rem;
+    line-height: 1.6;
+    font-weight: 500;
+    color: #7a4a20;
+}
+
+/* A sequence, numbered, because the order is the technique. `checks` uses
+   .eng-list instead — unordered, because it is a set of things to look at and
+   numbering it would imply an order that is not there. */
+.eng-flow {
+    margin: 0.9rem 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: flow;
+}
+
+.eng-flow li {
+    position: relative;
+    counter-increment: flow;
+    padding: 0.42rem 0 0.42rem 2.2rem;
+    font-size: 1.02rem;
+    line-height: 1.5;
+    color: #3d3d3d;
+}
+
+.eng-flow li::before {
+    content: counter(flow);
+    position: absolute;
+    left: 0;
+    top: 0.52rem;
+    width: 1.5rem;
+    font-family: var(--jg-mono);
+    font-size: 0.68rem;
+    color: #c08040;
+    text-align: right;
+}
+
+/* The line down the side that makes it read as one movement rather than a
+   list of unrelated steps. */
+.eng-flow li::after {
+    content: '';
+    position: absolute;
+    left: 1.02rem;
+    top: 1.5rem;
+    bottom: -0.1rem;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.eng-flow li:last-child::after { display: none; }
