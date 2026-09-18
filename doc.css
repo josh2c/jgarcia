@@ -15,9 +15,12 @@
     z-index: 400;
     overflow-y: auto;
     overflow-x: hidden;
-    background:
-        var(--nt-bg);
-    color: var(--nt-text);
+    /* Literal first, token second — see cover.css. This layer covers the
+       board too, and transparent is the failure mode. */
+    background: #ffffff;
+    background: var(--nt-bg, #ffffff);
+    color: #37352f;
+    color: var(--nt-text, #37352f);
     font-family: var(--jg-sans);
     -webkit-font-smoothing: antialiased;
     opacity: 0;

@@ -14,11 +14,16 @@
     position: fixed;
     inset: 0;
     z-index: 120;
-    /* Paper, not white. A flat #fff next to the masked fade reads as a blown
-       highlight; the gradient gives the fade something to fade into. */
-    background:
-        var(--nt-bg);
-    color: var(--nt-text);
+    /* The literal comes first and the token second, and that order is load
+       bearing. This layer is what hides the board, and an undefined custom
+       property is invalid at computed-value time — background-color then
+       falls back to its INITIAL value, which is transparent, not to the
+       previous declaration. One stale stylesheet and the whole board shows
+       through the front page. The literal is the floor under that. */
+    background: #ffffff;
+    background: var(--nt-bg, #ffffff);
+    color: #37352f;
+    color: var(--nt-text, #37352f);
     font-family: var(--jg-sans, 'Inter', system-ui, sans-serif);
     opacity: 1;
     transition: opacity 0.45s ease, visibility 0.45s;
