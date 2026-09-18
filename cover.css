@@ -20,10 +20,10 @@
        falls back to its INITIAL value, which is transparent, not to the
        previous declaration. One stale stylesheet and the whole board shows
        through the front page. The literal is the floor under that. */
-    background: #ffffff;
-    background: var(--nt-bg, #ffffff);
-    color: #37352f;
-    color: var(--nt-text, #37352f);
+    background: #f1f1f1;
+    background: var(--ui-bg, #f1f1f1);
+    color: #212121;
+    color: var(--ui-text, #212121);
     font-family: var(--jg-sans, 'Inter', system-ui, sans-serif);
     opacity: 1;
     transition: opacity 0.45s ease, visibility 0.45s;
@@ -63,7 +63,7 @@
     font-size: 0.94rem;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: var(--nt-text);
+    color: var(--ui-text);
 }
 
 /* The one button on the page, so it is allowed to be plain. */
@@ -74,20 +74,20 @@
     font: inherit;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--nt-text-2);
+    color: var(--ui-text-2);
     background: transparent;
     border: 0;
-    border-radius: var(--nt-radius);
+    border-radius: var(--ui-radius);
     padding: 0.34rem 0.6rem;
     cursor: pointer;
     text-decoration: none;
     transition: background 0.12s ease, color 0.12s ease;
 }
 
-.cv-moodboard:hover { background: var(--nt-hover); color: var(--nt-text); }
-.cv-moodboard:active { background: var(--nt-active); }
+.cv-moodboard:hover { background: var(--ui-hover); color: var(--ui-text); }
+.cv-moodboard:active { background: var(--ui-active); }
 
-.cv-moodboard:focus-visible { outline: 2px solid var(--nt-blue); outline-offset: 1px; }
+.cv-moodboard:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
 
 /* A loose isometric glyph — three faces of a cube — so the button says where
    it goes before you read it. */
@@ -95,7 +95,7 @@
     width: 0.95rem;
     height: 0.95rem;
     fill: none;
-    stroke: var(--nt-orange);
+    stroke: var(--ui-accent);
     stroke-width: 1.6;
     stroke-linejoin: round;
     flex: none;
@@ -152,14 +152,14 @@
     font-size: 1.22rem;
     font-weight: 600;
     letter-spacing: -0.015em;
-    color: var(--nt-text);
+    color: var(--ui-text);
 }
 
 .cv-lead p {
     margin: 0;
     font-size: 1.06rem;
     line-height: 1.6;
-    color: var(--nt-text-2);
+    color: var(--ui-text-2);
 }
 
 /* ---------- groups ---------- */
@@ -189,11 +189,11 @@
 .cv-head {
     margin: 0 0 0.45rem;
     font-weight: 600;
-    color: var(--nt-text);
+    color: var(--ui-text);
 }
 
 .cv-item {
-    color: var(--nt-text-2);
+    color: var(--ui-text-2);
     cursor: pointer;
     transition: color 0.14s linear;
 }
@@ -210,7 +210,7 @@
 }
 
 .cv-item:hover,
-.cv-item:focus-visible { color: var(--nt-text); }
+.cv-item:focus-visible { color: var(--ui-text); }
 .cv-item:focus-visible { outline: none; }
 .cv-item:focus-visible .cv-label { text-decoration: underline; text-underline-offset: 3px; }
 
@@ -231,19 +231,19 @@
    between leaving the site and opening a window over it is worth one glyph. */
 .cv-out {
     font-size: 0.78em;
-    color: var(--nt-text-3);
+    color: var(--ui-text-3);
     flex: none;
     transition: color 0.14s linear;
 }
 
-.cv-item:hover .cv-out { color: var(--nt-text-2); }
+.cv-item:hover .cv-out { color: var(--ui-text-2); }
 
 .cv-meta {
     margin-left: auto;
     font-size: 0.76rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--nt-text-3);
+    color: var(--ui-text-3);
     flex: none;
     padding-left: 0.8rem;
 }
@@ -270,11 +270,11 @@
 .cv-row.is-near::before { opacity: 1; transform: scale(1); }
 
 /* A header's dot takes the group's colour; an item's stays with its type. */
-.cv-head.is-near::before { background: var(--cv-tint, var(--nt-text)); }
+.cv-head.is-near::before { background: var(--cv-tint, var(--ui-text)); }
 
 .cv-note {
     font-size: 0.95rem;
-    color: var(--nt-text-3);
+    color: var(--ui-text-3);
     padding: 0.42rem 0;
     margin: 0;
 }
@@ -306,30 +306,30 @@
     margin: 0 0 1.5rem;
     font-size: 1.14rem;
     line-height: 1.5;
-    color: var(--nt-text);
+    color: var(--ui-text);
     letter-spacing: -0.008em;
 }
 
 .cv-lead p + p { margin-top: 1.1rem; }
 
 .cv-lead a {
-    color: var(--nt-orange);
+    color: var(--ui-link);
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 
-.cv-lead a:hover { color: var(--nt-orange-2); }
+.cv-lead a:hover { color: var(--ui-link-2); }
 
 /* Quiet, and set apart. It is not a tagline and it is not a link — it is the
    last thing on the block and it should read that way. */
 .cv-verse {
     margin: 1.9rem 0 0;
     padding-top: 1.6rem;
-    border-top: 1px solid var(--nt-line);
+    border-top: 1px solid var(--ui-line);
     font-size: 0.92rem;
     line-height: 1.65;
     font-style: italic;
-    color: var(--nt-text-3);
+    color: var(--ui-text-3);
 }
 
 .cv-ref {
@@ -340,6 +340,47 @@
     font-size: 0.68rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--nt-text-3);
+    color: var(--ui-text-3);
     white-space: nowrap;
 }
+
+/* ---------- icon control ---------- */
+
+/* The theme toggle, and the shape any future icon-only control takes: the
+   same flat fill as the text buttons, just square. */
+.cv-tools, .eng-tools { display: inline-flex; align-items: center; gap: 0.15rem; }
+
+.cv-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: var(--ui-radius, 4px);
+    color: var(--ui-text-3, #6f6f6f);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.cv-icon:hover { background: var(--ui-hover); color: var(--ui-text); }
+.cv-icon:active { background: var(--ui-active); }
+.cv-icon:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
+
+.cv-icon svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* The board is a fixed dark scene of its own. Crossing into it while the page
+   is in the light theme should not leave a light strip floating over it, and
+   the cover's strip is hidden there anyway — this only covers the gap during
+   the handoff. */
+.is-board .cv-tools { opacity: 0; }

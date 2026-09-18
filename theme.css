@@ -326,48 +326,128 @@ body.board-page {
     .glass-strong { background: rgba(18, 21, 22, 0.95); }
 }
 
-/* ---------- Notion palette ----------
+/* ---------- Pencil ----------
    The light editorial side of the site — the cover, the reading pages and the
-   library — is set in Notion's colours. The board keeps its own warm, dark,
-   cel-shaded world; these tokens are deliberately not used there.
+   library — is set in Pencil, taken from the Ghostty theme of the same name.
+   Values are the theme's own, read out of Ghostty's theme files, not matched
+   by eye. The board keeps its own warm cel-shaded world and ignores all of
+   this.
 
-   The signature is the ink: #37352f is a warm near-black, not a grey, and it
-   is what stops a white page reading as cold. Surfaces are plain white with
-   tinted callouts, borders are ink at low alpha rather than a grey, and
-   interaction is a fill rather than a shadow. */
+   Pencil Light is #f1f1f1 paper with #424242 graphite; Pencil Dark inverts to
+   #212121 with #f1f1f1. That is the whole idea — it is a pencil on paper, and
+   then the same pencil seen as a negative.
+
+   Themes are set on <html data-theme>. The default follows the system, and an
+   explicit choice pins it, which is why the dark values appear twice: once
+   under the media query for people who have chosen nothing, and once under
+   the attribute for people who have. */
 
 :root {
-    --nt-bg:        #ffffff;
-    --nt-bg-soft:   #f7f6f3;   /* Notion's warm page tint */
+    /* --- Pencil Light --- */
+    --ui-bg:        #f1f1f1;   /* background */
+    --ui-bg-soft:   #e4e4e4;   /* one step down, for code wells and tags */
+    --ui-raise:     #f7f7f7;   /* one step up, for anything that should lift */
 
-    --nt-text:      #37352f;   /* default ink */
-    --nt-text-2:    #787774;   /* secondary */
-    --nt-text-3:    #9b9a97;   /* tertiary, placeholders */
+    --ui-text:      #212121;   /* palette 0 — headings */
+    --ui-text-2:    #424242;   /* foreground — body */
+    --ui-text-3:    #6f6f6f;   /* between foreground and palette 7 */
 
-    --nt-line:      rgba(55, 53, 47, 0.09);
-    --nt-line-2:    rgba(55, 53, 47, 0.16);
-    --nt-hover:     rgba(55, 53, 47, 0.06);
-    --nt-active:    rgba(55, 53, 47, 0.12);
+    --ui-line:      rgba(33, 33, 33, 0.12);
+    --ui-line-2:    rgba(33, 33, 33, 0.22);
+    --ui-hover:     rgba(33, 33, 33, 0.06);
+    --ui-active:    rgba(33, 33, 33, 0.12);
 
-    /* Accents, from Notion's own text palette */
-    --nt-orange:    #d9730d;
-    --nt-orange-2:  #b3600b;
-    --nt-brown:     #9f6b53;
-    --nt-yellow:    #cb912f;
-    --nt-green:     #448361;
-    --nt-blue:      #337ea9;
-    --nt-purple:    #9065b0;
-    --nt-pink:      #c14c8a;
-    --nt-red:       #d44c47;
+    /* Pencil's red. 5.2:1 on the paper, so it can carry small type. */
+    --ui-accent:    #c30771;
+    --ui-accent-2:  #9d055b;
+    --ui-accent-bg: rgba(195, 7, 113, 0.08);
 
-    /* Callout tints, from Notion's background palette */
-    --nt-gray-bg:   #f1f1ef;
-    --nt-orange-bg: #fbecdd;
-    --nt-blue-bg:   #e7f3f8;
+    /* Pencil's blue, darkened from #008ec4 to clear 4.5:1 on #f1f1f1 —
+       the theme's own blue is 3.3:1, which is not enough for a link. */
+    --ui-link:      #00719c;
+    --ui-link-2:    #005778;
 
-    /* Notion rounds corners a little, never into a pill. */
-    --nt-radius:    4px;
-    --nt-radius-lg: 6px;
+    /* The cursor colour, which is exactly what a focus ring is. */
+    --ui-focus:     #20bbfc;
+
+    /* The palette, for anything that needs to be distinguished by hue —
+       section marks on the cover, and nothing else so far. */
+    --ui-c-red:     #c30771;
+    --ui-c-green:   #10a778;
+    --ui-c-yellow:  #a89c14;
+    --ui-c-blue:    #008ec4;
+    --ui-c-purple:  #523c79;
+    --ui-c-cyan:    #20a5ba;
+
+    --ui-radius:    4px;
+    --ui-radius-lg: 6px;
+}
+
+/* --- Pencil Dark --- */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        --ui-bg:        #212121;
+        --ui-bg-soft:   #2c2c2c;
+        --ui-raise:     #303030;
+
+        --ui-text:      #f1f1f1;
+        --ui-text-2:    #d9d9d9;
+        --ui-text-3:    #989898;
+
+        --ui-line:      rgba(241, 241, 241, 0.14);
+        --ui-line-2:    rgba(241, 241, 241, 0.26);
+        --ui-hover:     rgba(241, 241, 241, 0.08);
+        --ui-active:    rgba(241, 241, 241, 0.16);
+
+        /* Lightened from Pencil's bright red #fb007a, which is 4.1:1 on
+           #212121 and just misses. This clears 5:1. */
+        --ui-accent:    #ff4d94;
+        --ui-accent-2:  #ff7fb2;
+        --ui-accent-bg: rgba(251, 0, 122, 0.16);
+
+        --ui-link:      #20bbfc;
+        --ui-link-2:    #6fd3ff;
+
+        --ui-focus:     #20bbfc;
+
+        --ui-c-red:     #fb007a;
+        --ui-c-green:   #5fd7af;
+        --ui-c-yellow:  #c0b100;
+        --ui-c-blue:    #20bbfc;
+        --ui-c-purple:  #6855de;
+        --ui-c-cyan:    #4fb8cc;
+    }
+}
+
+:root[data-theme='dark'] {
+    --ui-bg:        #212121;
+    --ui-bg-soft:   #2c2c2c;
+    --ui-raise:     #303030;
+
+    --ui-text:      #f1f1f1;
+    --ui-text-2:    #d9d9d9;
+    --ui-text-3:    #989898;
+
+    --ui-line:      rgba(241, 241, 241, 0.14);
+    --ui-line-2:    rgba(241, 241, 241, 0.26);
+    --ui-hover:     rgba(241, 241, 241, 0.08);
+    --ui-active:    rgba(241, 241, 241, 0.16);
+
+    --ui-accent:    #ff4d94;
+    --ui-accent-2:  #ff7fb2;
+    --ui-accent-bg: rgba(251, 0, 122, 0.16);
+
+    --ui-link:      #20bbfc;
+    --ui-link-2:    #6fd3ff;
+
+    --ui-focus:     #20bbfc;
+
+    --ui-c-red:     #fb007a;
+    --ui-c-green:   #5fd7af;
+    --ui-c-yellow:  #c0b100;
+    --ui-c-blue:    #20bbfc;
+    --ui-c-purple:  #6855de;
+    --ui-c-cyan:    #4fb8cc;
 }
 
 /* A window sets `display: flex`, which outranks the UA stylesheet's [hidden]

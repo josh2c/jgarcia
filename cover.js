@@ -18,13 +18,12 @@
 
 /* ---------------------------------------------------------------- data --- */
 
-/* Tints are the desktop folder colours pulled darker. The originals were
- * chosen against a #3c4142 ground and sit at about 1.4:1 on near-white —
- * invisible. These are the same hues at a lightness that survives paper. */
+/* Section marks come from the Pencil palette rather than a fixed hex, so they
+ * invert with the page instead of going muddy in the dark theme. */
 const SECTIONS = [
     {
         name: 'Engineering',
-        tint: '#7a7a7a',
+        tint: 'var(--ui-c-blue)',
         icon: "<path d='M4 19h16M6 19V9l6-5 6 5v10'/><path d='M10 19v-5h4v5'/>",
         links: [
             { label: 'How I build with AI — principles, sources, languages', href: 'engineering.html', meta: 'Library' }
@@ -32,7 +31,7 @@ const SECTIONS = [
     },
     {
         name: 'Products',
-        tint: '#c9791a',
+        tint: 'var(--ui-c-yellow)',
         icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
         links: [
             { label: 'Trezure — football-first fantasy', href: 'https://playtrezure.com', meta: 'Live' },
@@ -42,20 +41,20 @@ const SECTIONS = [
     },
     {
         name: 'Skills',
-        tint: '#5c9440',
+        tint: 'var(--ui-c-green)',
         icon: "<path d='M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16'/>",
         skills: true,
         links: [{ label: 'github.com/josh2c/skills', href: 'https://github.com/josh2c/skills', meta: 'Repo' }]
     },
     {
         name: 'Thoughts',
-        tint: '#7b5bb0',
+        tint: 'var(--ui-c-purple)',
         icon: "<path d='M4 5h16M4 10h16M4 15h11M4 20h7'/>",
         posts: true
     },
     {
         name: 'Games',
-        tint: '#c04f7d',
+        tint: 'var(--ui-c-red)',
         icon: "<rect x='2' y='7' width='20' height='11' rx='4'/><path d='M7 11v3M5.5 12.5h3'/><circle cx='16' cy='12' r='1'/><circle cx='18.5' cy='14.5' r='1'/>",
         games: [
             { label: 'Light Squares', fn: 'lightSquares', meta: 'Visual memory' },
@@ -70,7 +69,7 @@ const SECTIONS = [
     },
     {
         name: 'Elsewhere',
-        tint: '#a9603a',
+        tint: 'var(--ui-c-cyan)',
         icon: "<path d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z'/><path d='M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18'/>",
         links: [{ label: 'Twitter / X', href: 'https://x.com/0talentt', meta: '@0talentt' }]
     }

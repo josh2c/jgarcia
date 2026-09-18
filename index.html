@@ -8,6 +8,19 @@
     <meta property="og:title" content="Josh Garcia">
     <meta property="og:description" content="Technology, design and marketing.">
     <meta property="og:type" content="website">
+    <script>
+        /* Applied before the first paint, or the page flashes the wrong theme.
+           Deliberately tiny and inline — an external file here would be a
+           blocking request on every page load. */
+        (function () {
+            try {
+                var t = localStorage.getItem('jg-theme');
+                if (t === 'dark' || t === 'light') {
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+            } catch (e) { /* private window: fall through to the system theme */ }
+        })();
+    </script>
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="board.css">
     <link rel="stylesheet" href="cover.css">
@@ -54,6 +67,8 @@
 
         <header class="cv-top">
             <span class="cv-mark">Josh Garcia</span>
+            <span class="cv-tools">
+            <button type="button" class="cv-icon" data-theme-toggle></button>
             <button type="button" class="cv-moodboard" data-enter-board>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 3 21 8v8l-9 5-9-5V8z"/>
@@ -61,6 +76,7 @@
                 </svg>
                 Mood board
             </button>
+            </span>
         </header>
 
         <div class="cv-scroll" id="cv-scroll">
@@ -100,5 +116,6 @@
     <script type="module" src="board.js"></script>
     <script src="paintball.js"></script>
     <script src="cover.js"></script>
+    <script src="themetoggle.js"></script>
 </body>
 </html>

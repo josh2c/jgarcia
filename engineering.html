@@ -8,6 +8,19 @@
     <meta property="og:title" content="Engineering · Josh Garcia">
     <meta property="og:description" content="How I build with AI: principles, sources, and what I am reading now.">
     <meta property="og:type" content="website">
+    <script>
+        /* Applied before the first paint, or the page flashes the wrong theme.
+           Deliberately tiny and inline — an external file here would be a
+           blocking request on every page load. */
+        (function () {
+            try {
+                var t = localStorage.getItem('jg-theme');
+                if (t === 'dark' || t === 'light') {
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+            } catch (e) { /* private window: fall through to the system theme */ }
+        })();
+    </script>
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="cover.css">
     <link rel="stylesheet" href="doc.css">
@@ -22,6 +35,8 @@
 
         <header class="eng-top">
             <a class="eng-mark" href="index.html">Josh Garcia</a>
+            <span class="eng-tools">
+            <button type="button" class="cv-icon" data-theme-toggle></button>
             <label class="eng-find">
                 <span class="eng-find-i" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
@@ -29,6 +44,7 @@
                 <input type="search" id="eng-search" placeholder="Search the library"
                        autocomplete="off" spellcheck="false" aria-label="Search the library">
             </label>
+            </span>
         </header>
 
         <div class="eng-scroll" id="eng-scroll">
@@ -39,5 +55,6 @@
 
     <script src="library.js"></script>
     <script src="engineering.js"></script>
+    <script src="themetoggle.js"></script>
 </body>
 </html>
