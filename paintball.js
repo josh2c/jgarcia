@@ -194,7 +194,7 @@
     function onDown(e) {
         if (!armed || e.button !== 0) return;
         // The rail and dock stay usable so you can disarm without a keyboard.
-        if (e.target.closest('.menubar, .dt-icon, .win, .pb-exit')) return;
+        if (e.target.closest('.menubar, .cv-layer, .win, .pb-exit')) return;
         e.preventDefault();
         // Capture phase, so this is the board's pan handler's only chance to
         // see the event. Firing a shot should not also drag the board out from
@@ -264,7 +264,7 @@
      * would fire and enter the board at the same time. */
     document.addEventListener('click', (e) => {
         if (!armed) return;
-        if (e.target.closest('.menubar, .dt-icon, .win, .pb-exit')) return;
+        if (e.target.closest('.menubar, .cv-layer, .win, .pb-exit')) return;
         e.preventDefault();
         e.stopPropagation();
     }, true);
@@ -274,4 +274,18 @@
         arm, disarm, clear,
         get armed() { return armed; }
     };
+
+    /* The menubar button. It lives with the board controls rather than on the
+     * cover, because the board is the only thing worth shooting — and it is
+     * the one control whose pressed state is held on the body, so it has to
+     * watch for arming that happened by keyboard or from the console. */
+    const mbPaint = document.getElementById('mb-paintball');
+    if (mbPaint) {
+        mbPaint.addEventListener('click', () => window.jgPaintball.toggle());
+        const sync = () => mbPaint.setAttribute('aria-pressed',
+            String(document.body.classList.contains('is-armed')));
+        new MutationObserver(sync).observe(document.body,
+            { attributes: true, attributeFilter: ['class'] });
+        sync();
+    }
 })();

@@ -1,0 +1,280 @@
+/* Cover — the front page.
+ *
+ * A quiet index that stands apart from the rest of the site on purpose: near
+ * white, one narrow column, nothing but type. The board behind it is warm and
+ * dark and busy, so the cover is opaque rather than translucent — this is the
+ * door, not a pane over the room.
+ *
+ * The whole list scrolls inside a masked viewport, so entries dissolve into
+ * the page at the top and bottom instead of being cut off by an edge. The
+ * mask is the only visual trick here; everything else is spacing.
+ */
+
+.cv-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    /* Paper, not white. A flat #fff next to the masked fade reads as a blown
+       highlight; the gradient gives the fade something to fade into. */
+    background:
+        radial-gradient(120% 80% at 50% 0%, #fdfdfd 0%, #f7f7f7 55%, #f1f1f0 100%);
+    color: #1b1b1b;
+    font-family: var(--jg-sans, 'Inter', system-ui, sans-serif);
+    opacity: 1;
+    transition: opacity 0.45s ease, visibility 0.45s;
+}
+
+/* Entering the board hands the page over. The cover does not slide or scale —
+   it simply stops being there, so the plane tipping behind it is the only
+   movement on screen. */
+.is-board .cv-layer,
+.is-entering .cv-layer {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ---------- top strip ---------- */
+
+/* Sits above the mask rather than inside the scroller, so the name and the
+   way out never fade with the list. */
+.cv-top {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
+    pointer-events: none;
+}
+
+.cv-top > * { pointer-events: auto; }
+
+.cv-mark {
+    font-size: 0.94rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #1b1b1b;
+}
+
+/* The one button on the page, so it is allowed to be plain. */
+.cv-moodboard {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #3a3a3a;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+    padding: 0.42rem 0.95rem 0.42rem 0.8rem;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: color 0.16s linear, border-color 0.16s linear, box-shadow 0.16s linear;
+}
+
+.cv-moodboard:hover {
+    color: #111;
+    border-color: rgba(0, 0, 0, 0.22);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+.cv-moodboard:focus-visible { outline: 2px solid #d2691e; outline-offset: 2px; }
+
+/* A loose isometric glyph — three faces of a cube — so the button says where
+   it goes before you read it. */
+.cv-moodboard svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    fill: none;
+    stroke: #d2691e;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    flex: none;
+}
+
+/* ---------- the scrolling index ---------- */
+
+.cv-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    /* The fade. Generous bands top and bottom — the screenshot's whole
+       character is entries arriving and leaving rather than being clipped. */
+    -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0, #000 22%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom,
+        transparent 0, #000 22%, #000 78%, transparent 100%);
+}
+
+.cv-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* The padding is the point: half a viewport at each end lets the first and
+   last entries sit in the middle of the screen, where the fade is weakest. */
+.cv-col {
+    width: min(34rem, 100%);
+    margin: 0 auto;
+    padding: 46vh clamp(2.4rem, 8vw, 3rem) 52vh;
+}
+
+/* ---------- lead ---------- */
+
+.cv-lead { margin: 0 0 3.4rem; }
+
+.cv-lead h1 {
+    margin: 0 0 0.7rem;
+    font-size: 1.22rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: #1b1b1b;
+}
+
+.cv-lead p {
+    margin: 0;
+    font-size: 1.06rem;
+    line-height: 1.6;
+    color: #6a6a6a;
+}
+
+/* ---------- groups ---------- */
+
+.cv-group { margin: 0 0 2.9rem; }
+.cv-group:last-child { margin-bottom: 0; }
+
+/* Header and item share one row shell so the marker dot lines up down the
+   whole column regardless of which kind of row it lands on. */
+.cv-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.42rem 0;
+    font-size: 1.12rem;
+    line-height: 1.35;
+    text-decoration: none;
+    background: none;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    letter-spacing: -0.006em;
+}
+
+.cv-head {
+    margin: 0 0 0.45rem;
+    font-weight: 600;
+    color: #1b1b1b;
+}
+
+.cv-item {
+    color: #6e6e6e;
+    cursor: pointer;
+    transition: color 0.14s linear;
+}
+
+/* One line per entry. The rhythm of evenly spaced rows is the page, and a
+   wrapped title breaks it — it also drags the marker dot, which centres on the
+   row, away from the line it is meant to be marking. Long titles lose their
+   tail rather than the list losing its beat. */
+.cv-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.cv-item:hover,
+.cv-item:focus-visible { color: #111; }
+.cv-item:focus-visible { outline: none; }
+.cv-item:focus-visible .cv-label { text-decoration: underline; text-underline-offset: 3px; }
+
+.cv-items { list-style: none; margin: 0; padding: 0; }
+
+.cv-ico {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: none;
+    fill: none;
+    stroke: var(--cv-tint, #888);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* External destinations get the arrow, in-page ones do not — the difference
+   between leaving the site and opening a window over it is worth one glyph. */
+.cv-out {
+    font-size: 0.78em;
+    color: #b4b4b4;
+    flex: none;
+    transition: color 0.14s linear;
+}
+
+.cv-item:hover .cv-out { color: #777; }
+
+.cv-meta {
+    margin-left: auto;
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #b0b0b0;
+    flex: none;
+    padding-left: 0.8rem;
+}
+
+/* ---------- the marker ---------- */
+
+/* One dot, on whichever row is nearest the reading line. It is the only thing
+   on the page that tracks you, which is what makes a plain list feel alive. */
+.cv-row::before {
+    content: '';
+    position: absolute;
+    left: -1.15rem;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin-top: -2.5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.cv-row.is-near::before { opacity: 1; transform: scale(1); }
+
+/* A header's dot takes the group's colour; an item's stays with its type. */
+.cv-head.is-near::before { background: var(--cv-tint, #1b1b1b); }
+
+.cv-note {
+    font-size: 0.95rem;
+    color: #a0a0a0;
+    padding: 0.42rem 0;
+    margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cv-layer, .cv-row::before { transition: none; }
+}
+
+/* On a phone the column is the page; the fade bands shrink so there is still
+   something to read between them. */
+@media (max-width: 640px) {
+    .cv-col { padding: 34vh 1.6rem 40vh; }
+    .cv-row { font-size: 1.05rem; }
+    .cv-meta { display: none; }
+    .cv-scroll {
+        -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0, #000 14%, #000 86%, transparent 100%);
+        mask-image: linear-gradient(to bottom,
+            transparent 0, #000 14%, #000 86%, transparent 100%);
+    }
+}

@@ -10,22 +10,24 @@
     <meta property="og:type" content="website">
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="board.css">
-    <link rel="stylesheet" href="desktop.css">
+    <link rel="stylesheet" href="cover.css">
     <link rel="stylesheet" href="windows.css">
+    <link rel="stylesheet" href="paintball.css">
     <link rel="stylesheet" href="minigames.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&family=Anton&family=Caveat:wght@600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 </head>
-<body class="jg board-page desktop-page is-desktop">
+<body class="jg board-page is-cover">
 
-    <!-- One menubar across the top, present in both layers. -->
+    <!-- The menubar belongs to the board. The cover carries its own strip, so
+         this one is hidden until you cross over. -->
     <nav class="menubar">
         <div class="mb-group mb-left">
             <a class="mb-mark" href="#" data-leave-board>Josh Garcia</a>
             <div class="mb-nav">
-                <a href="#" id="mb-desktop" class="is-current" data-leave-board>Desktop</a>
-                <a href="#" id="mb-board" data-enter-board>Board</a>
+                <a href="#" id="mb-cover" class="is-current" data-leave-board>Cover</a>
+                <a href="#" id="mb-board" data-enter-board>Mood Board</a>
             </div>
         </div>
         <div class="mb-group mb-right">
@@ -41,70 +43,41 @@
         </div>
     </nav>
 
-    <!-- The board is the ground. The desktop is furniture standing on it. -->
+    <!-- The board is the ground. The cover is the door standing in front of it. -->
     <div class="board-viewport" id="viewport">
         <div class="board-surface" id="surface"></div>
     </div>
 
-    <!-- ---------- desktop layer ---------- -->
-    <div class="dt-layer" id="desktop">
+    <!-- ---------- cover layer ---------- -->
+    <div class="cv-layer" id="cover">
 
-        <main class="dt-surface">
-            <!-- Every icon lives in one layer so any of them can be dragged
-                 anywhere, the way a real desktop works. -->
-            <div class="dt-icons" id="icons"></div>
+        <header class="cv-top">
+            <span class="cv-mark">Josh Garcia</span>
+            <button type="button" class="cv-moodboard" data-enter-board>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 21 8v8l-9 5-9-5V8z"/>
+                    <path d="M3 8l9 5 9-5M12 13v8"/>
+                </svg>
+                Mood board
+            </button>
+        </header>
 
-
-            <aside class="dt-widgets">
-                <div class="dt-widget dt-clock dt-drag" data-id="widget:clock">
-                    <div class="dt-time" id="clock-time">—</div>
-                    <div class="dt-date" id="clock-date">—</div>
-                    <hr class="dt-rule">
-                    <div class="dt-status">Currently building</div>
-                    <div class="dt-status-sub">Trezure &middot; Busy Cab &middot; Bemore Labz</div>
+        <div class="cv-scroll" id="cv-scroll">
+            <div class="cv-col" id="cv-col">
+                <div class="cv-lead">
+                    <h1>Josh Garcia</h1>
+                    <p>I build things end to end — the product, the look, and the
+                       way it gets talked about. Everything below is real and open.</p>
                 </div>
+                <!-- groups are rendered by cover.js -->
+            </div>
+        </div>
 
-                <div class="dt-widget dt-pad dt-drag" data-id="widget:readme" data-handle=".dt-pad-bar">
-                    <span class="dt-pad-bar">
-                        <span class="dt-pad-name"><span id="pad-dirty"></span>readme.txt &mdash; Notepad</span>
-                        <span class="dt-pad-win" aria-hidden="true">&minus; &square; &times;</span>
-                    </span>
-                    <span class="dt-pad-menu" aria-hidden="true">File  Edit  View</span>
-                    <textarea class="dt-pad-text" id="pad-text" spellcheck="false"
-                              aria-label="readme.txt, editable">Hi — I'm Josh.
-
-I build things end to end: the product, the
-look, and the way it gets talked about.
-
-Right now that means Trezure, a daily fantasy
-sports app, plus Busy Cab and Bemore Labz. I
-design and build websites for other people too.
-
-Away from that: data, crypto, real estate,
-strategy games, and a hundred-odd Python
-problems solved for fun. I like systems you can
-take apart.
-
-Have a look around. The folders are real, the
-board is a moodboard, and the games are ported
-from an app I wrote in Flutter.
-
-— Josh
-
-(go on, type in it. it's a notepad.)</textarea>
-                    <span class="dt-pad-status">
-                        <span id="pad-pos">Ln 1, Col 1</span><span>UTF-8</span></span>
-                </div>
-            </aside>
-
-        </main>
     </div>
 
     <!-- ---------- board layer ---------- -->
 
     <p class="board-hint" id="hint">Drag to explore · click a card</p>
-
-
 
     <!-- shown only while the marker is armed -->
     <div class="pb-exit">
@@ -119,6 +92,6 @@ from an app I wrote in Flutter.
     <script src="minigames.js"></script>
     <script type="module" src="board.js"></script>
     <script src="paintball.js"></script>
-    <script src="desktop.js"></script>
+    <script src="cover.js"></script>
 </body>
 </html>

@@ -127,12 +127,16 @@
     color: #2a2e2b;
 }
 
-/* The view toggle only means anything on the board. */
-.is-desktop .mb-view { opacity: 0; pointer-events: none; }
+/* The bar belongs to the board. The cover has its own strip, and this one is
+   dark glass — over near-white paper it would read as a smear.
 
-/* Everything below the bar starts below the bar. */
-/* Clears the floating bar: 0.65rem inset + 2.6rem tall + breathing room. */
-.dt-surface { padding-top: 4.6rem; }
+   `visibility` rather than `pointer-events`, because the bar is click-through
+   by design and hands targeting back to .mb-group — so switching off the
+   parent alone leaves two invisible pills sitting in the top corners, exactly
+   where the cover puts its name and its way out. Visibility takes the
+   children with it. */
+.is-cover .menubar { opacity: 0; visibility: hidden; }
+.menubar { transition: opacity 0.35s ease, visibility 0.35s; }
 .board-hint { bottom: 1.5rem; }
 
 /* ---------- windows ---------- */

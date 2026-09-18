@@ -195,26 +195,28 @@ function render() {
     }
 }
 
-/* ------------------------------------------------------- desktop <-> board -- */
+/* --------------------------------------------------------- cover <-> board -- */
 
-/* The menubar shows which layer you are on. */
+/* The menubar shows which layer you are on. It is hidden on the cover, which
+ * carries its own strip, but it is still marked — crossing back should not
+ * leave a stale highlight waiting for the next time you cross over. */
 function markMenubar(which) {
-    const d = document.getElementById('mb-desktop');
+    const c = document.getElementById('mb-cover');
     const b = document.getElementById('mb-board');
-    if (d) d.classList.toggle('is-current', which === 'desktop');
+    if (c) c.classList.toggle('is-current', which === 'cover');
     if (b) b.classList.toggle('is-current', which === 'board');
 }
 
-/* Entering is a handoff, not a swap. The ground is the same colour on both
- * sides, so nothing about it changes; the desktop furniture clears, the plane
- * tips, and the dice — already standing at the camera's resting point — simply
- * stops being the hero and starts being a piece on the board. */
+/* Entering is a handoff, not a swap. The cover fades out, the plane tips, and
+ * the dice — already standing at the camera's resting point — simply stops
+ * being the hero and starts being a piece on the board. Nothing about the
+ * ground changes, because the ground was always there behind the door. */
 function enterBoard(instant) {
     if (entered) return;
     entered = true;
 
     document.body.classList.remove('is-virgin');
-    document.body.classList.remove('is-desktop');
+    document.body.classList.remove('is-cover');
     document.body.classList.add('is-board');
     markMenubar('board');
 
@@ -240,17 +242,17 @@ function enterBoard(instant) {
     setTimeout(() => document.body.classList.remove('is-entering'), 1050);
 }
 
-/* Calling the desktop back is not the reverse of entering. Nothing about the
- * view changes — same position, same projection — the furniture simply comes
- * back over wherever you happen to be looking, and the board goes inert
- * behind it. Iso/Flat stays the only thing that moves the plane. */
+/* Calling the cover back is not the reverse of entering. Nothing about the
+ * view changes — same position, same projection — the cover simply comes back
+ * over wherever you happen to be looking, and the board goes inert behind it.
+ * Iso/Flat stays the only thing that moves the plane. */
 function leaveBoard() {
     if (!entered) return;
     entered = false;
 
     document.body.classList.remove('is-board');
-    document.body.classList.add('is-desktop');
-    markMenubar('desktop');
+    document.body.classList.add('is-cover');
+    markMenubar('cover');
 }
 
 window.jgEnterBoard = () => enterBoard(false);

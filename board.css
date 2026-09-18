@@ -39,7 +39,7 @@
 
 /* Frozen underneath — no panning, no opening a card. The dice is the one
    exception, because it is the way in. */
-.is-desktop .board-viewport { pointer-events: none; cursor: default; }
+.is-cover .board-viewport { pointer-events: none; cursor: default; }
 
 .is-iso .board-surface {
     transform-origin: 50% 50%;
@@ -71,7 +71,7 @@
     transition: opacity 420ms ease-out;
 }
 
-.is-desktop .board-tile::after { opacity: 1; }
+.is-cover .board-tile::after { opacity: 1; }
 
 .board-tile {
     position: absolute;
@@ -320,7 +320,7 @@
 /* Clickable while the desktop is up, and only then — it is the way into the
    board. It sits wherever the dice actually is, so it stays correct after you
    have panned somewhere else and called the desktop back. */
-.is-desktop .bi-piece {
+.is-cover .bi-piece {
     pointer-events: auto;
     cursor: pointer;
 }
@@ -345,8 +345,8 @@
     transition: opacity 300ms ease-out;
 }
 
-.is-virgin.is-desktop .bi-piece-cue { opacity: 1; }
-.is-desktop .bi-piece:hover .bi-piece-cue { color: var(--jg-accent); }
+.is-virgin.is-cover .bi-piece-cue { opacity: 1; }
+.is-cover .bi-piece:hover .bi-piece-cue { color: var(--jg-accent); }
 
 /* --- placeholder --- */
 
@@ -399,4 +399,4 @@
 }
 
 .board-hint.is-hidden,
-.is-desktop .board-hint { opacity: 0; }
+.is-cover .board-hint { opacity: 0; }

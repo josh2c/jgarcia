@@ -74,7 +74,7 @@
     /* One folder colour for all five, so the glyph is what distinguishes
        them. Amber against the teal ground. */
     /* Fallback only — each folder carries its own hex and derives these three
-       from it in desktop.js. */
+       from it in cover.js. */
     --fold-back:    #d98f28;
     --fold-front:   #f3b44a;
     --fold-front-2: #e79a2c;
@@ -286,7 +286,7 @@ body.jg {
 }
 
 
-/* The board and desktop paint their own ground, so the page-level sky — the
+/* The board and the cover paint their own ground, so the page-level sky — the
    cloud streaks and the screen-space grid — must not show through the plane
    underneath them. */
 body.board-page {
@@ -296,7 +296,7 @@ body.board-page {
 
 
 /* ---------- glass primitives ----------
-   Shared by the desktop, the menubar and the windows so the whole chrome
+   Shared by the cover, the menubar and the windows so the whole chrome
    speaks one language. */
 
 .glass {
@@ -325,3 +325,9 @@ body.board-page {
     .glass { background: rgba(18, 21, 22, 0.9); }
     .glass-strong { background: rgba(18, 21, 22, 0.95); }
 }
+
+/* A window sets `display: flex`, which outranks the UA stylesheet's [hidden]
+   rule, so the attribute needs restating or a hidden window shows anyway.
+   The rest of the reset was already here; only this came over from
+   desktop.css when that layer was retired. */
+[hidden] { display: none !important; }
