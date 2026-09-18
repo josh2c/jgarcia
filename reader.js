@@ -23,6 +23,8 @@ let kindEl = null;
 let metaEl = null;
 let standEl = null;
 let srcEl = null;
+let shotEl = null;
+let techEl = null;
 let lastFocus = null;
 /* A mounted thing (a game) owns timers and an animation loop, so closing the
  * page has to tear it down. A closed page still running would be a real leak. */
@@ -50,6 +52,8 @@ function build() {
             '<h1 class="doc-title"></h1>' +
             '<p class="doc-standfirst"></p>' +
             '<p class="doc-meta"></p>' +
+            '<figure class="doc-shot"><img alt="" loading="lazy" decoding="async"></figure>' +
+            '<p class="doc-tech"></p>' +
             '<div class="doc-body"></div>' +
         '</div>';
 
@@ -61,6 +65,8 @@ function build() {
     metaEl = layer.querySelector('.doc-meta');
     standEl = layer.querySelector('.doc-standfirst');
     srcEl = layer.querySelector('.doc-src');
+    shotEl = layer.querySelector('.doc-shot');
+    techEl = layer.querySelector('.doc-tech');
 
     layer.querySelector('.doc-back').addEventListener('click', close);
 }
@@ -96,6 +102,29 @@ function open(doc) {
 
     metaEl.textContent = doc.meta || '';
     metaEl.hidden = !doc.meta;
+
+    /* A screenshot, where there is one worth showing. The alt text is the
+     * caption a reader would want if it never loads, not the filename. */
+    if (doc.shot) {
+        const img = shotEl.querySelector('img');
+        img.src = doc.shot;
+        img.alt = doc.shotAlt || '';
+        shotEl.hidden = false;
+    } else {
+        shotEl.hidden = true;
+    }
+
+    /* What it is built with. A row of plain labels — this is a fact about the
+     * project, not a badge collection. */
+    if (doc.tech && doc.tech.length) {
+        techEl.innerHTML = '<span class="doc-tech-h">Built with</span>' +
+            doc.tech.map((t) => '<span class="doc-chip">' +
+                String(t).replace(/[&<>]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) +
+                '</span>').join('');
+        techEl.hidden = false;
+    } else {
+        techEl.hidden = true;
+    }
 
     if (doc.source) {
         srcEl.href = doc.source;

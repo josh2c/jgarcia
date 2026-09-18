@@ -41,9 +41,13 @@ const SECTIONS = [
                 page: {
                     kind: 'Product',
                     standfirst: 'A football-first fantasy app \u2014 season-long leagues, weekly contests and collectable player cards, three ways to play in one place.',
+                    shot: 'img/trezure.webp',
+                    shotAlt: 'The Trezure landing page, showing a live draft in progress on a phone alongside player cards',
+                    tech: ['Flutter', 'Dart', 'Supabase', 'PostgreSQL', 'Edge Functions', 'iOS', 'Android'],
                     body: [
                         'Most fantasy apps make you pick one format and live in it for the season. Trezure runs all three side by side, so a league, a weekly contest and a card collection are the same account and the same players.',
-                        'Built in Flutter on Supabase, with real-time NFL and NBA stats arriving through a set of sync workers. Pack Draft and Dynasty are the two modes with the most in them.'
+                        'Pack Draft and Dynasty are the two modes with the most in them \u2014 Pack Draft being the one that started the app, where you draft out of packs rather than off a board.',
+                        'Flutter on the front, Supabase and PostgreSQL behind it, with row-level security doing the authorisation and edge functions doing the scoring. Real-time NFL and NBA stats arrive through a set of sync workers that run independently of the app.'
                     ],
                     linkLabel: 'playtrezure.com'
                 }
@@ -55,9 +59,13 @@ const SECTIONS = [
                 page: {
                     kind: 'Product',
                     standfirst: 'An arcade taxi game in the browser: pick up passengers, floor it, and get paid before the clock runs out.',
+                    shot: 'img/busycab.webp',
+                    shotAlt: 'Busy Cab in play \u2014 a yellow cab on a low-poly city street with the shift timer running',
+                    tech: ['TypeScript', 'Three.js', 'Vite', 'Capacitor', 'iOS', 'Android'],
                     body: [
-                        'One global countdown that every drop-off extends, so the game ends when you stop being quick rather than at a fixed time. Faster deliveries pay bigger tips. Stop inside the beacon ring to pick up and drop off.',
-                        'Three.js and TypeScript, wrapped with Capacitor so the same build runs on iOS and Android. Steering is on-screen buttons on a phone and WASD on a keyboard. Every asset is original or CC0.'
+                        'One global countdown that every drop-off extends, so the run ends when you stop being quick rather than at a fixed time. Fast drop-offs pay double, and hot cargo pays triple but comes with company.',
+                        'Stop inside the beacon ring to pick up and drop off. Steering is on-screen buttons on a phone and WASD on a keyboard, and the same build runs in a browser or as an app through Capacitor.',
+                        'Three.js and TypeScript, no engine. Every asset is original or CC0.'
                     ],
                     linkLabel: 'busycabgame.com'
                 }
@@ -69,9 +77,16 @@ const SECTIONS = [
                 page: {
                     kind: 'Product',
                     standfirst: 'Git made branches cheap. Worktrees made branches parallel. Nodal makes their environments cheap, durable and manageable.',
+                    tech: ['Rust', 'Cargo workspace', 'MIT', 'Pre-alpha'],
                     body: [
-                        'Run it in a repository it has never been told about and it reads the worktrees you already have, then answers the questions you actually have about them: what is finished, what is unique to a checkout, how far behind it is, what it costs on disk. It writes nothing to do it.',
-                        'It also refuses to flatter you. Behind is only as fresh as your last fetch, so it says how old that number is rather than fetching to make it look current.',
+                        'Point it at a repository it has never been told about and it reads the worktrees you already have, then answers the questions you actually have about them: what is finished, what is unique to a checkout, how far behind it is, what it costs on disk. It writes nothing to do it.'
+                    ],
+                    code: {
+                        caption: 'What it looks like',
+                        text: '$ nodal\n\n  ~/projects/acme  (no project of nodal\u2019s; nothing was written)\n\n  WORKTREE          FOR  DONE             ONLY HERE  BEHIND             SIZE    AGE\n  ../acme-t8        \u2014    conflict         ^1         -49 (origin/main)  141 kB  21 d\n  ../acme-t14       \u2014    conflict         ^1         -43 (origin/main)  254 kB  21 d\n  ../acme-t21       \u2014    done (ancestor)  \u2014          -37 (origin/main)  276 kB  21 d\n  /tmp/scratch/h1   \u2014    prunable (gitdir file points to non-existent location)\n\n  2 worktrees are done and hold nothing unique: 558 kB. behind is measured\n  against origin/main, which last moved on 2026-08-23. nodal removed nothing.'
+                    },
+                    bodyAfter: [
+                        'The last line is the part I care about. Nodal never fetches to make a number look fresher than it is \u2014 behind is only as new as your last fetch, so it reads how old that number is and says so rather than quietly hiding it.',
                         'Rust, MIT licensed, and pre-alpha \u2014 the foundation is built and tested, parts of the command surface are not, and the on-disk formats may still change.'
                     ],
                     linkLabel: 'View on GitHub'
@@ -157,11 +172,22 @@ function openPage(l) {
     const R = window.jgReader;
     if (!R) { window.open(l.href, '_blank', 'noopener'); return; }
     const p = l.page;
+    const para = (list) => (list || []).map((t) => '<p>' + esc(t) + '</p>').join('');
+    /* A terminal transcript is the screenshot for a command-line tool, so it
+     * sits where a screenshot would: after the opening paragraph, before the
+     * detail that explains it. */
+    const code = p.code ? '<figure class="doc-term">' +
+        (p.code.caption ? '<figcaption>' + esc(p.code.caption) + '</figcaption>' : '') +
+        '<pre><code>' + esc(p.code.text) + '</code></pre></figure>' : '';
+
     R.open({
         kind: p.kind,
         title: l.label,
         standfirst: p.standfirst,
-        html: (p.body || []).map((t) => '<p>' + esc(t) + '</p>').join(''),
+        shot: p.shot,
+        shotAlt: p.shotAlt,
+        tech: p.tech,
+        html: para(p.body) + code + para(p.bodyAfter),
         source: l.href,
         sourceLabel: (p.linkLabel || 'Open') + ' \u2197'
     });

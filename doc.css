@@ -310,3 +310,93 @@
 /* Prose is capped for readability; a game is not prose. It gets the room it
    was built for, and nothing else on the page changes. */
 .doc-layer.is-stage .doc-col { width: min(46rem, 100%); }
+
+/* ---------- screenshot ---------- */
+
+/* Full column width, and never taller than it is wide by much — a project
+   shot is there to show what the thing looks like, not to be the page. */
+.doc-shot {
+    margin: 0 0 1.6rem;
+    border: 1px solid var(--ui-line);
+    border-radius: var(--ui-radius-lg, 6px);
+    overflow: hidden;
+    background: var(--ui-bg-soft);
+    line-height: 0;
+}
+
+.doc-shot img { display: block; width: 100%; height: auto; }
+
+/* ---------- built with ---------- */
+
+.doc-tech {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 2.2rem;
+}
+
+.doc-tech-h {
+    font-family: var(--jg-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ui-text-3);
+    margin-right: 0.35rem;
+}
+
+.doc-chip {
+    font-size: 0.8rem;
+    color: var(--ui-text-2);
+    background: var(--ui-bg-soft);
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+}
+
+/* ---------- terminal transcript ---------- */
+
+/* What a command-line tool has instead of a screenshot. Wider than the prose
+   measure is not an option here — the transcript has fixed columns, so it
+   scrolls rather than wraps, because a wrapped table of worktrees is noise. */
+.doc-term { margin: 0 0 1.6rem; }
+
+.doc-term figcaption {
+    font-family: var(--jg-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ui-text-3);
+    margin: 0 0 0.6rem;
+}
+
+.doc-term pre {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    background: var(--ui-bg-soft);
+    border: 1px solid var(--ui-line);
+    border-radius: var(--ui-radius-lg, 6px);
+    overflow-x: auto;
+}
+
+.doc-term code {
+    font-family: var(--jg-mono);
+    font-size: 0.72rem;
+    line-height: 1.7;
+    white-space: pre;
+    color: var(--ui-text-2);
+    background: none;
+    padding: 0;
+}
+
+/* The transcript has fixed columns and must not wrap, so on a wide screen it
+   is allowed to step outside the reading measure rather than be clipped by
+   it. Below that it scrolls, which is the honest fallback for a table. */
+@media (min-width: 1000px) {
+    /* Enough to clear the widest line of the transcript, and no more. At this
+       breakpoint the column has ~196px of gutter each side, so 96px of bleed
+       is safe. */
+    .doc-term { margin-left: -6rem; margin-right: -6rem; }
+    .doc-term figcaption { margin-left: 6rem; }
+}
+
+.doc-term code { font-size: 0.68rem; }
