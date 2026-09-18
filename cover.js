@@ -23,6 +23,14 @@
  * invisible. These are the same hues at a lightness that survives paper. */
 const SECTIONS = [
     {
+        name: 'Engineering',
+        tint: '#7a7a7a',
+        icon: "<path d='M4 19h16M6 19V9l6-5 6 5v10'/><path d='M10 19v-5h4v5'/>",
+        links: [
+            { label: 'How I build with AI — principles, sources, languages', href: 'engineering.html', meta: 'Library' }
+        ]
+    },
+    {
         name: 'Products',
         tint: '#c9791a',
         icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
