@@ -110,7 +110,8 @@ function home() {
             L.PRINCIPLES.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
 
         section('Topics',
-            ts.map((t) => rowLink('#/t/' + t.id, t.name, t.has ? 'Workflow' : '', '')).join('')) +
+            ts.map((t) => rowLink('#/t/' + t.id, t.name, t.has ? 'Workflow' : '', '')).join(''),
+            { href: '#/prompts', label: 'All prompts →' }) +
 
         section('Languages',
             L.LANGS.map((l) => rowLink('#/l/' + l.id, l.name,
@@ -235,13 +236,29 @@ function practice(w) {
     const rule = w.rule ?
         '<p class="eng-rule">' + esc(w.rule) + '</p>' : '';
 
+    /* A table with no rows is a format, not data — the head alone is the
+     * point, so it renders as an empty shape rather than being skipped. */
+    const t = w.table;
+    const table = t ?
+        '<section class="eng-sec">' +
+            '<h2 class="eng-sec-h">' + esc(t.caption) + '</h2>' +
+            '<div class="eng-scrollx"><table class="eng-table">' +
+                '<thead><tr>' + t.head.map((h) =>
+                    '<th>' + esc(h) + '</th>').join('') + '</tr></thead>' +
+                (t.rows && t.rows.length ? '<tbody>' + t.rows.map((r) =>
+                    '<tr>' + r.map((c) => '<td>' + esc(c) + '</td>').join('') + '</tr>').join('') +
+                    '</tbody>' : '') +
+            '</table></div>' +
+            (t.note ? '<p class="eng-note eng-note-t">' + esc(t.note) + '</p>' : '') +
+        '</section>' : '';
+
     const prompt = w.prompt ?
         '<section class="eng-sec">' +
             '<h2 class="eng-sec-h">The prompt I use</h2>' +
             '<pre class="eng-pre"><code>' + esc(w.prompt) + '</code></pre>' +
         '</section>' : '';
 
-    return rule + flow + checks + prompt;
+    return rule + flow + table + checks + prompt;
 }
 
 function language(id) {
@@ -293,6 +310,29 @@ function language(id) {
         section('Sources', es.map(entryRow).join(''));
 }
 
+/* Every prompt in the library, gathered. They live on their own pages; this
+ * is only an index, because "which prompt do I want" is a question people
+ * arrive with and it is otherwise answerable only by opening every topic. */
+function prompts() {
+    const fromTopics = (L.PRACTICES || []).filter((w) => w.prompt)
+        .map((w) => ({ href: '#/t/' + w.topic, name: topicName(w.topic), meta: 'Topic' }));
+    const fromLangs = L.LANGS.filter((l) => l.prompt)
+        .map((l) => ({ href: '#/l/' + l.id, name: l.name, meta: 'Language' }));
+    const all = fromTopics.concat(fromLangs);
+
+    return back() +
+        '<header class="eng-lead">' +
+            '<p class="eng-kind">Prompts</p>' +
+            '<h1>The prompts I actually use</h1>' +
+            '<p class="eng-standfirst">' + all.length + ' of them. Most are shaped the same ' +
+            'way — say what to look at, in what order, and what not to decide alone.</p>' +
+        '</header>' +
+        section('Review and workflow', fromTopics.map((r) =>
+            rowLink(r.href, r.name, r.meta, '')).join('')) +
+        section('By language', fromLangs.map((r) =>
+            rowLink(r.href, r.name, r.meta, '')).join(''));
+}
+
 function now() {
     return back() +
         '<header class="eng-lead">' +
@@ -321,11 +361,11 @@ function search(q) {
     const ps = L.PRINCIPLES.filter((p) => hit(p.title) || hit(p.body) || hit(p.from));
 
     const ws = (L.PRACTICES || []).filter((w) => hit(topicName(w.topic)) || hit(w.intro) ||
-        hit(w.rule) || (w.flow || []).some(hit) || (w.checks || []).some(hit));
+        hit(w.rule) || hit(w.prompt) || (w.flow || []).some(hit) || (w.checks || []).some(hit));
 
     const ls = L.LANGS.filter((l) => hit(l.name) || hit(l.philosophy) ||
         (l.engineers || []).some((n) => hit(n.name) || hit(n.what)) ||
-        (l.areas || []).some(hit));
+        hit(l.prompt) || (l.areas || []).some(hit));
 
     const total = es.length + ps.length + ls.length + ws.length;
 
@@ -363,6 +403,7 @@ function render() {
     else if (kind === 'e') html = entry(arg);
     else if (kind === 'q') html = search(arg);
     else if (kind === 'now') html = now();
+    else if (kind === 'prompts') html = prompts();
     else html = home();
 
     view.innerHTML = html;

@@ -453,7 +453,8 @@ const PRACTICES = [
         intro: 'Before changing unfamiliar code, map it. The map is the deliverable — the instruction that matters is "do not modify anything yet", because without it the model starts editing at the first plausible cause and the map never gets made.',
         flow: ['User action', 'UI', 'Event handler', 'API', 'Business logic', 'Database', 'Response', 'UI state'],
         checks: ['Entry point', 'Call path', 'Functions involved', 'Data flow', 'Database interactions', 'External services', 'Side effects', 'Relevant types', 'Tests covering the behavior'],
-        rule: 'Where does data enter, where does it change, who owns the behavior, and where do the side effects happen?'
+        rule: 'Where does data enter, where does it change, who owns the behavior, and where do the side effects happen?',
+        prompt: 'Before modifying anything, map the relevant part of the codebase.\n\nIdentify:\n\n- entry point\n- call path\n- functions involved\n- data flow\n- database interactions\n- external services\n- side effects\n- relevant types/interfaces\n- tests covering the behavior\n\nDo not modify code yet.'
     },
     {
         topic: 'debugging',
@@ -484,9 +485,21 @@ const PRACTICES = [
         rule: 'Make the smallest change that produces the required behavior while preserving existing architecture and conventions.'
     },
     {
+        topic: 'complexity',
+        intro: 'Complexity is worth auditing separately from correctness, because the code is usually working \u2014 the problem is what it costs to change next time.',
+        checks: ['Large decision trees', 'Nested conditionals', 'Repeated guards', 'Boolean combinations', 'Large switch or match statements', 'State-transition logic', 'Dispatchers doing too much'],
+        prompt: 'Identify the highest-complexity functions in this codebase.\n\nFor each:\n\n- calculate/inspect complexity\n- explain why it is complex\n- identify the decision paths\n- determine whether the complexity is justified\n- identify simplification opportunities\n- identify missing tests'
+    },
+    {
         topic: 'security',
         intro: 'A pass in a fixed order, because the expensive findings cluster at the front. The output is a table — severity, finding, attack scenario, affected code, fix, verification — so that a finding without an attack scenario does not count as a finding.',
         flow: ['Secrets', 'Authentication', 'Authorization', 'Database / RLS', 'Input validation', 'API exposure', 'Sessions', 'File uploads', 'Rate limiting', 'Security headers', 'Dependencies', 'Infrastructure'],
+        table: {
+            caption: 'Finding format',
+            head: ['Severity', 'Finding', 'Attack scenario', 'Affected code', 'Fix', 'Verification'],
+            rows: [],
+            note: 'The attack scenario column is the filter. A finding that cannot be written as a scenario is a preference, and it does not belong in the report.'
+        },
         checks: ['Keys hidden, secrets purged from git, environment and logs and client bundles inspected', 'Only the public database key exposed, RLS enabled and its policies verified', 'Server-side auth enforced, sessions secure, authorization verified separately from authentication', 'Queries parameterized, input validated, user content escaped, uploads restricted', 'API responses trimmed, sensitive endpoints rate limited', 'Login rate limiting, bot and brute-force protection', 'HTTPS, security headers, dependency scanning, network exposure review']
     },
     {
@@ -557,7 +570,17 @@ const PRACTICES = [
         intro: 'Large runs get a table before they get code. The confidence column is where the rework hides; the open-questions column is what stops decisions being made silently.',
         flow: ['Understand requirements', 'Inventory relevant code', 'Identify dependencies', 'Create implementation table', 'Identify uncertainty', 'Resolve important questions', 'Define acceptance criteria', 'Implement', 'Test', 'Audit', 'Report progress', 'Update the table'],
         checks: ['Feature or part', 'Completion percentage', 'Level of effort', 'Model confidence it understands the implementation', 'Questions needed for intent parity', 'Current status'],
-        rule: 'An updated implementation table at every progress or stop point.'
+        rule: 'An updated implementation table at every progress or stop point.',
+        table: {
+            caption: 'The implementation table',
+            head: ['Feature / part', '% complete', 'LOE', 'AI confidence', 'Open questions', 'Status'],
+            rows: [
+                ['Authentication', '0%', 'M', '90%', '\u2014', 'Not started'],
+                ['Dashboard', '50%', 'L', '70%', 'Data requirements?', 'Blocked']
+            ],
+            note: 'The confidence column is the one that earns its place. A feature at 50% with 70% confidence is a different problem from one at 50% with 95%, and only one of them needs a conversation before the next run.'
+        },
+        prompt: 'Before beginning this implementation run, create an implementation table with:\n\n- feature/part name\n- current completion percentage\n- estimated LOE\n- your confidence that you understand how to implement it\n- questions required to establish human-AI intent parity\n- current status\n\nIdentify ambiguities before implementation.\n\nAt every progress or stop point, provide an updated implementation table.\n\nDo not silently make architectural or product decisions that materially affect the implementation.'
     },
     {
         topic: 'cloud',

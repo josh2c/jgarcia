@@ -366,3 +366,46 @@
 }
 
 .eng-flow li:last-child::after { display: none; }
+
+/* ---------- tables ---------- */
+
+.eng-scrollx { overflow-x: auto; margin: 0.9rem 0 0; }
+
+.eng-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.eng-table th, .eng-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.55rem 0.7rem 0.55rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Headings hold their line; cells wrap. Six columns do not fit the reading
+   column on one line, and a wrapped cell is better than a hidden one — the
+   horizontal scroll is the fallback, not the plan. */
+.eng-table th { white-space: nowrap; }
+.eng-table td { white-space: normal; }
+.eng-table td:last-child, .eng-table th:last-child { padding-right: 0; }
+
+.eng-table th {
+    font-family: var(--jg-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #a0a0a0;
+    font-weight: 400;
+}
+
+.eng-table td { color: #3d3d3d; }
+
+/* A table printed for its shape rather than its contents still needs to look
+   like a table, so the empty body gets a floor to sit on. */
+.eng-table thead:only-child th { border-bottom-color: rgba(0, 0, 0, 0.14); }
+
+.eng-table tr:last-child td { border-bottom: 0; }
+
+.eng-note-t { margin-top: 1rem; margin-bottom: 0; }

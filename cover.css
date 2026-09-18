@@ -117,17 +117,33 @@
 
 .cv-scroll::-webkit-scrollbar { width: 0; height: 0; }
 
-/* The padding is the point: half a viewport at each end lets the first and
-   last entries sit in the middle of the screen, where the fade is weakest. */
+/* Bottom padding is half a viewport so the last entry can still reach the
+   middle of the screen, where the fade is weakest. The top needs none: the
+   lead owns the first screen and centres itself in it. */
 .cv-col {
     width: min(34rem, 100%);
     margin: 0 auto;
-    padding: 46vh clamp(2.4rem, 8vw, 3rem) 52vh;
+    padding: 0 clamp(2.4rem, 8vw, 3rem) 52vh;
 }
 
 /* ---------- lead ---------- */
 
-.cv-lead { margin: 0 0 3.4rem; }
+/* The page opens on the name, not on whitespace. Centring the block rather
+   than setting a top padding is what makes that hold: the lead is five
+   paragraphs and a verse, and any fixed offset that centres it on one screen
+   pushes it off the bottom of a shorter one. */
+.cv-lead {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 0 3.4rem;
+}
+
+@supports (min-height: 100svh) {
+    /* Mobile browsers move the toolbars; svh is the height that stays true. */
+    .cv-lead { min-height: 100svh; }
+}
 
 .cv-lead h1 {
     margin: 0 0 0.7rem;
@@ -268,7 +284,7 @@
 /* On a phone the column is the page; the fade bands shrink so there is still
    something to read between them. */
 @media (max-width: 640px) {
-    .cv-col { padding: 34vh 1.6rem 40vh; }
+    .cv-col { padding: 0 1.6rem 40vh; }
     .cv-row { font-size: 1.05rem; }
     .cv-meta { display: none; }
     .cv-scroll {
