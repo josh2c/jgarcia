@@ -283,19 +283,7 @@
     .cv-layer, .cv-row::before { transition: none; }
 }
 
-/* On a phone the column is the page; the fade bands shrink so there is still
-   something to read between them. */
-@media (max-width: 640px) {
-    .cv-col { padding: 0 1.6rem 40vh; }
-    .cv-row { font-size: 1.05rem; }
-    .cv-meta { display: none; }
-    .cv-scroll {
-        -webkit-mask-image: linear-gradient(to bottom,
-            transparent 0, #000 14%, #000 86%, transparent 100%);
-        mask-image: linear-gradient(to bottom,
-            transparent 0, #000 14%, #000 86%, transparent 100%);
-    }
-}
+
 
 /* ---------- the lead, as it was ----------
    The tagline, the note about what this is, and the verse all predate the
@@ -384,3 +372,40 @@
    the cover's strip is hidden there anyway — this only covers the gap during
    the handoff. */
 .is-board .cv-tools { opacity: 0; }
+
+/* ---------- narrow screens ----------
+   Last in the file on purpose. These overrides are single-class rules
+   with the same specificity as the ones they override, so the cascade
+   decides on order alone — anything appended below this block would
+   silently win on a phone and nowhere else. */
+
+@media (max-width: 640px) {
+    .cv-col { padding: 0 1.4rem 40vh; }
+    .cv-meta { display: none; }
+
+    /* The type has to come down with the column, not just reflow into it.
+       At desktop the lead runs about 1/17th of the measure; left at desktop
+       sizes on a phone it runs about 1/12th, which is why it read as blown
+       up rather than as the same page made narrow. */
+    .cv-row { font-size: 0.98rem; }
+    .cv-lead h1 { font-size: 1.12rem; }
+    .cv-lead p { font-size: 0.96rem; }
+    .cv-lead p + p { margin-top: 0.9rem; }
+    /* Both of these ARE `.cv-lead p`, so they have to out-specify the rule
+       above rather than sit beside it. */
+    .cv-lead .cv-tagline { font-size: 1.02rem; margin-bottom: 1.2rem; }
+    .cv-lead .cv-verse { font-size: 0.86rem; margin-top: 1.5rem; padding-top: 1.3rem; }
+    .cv-ref { display: block; margin: 0.45rem 0 0; }
+
+    /* The strip has three things in it and a phone has room for about two. */
+    .cv-top { padding: 1rem 1.1rem; }
+    .cv-mark { font-size: 0.88rem; }
+    .cv-moodboard { font-size: 0.82rem; padding: 0.3rem 0.45rem; }
+    .cv-tools { gap: 0; }
+    .cv-scroll {
+        -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0, #000 14%, #000 86%, transparent 100%);
+        mask-image: linear-gradient(to bottom,
+            transparent 0, #000 14%, #000 86%, transparent 100%);
+    }
+}

@@ -30,7 +30,7 @@ const SECTIONS = [
         ]
     },
     {
-        name: 'Products',
+        name: 'Projects',
         tint: 'var(--ui-c-yellow)',
         icon: "<path d='M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z'/><path d='M3 8.5 12 13l9-4.5M12 13v7'/>",
         links: [
@@ -39,7 +39,7 @@ const SECTIONS = [
                 href: 'https://playtrezure.com',
                 meta: 'Live',
                 page: {
-                    kind: 'Product',
+                    kind: 'Project',
                     standfirst: 'A football-first fantasy app \u2014 season-long leagues, weekly contests and collectable player cards, three ways to play in one place.',
                     shot: 'img/trezure.webp',
                     shotAlt: 'The Trezure landing page, showing a live draft in progress on a phone alongside player cards',
@@ -57,7 +57,7 @@ const SECTIONS = [
                 href: 'https://busycabgame.com',
                 meta: 'Live',
                 page: {
-                    kind: 'Product',
+                    kind: 'Project',
                     standfirst: 'An arcade taxi game in the browser: pick up passengers, floor it, and get paid before the clock runs out.',
                     shot: 'img/busycab.webp',
                     shotAlt: 'Busy Cab in play \u2014 a yellow cab on a low-poly city street with the shift timer running',
@@ -75,7 +75,7 @@ const SECTIONS = [
                 href: 'https://github.com/josh2c/nodal',
                 meta: 'Rust',
                 page: {
-                    kind: 'Product',
+                    kind: 'Project',
                     standfirst: 'Git made branches cheap. Worktrees made branches parallel. Nodal makes their environments cheap, durable and manageable.',
                     tech: ['Rust', 'Cargo workspace', 'MIT', 'Pre-alpha'],
                     body: [
@@ -88,6 +88,57 @@ const SECTIONS = [
                     bodyAfter: [
                         'The last line is the part I care about. Nodal never fetches to make a number look fresher than it is \u2014 behind is only as new as your last fetch, so it reads how old that number is and says so rather than quietly hiding it.',
                         'Rust, MIT licensed, and pre-alpha \u2014 the foundation is built and tested, parts of the command surface are not, and the on-disk formats may still change.'
+                    ],
+                    linkLabel: 'View on GitHub'
+                }
+            },
+            {
+                label: 'Proton Pass for Omarchy',
+                href: 'https://github.com/josh2c/omarchy-protonpass',
+                meta: 'Widget',
+                page: {
+                    kind: 'Project',
+                    standfirst: 'A keyboard-first Proton Pass widget for the Omarchy bar: find a login and copy a field to the clipboard without the secret ever appearing on screen.',
+                    shot: 'img/omarchy-protonpass.webp',
+                    shotAlt: 'The Proton Pass quick-access panel in the Omarchy bar',
+                    tech: ['QML', 'JavaScript', 'Shell', 'Wayland', 'pass-cli'],
+                    body: [
+                        'It complements Proton\u2019s own apps rather than replacing them. Search login items across vaults by title or vault name, copy a username, password or TOTP code with one keystroke, and create a login with a generated password without leaving the panel. Recently used logins come first.',
+                        'It never displays a retrieved secret. Values go from Proton\u2019s official pass-cli straight to the Wayland clipboard, marked sensitive \u2014 never into the panel, never into a log, never into a file. The plugin opens no connections of its own; only pass-cli talks to Proton, and signing in happens in Proton\u2019s own CLI so the password never passes through this code.',
+                        'The only things it writes to disk are a list of recently used item IDs \u2014 no names, no secrets \u2014 and a one-way hash of the last value copied, used to clear the clipboard safely. SECURITY.md states every claim plainly and gives you the greps and tests to check each one yourself.',
+                        'It needs a Proton plan that includes CLI access: personal Pass Plus, or business Pass Professional. Pass Essentials is not eligible.'
+                    ],
+                    linkLabel: 'View on GitHub'
+                }
+            },
+            {
+                label: 'Aim Training',
+                href: 'https://josh2c.github.io/aimtraining/',
+                meta: 'Live',
+                page: {
+                    kind: 'Project',
+                    standfirst: 'A browser aim trainer on a 3D range. Flicking mode: thirty seconds, one target at a time, score by how fast you land each one.',
+                    shot: 'img/aimtraining.webp',
+                    shotAlt: 'The aim training range \u2014 a first-person view down a dark hall with a crosshair and the score and timer in the corner',
+                    tech: ['Three.js', 'JavaScript', 'WebGL'],
+                    body: [
+                        'Flicking is the specific skill: the target is somewhere else, and the only thing being measured is how quickly you can put the crosshair on it and commit. One target at a time, so there is nothing to plan and nowhere to hide.',
+                        'Three.js and plain JavaScript, no engine and no build step. It runs from a static page.'
+                    ],
+                    linkLabel: 'Play it'
+                }
+            },
+            {
+                label: 'GeoLocator',
+                href: 'https://github.com/josh2c/geolocatorgame',
+                meta: 'Flutter',
+                page: {
+                    kind: 'Project',
+                    standfirst: 'A street-view guessing game: read the architecture, the signs and the vegetation, then drop a pin on the world map.',
+                    tech: ['Flutter', 'Dart', 'Mapbox', 'Mapillary', 'iOS', 'Android'],
+                    body: [
+                        'You are dropped into street-level imagery somewhere in the world with no label and no coordinates, and the only evidence is what is in frame. Scoring is on accuracy and speed together, so a confident guess beats a slow careful one that lands no closer.',
+                        'Street view comes from Mapillary and the guessing map is Mapbox, both inside a Flutter app that runs on iOS and Android.'
                     ],
                     linkLabel: 'View on GitHub'
                 }

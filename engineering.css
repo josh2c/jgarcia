@@ -304,11 +304,7 @@
     color: var(--ui-text);
 }
 
-@media (max-width: 640px) {
-    .eng-col { padding: 5.8rem 1.4rem 6rem; }
-    .eng-find input { width: 7rem; }
-    .eng-row-meta { display: none; }
-}
+
 
 /* ---------- practice ---------- */
 
@@ -412,3 +408,35 @@
 .eng-table tr:last-child td { border-bottom: 0; }
 
 .eng-note-t { margin-top: 1rem; margin-bottom: 0; }
+
+/* ---------- narrow screens ----------
+   Last in the file on purpose. These overrides are single-class rules
+   with the same specificity as the ones they override, so the cascade
+   decides on order alone — anything appended below this block would
+   silently win on a phone and nowhere else. */
+
+@media (max-width: 640px) {
+    .eng-col { padding: 5.2rem 1.4rem 6rem; }
+    .eng-row-meta { display: none; }
+
+    .eng-lead h1 { font-size: 1.45rem; }
+    .eng-standfirst { font-size: 1rem; }
+    .eng-row-label { font-size: 0.96rem; }
+    .eng-row-sub { font-size: 0.82rem; }
+    .eng-rule { font-size: 0.97rem; padding: 0.85rem 0.95rem; }
+    .eng-flow li { font-size: 0.96rem; }
+    .eng-list { font-size: 0.96rem; }
+    .eng-block p { font-size: 0.97rem; }
+    .eng-pre code { font-size: 0.7rem; }
+    .eng-table { font-size: 0.82rem; }
+
+    .eng-top { padding: 1rem 1.1rem; }
+    .eng-mark { font-size: 0.88rem; }
+
+    /* The field was sized in rem while the strip beside it was not, so the
+       placeholder ran off the screen. It now takes whatever is left after the
+       name and the toggle, and never less than is useful. */
+    .eng-tools { flex: 1; justify-content: flex-end; min-width: 0; }
+    .eng-find { flex: 1; min-width: 0; max-width: 11rem; }
+    .eng-find input { width: 100%; min-width: 0; font-size: 0.82rem; }
+}

@@ -243,10 +243,7 @@
     .doc-col { transform: none; }
 }
 
-@media (max-width: 640px) {
-    .doc-col { padding: 5.5rem 1.4rem 6rem; }
-    .doc-body { font-size: 1.02rem; }
-}
+
 
 /* The blog index, when the whole list is opened rather than one post. */
 .doc-index { list-style: none; margin: 0; padding: 0; }
@@ -301,11 +298,6 @@
 }
 
 .doc-stage p { margin: 0 0 0.9rem; }
-
-@media (max-width: 640px) {
-    /* A fixed height is a promise the phone cannot keep; let it size itself. */
-    .doc-stage { height: auto !important; min-height: 26rem; }
-}
 
 /* Prose is capped for readability; a game is not prose. It gets the room it
    was built for, and nothing else on the page changes. */
@@ -400,3 +392,38 @@
 }
 
 .doc-term code { font-size: 0.68rem; }
+
+/* ---------- narrow screens ----------
+   Last in the file on purpose. These overrides are single-class rules
+   with the same specificity as the ones they override, so the cascade
+   decides on order alone — anything appended below this block would
+   silently win on a phone and nowhere else. */
+
+@media (max-width: 640px) {
+    .doc-col { padding: 5rem 1.4rem 5rem; }
+
+    .doc-title { font-size: 1.45rem; }
+    .doc-standfirst { font-size: 1rem; }
+    .doc-meta { margin-bottom: 1.8rem; padding-bottom: 1.5rem; }
+    .doc-body { font-size: 0.97rem; line-height: 1.7; }
+    .doc-body h1, .doc-body h2 { font-size: 1.14rem; }
+    .doc-body h3 { font-size: 1.02rem; }
+
+    .doc-top { padding: 1rem 1.1rem; }
+    .doc-back, .doc-src { font-size: 0.82rem; padding: 0.3rem 0.45rem; }
+
+    /* A long domain in the corner must not grow into the Back button. */
+    .doc-src {
+        max-width: 52vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
+    .doc-tech { margin-bottom: 1.8rem; }
+    .doc-term code { font-size: 0.62rem; }
+
+    /* A fixed height is a promise the phone cannot keep; let it size itself. */
+    .doc-stage { height: auto !important; min-height: 26rem; }
+}

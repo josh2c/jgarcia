@@ -420,6 +420,16 @@ function render() {
 window.addEventListener('hashchange', render);
 
 if (searchEl) {
+    /* "Search the library" does not fit a phone, and a clipped placeholder
+     * reads as a broken input rather than a narrow one. */
+    const narrow = window.matchMedia('(max-width: 640px)');
+    const setPlaceholder = () => {
+        searchEl.placeholder = narrow.matches ? 'Search' : 'Search the library';
+    };
+    setPlaceholder();
+    if (narrow.addEventListener) narrow.addEventListener('change', setPlaceholder);
+    else if (narrow.addListener) narrow.addListener(setPlaceholder);
+
     let t = null;
     searchEl.addEventListener('input', () => {
         clearTimeout(t);
