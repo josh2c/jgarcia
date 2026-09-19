@@ -212,10 +212,18 @@ function get(url) {
 const FILE_NOTE = 'If you are opening this straight from the file system, the browser ' +
     'blocks these reads. Serving the folder over http fixes it.';
 
-function openPost(href, title) {
+/* `listed` is what the index said about this post: title, date and category.
+ * Where it is given it wins, because the index is what the reader just clicked
+ * and a title that changes between the list and the page reads as a broken
+ * link. The post's own markup is the fallback, and Open page always goes to
+ * the unedited original. */
+function openPost(href, listed) {
+    const from = typeof listed === 'string' ? { title: listed } : (listed || {});
+
     open({
         kind: 'Writing',
-        title: title || 'Post',
+        title: from.title || 'Post',
+        meta: [from.date, from.cat].filter(Boolean).join(' · '),
         html: '<p class="doc-note">Loading…</p>',
         source: href,
         sourceLabel: 'Open page ↗'
@@ -228,9 +236,11 @@ function openPost(href, title) {
         const cat = doc.querySelector('.category');
         if (!content) throw new Error('no content');
 
-        titleEl.textContent = t ? t.textContent.trim() : (title || 'Post');
-        metaEl.textContent = [date && date.textContent.trim(), cat && cat.textContent.trim()]
-            .filter(Boolean).join(' · ');
+        titleEl.textContent = from.title || (t ? t.textContent.trim() : 'Post');
+        metaEl.textContent = [
+            from.date || (date && date.textContent.trim()),
+            from.cat || (cat && cat.textContent.trim())
+        ].filter(Boolean).join(' · ');
         metaEl.hidden = !metaEl.textContent;
         bodyEl.innerHTML = content.innerHTML;
         layer.scrollTop = 0;
@@ -265,7 +275,7 @@ function openBlog() {
         bodyEl.querySelectorAll('a[href]').forEach((a) => {
             a.addEventListener('click', (e) => {
                 e.preventDefault();
-                openPost(a.getAttribute('href'), a.textContent.trim());
+                openPost(a.getAttribute('href'), { title: a.textContent.trim() });
             });
         });
     }).catch(() => {

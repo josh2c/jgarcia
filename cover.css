@@ -388,6 +388,7 @@
        sizes on a phone it runs about 1/12th, which is why it read as blown
        up rather than as the same page made narrow. */
     .cv-row { font-size: 0.98rem; }
+    .cv-date { width: 4.6rem; font-size: 0.68rem; }
     .cv-lead h1 { font-size: 1.12rem; }
     .cv-lead p { font-size: 0.96rem; }
     .cv-lead p + p { margin-top: 0.9rem; }
@@ -408,4 +409,27 @@
         mask-image: linear-gradient(to bottom,
             transparent 0, #000 14%, #000 86%, transparent 100%);
     }
+}
+
+/* ---------- dated rows ---------- */
+
+/* A post row puts its date in a fixed gutter on the left instead of a meta
+   column on the right. The right-hand version made the date compete with the
+   title for the same space and truncated titles that are questions; a gutter
+   costs the same width but never grows, so the title can wrap instead. */
+.cv-post { align-items: baseline; }
+
+.cv-post .cv-label {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.cv-date {
+    flex: none;
+    width: 5.6rem;
+    font-family: var(--jg-mono);
+    font-size: 0.76rem;
+    color: var(--ui-text-3);
+    font-variant-numeric: tabular-nums;
 }

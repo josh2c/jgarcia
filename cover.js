@@ -426,43 +426,71 @@ function mountGames(list, games) {
 
 /* --------------------------------------------------------------- posts --- */
 
-/* blog.html stays the source of truth — the cover reads the same markup the
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december'];
+
+/* "April 1, 2025" into "2025-04-01". A date in a left gutter only works if
+ * every one of them is the same width, which prose dates are not. Returns null
+ * rather than guessing when the shape is unfamiliar, and the row then simply
+ * has no date instead of a wrong one. */
+function isoDate(text) {
+    const m = /^\s*([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})\s*$/.exec(text || '');
+    if (!m) return null;
+    const month = MONTHS.indexOf(m[1].toLowerCase());
+    if (month < 0) return null;
+    return m[3] + '-' + String(month + 1).padStart(2, '0') + '-' + m[2].padStart(2, '0');
+}
+
+/* blog.html stays the source of truth. The cover reads the same markup the
  * reader does, so a new post appears here without being listed twice. */
 function mountPosts(list) {
-    const pending = note(list, 'Loading…');
+    const pending = note(list, 'Loading\u2026');
 
     fetch('blog.html')
         .then((r) => (r.ok ? r.text() : Promise.reject(new Error(r.status))))
         .then((html) => {
             const doc = new DOMParser().parseFromString(html, 'text/html');
-            const posts = [...doc.querySelectorAll('.post')].map((p) => {
-                const title = p.querySelector('.post-title');
-                const link = p.querySelector('.read-more');
-                const date = p.querySelector('.date');
+            const posts = [...doc.querySelectorAll('.post')].map((el) => {
+                const title = el.querySelector('.post-title');
+                const link = el.querySelector('.read-more');
+                const date = el.querySelector('.date');
+                const cat = el.querySelector('.category');
                 if (!title || !link) return null;
+                const raw = date ? date.textContent.trim() : '';
                 return {
                     title: title.textContent.trim(),
                     href: link.getAttribute('href'),
-                    date: date ? date.textContent.trim() : ''
+                    raw,
+                    iso: isoDate(raw),
+                    cat: cat ? cat.textContent.trim() : ''
                 };
             }).filter(Boolean);
 
             if (!posts.length) throw new Error('empty');
 
+            /* Sorted here rather than trusting the order in the page. The
+             * markup is hand-maintained and one post is already filed out of
+             * sequence; a list with a date column has to be in date order or
+             * the column reads as an error. */
+            posts.sort((a, b) => (b.iso || '').localeCompare(a.iso || ''));
+
             pending.remove();
-            /* No date in the row. These titles are questions and they run
-             * long; the date is the first thing the reader shows anyway, and
-             * giving it a column here truncates the title that earns the
-             * click. */
-            list.insertAdjacentHTML('beforeend', posts.map((p, i) =>
-                '<li><button type="button" class="cv-row cv-item" data-post="' + i +
-                '" title="' + esc(p.title) + (p.date ? ' \u2014 ' + esc(p.date) : '') + '">' +
-                rowInner(p.title, '', false) + '</button></li>').join(''));
+            list.insertAdjacentHTML('beforeend', posts.map((post, i) =>
+                '<li><button type="button" class="cv-row cv-item cv-post" data-post="' + i +
+                '" title="' + esc(post.title) + (post.raw ? ' \u00b7 ' + esc(post.raw) : '') + '">' +
+                '<span class="cv-date">' + esc(post.iso || '') + '</span>' +
+                '<span class="cv-label">' + esc(post.title) + '</span>' +
+                (post.cat ? '<span class="cv-meta">' + esc(post.cat) + '</span>' : '') +
+                '</button></li>').join(''));
 
             list.querySelectorAll('[data-post]').forEach((b) => {
                 b.addEventListener('click', () => {
-                    const p = posts[Number(b.dataset.post)];
-                    if (window.jgReader) window.jgReader.openPost(p.href, p.title);
+                    const post = posts[Number(b.dataset.post)];
+                    if (window.jgReader) {
+                        window.jgReader.openPost(post.href, {
+                            title: post.title, date: post.raw, cat: post.cat
+                        });
+                    }
                 });
             });
             measure();
