@@ -457,3 +457,6 @@
     color: var(--ui-text-3);
     font-variant-numeric: tabular-nums;
 }
+
+/* Moved by script on scroll, so it must not fight it with a transition. */
+.cv-top { will-change: transform; }

@@ -600,10 +600,28 @@ function mark() {
     if (near) near.classList.add('is-near');
 }
 
+/* The strip scrolls away with the page rather than sitting over it.
+ *
+ * It cannot simply live in the scrolling flow like the library's does, because
+ * this scroller is masked at its top edge: a header sitting there would be
+ * faded almost to nothing at rest, which is the one moment it has to be
+ * legible. So it stays outside the mask and moves by the same amount the
+ * content does, which looks identical and leaves the fade to the writing.
+ *
+ * Clamped to its own height, so once it is gone it stays parked just off the
+ * top instead of accumulating a transform the length of the page. */
+const topBar = document.querySelector('.cv-top');
+
+function slideTop() {
+    if (!topBar) return;
+    const y = Math.min(scroller.scrollTop, topBar.offsetHeight);
+    topBar.style.transform = y > 0 ? 'translate3d(0,' + -y + 'px,0)' : '';
+}
+
 scroller.addEventListener('scroll', () => {
     if (queued) return;
     queued = true;
-    requestAnimationFrame(() => { queued = false; mark(); });
+    requestAnimationFrame(() => { queued = false; mark(); slideTop(); });
 }, { passive: true });
 
 window.addEventListener('resize', measure);

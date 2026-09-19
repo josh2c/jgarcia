@@ -44,8 +44,10 @@
 
 /* ---------- top strip ---------- */
 
+/* Absolute, not fixed. The layer is the scrolling box, so an absolutely
+   positioned child scrolls away with the page instead of sitting over it. */
 .doc-top {
-    position: fixed;
+    position: absolute;
     z-index: 2;
     top: 0;
     left: 0;
