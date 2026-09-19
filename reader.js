@@ -44,13 +44,13 @@ function build() {
     layer.tabIndex = -1;
     layer.hidden = true;
     layer.innerHTML =
-        '<div class="doc-top">' +
+        '<div class="doc-top"><div class="cv-top-in doc-top-in">' +
             '<button type="button" class="doc-back">← Back</button>' +
             '<span class="doc-links">' +
                 '<a class="doc-src doc-src-2" target="_blank" rel="noopener noreferrer"></a>' +
                 '<a class="doc-src" target="_blank" rel="noopener noreferrer"></a>' +
             '</span>' +
-        '</div>' +
+        '</div></div>' +
         '<div class="doc-col">' +
             '<p class="doc-kind"></p>' +
             '<h1 class="doc-title"></h1>' +

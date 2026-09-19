@@ -50,17 +50,22 @@
     top: 0;
     left: 0;
     right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
+    padding: 1.4rem 0;
     /* The strip has to stay readable over whatever scrolls under it. */
     background: linear-gradient(to bottom, var(--ui-bg) 55%, transparent);
     pointer-events: none;
 }
 
 .doc-top > * { pointer-events: auto; }
+
+/* Lines the controls up with the reading column, same as the cover. */
+.doc-top-in {
+    width: min(38rem, 100%);
+    padding: 0 clamp(1.5rem, 6vw, 2.5rem);
+}
+
+/* A stage page is wider, so its controls move out with it. */
+.doc-layer.is-stage .doc-top-in { width: min(46rem, 100%); }
 
 /* Flat, the way a Notion control is: no border, no shadow, no pill. It is
    invisible until you are near it, and then it is a grey fill. A raised pill
@@ -409,7 +414,8 @@
     .doc-body h1, .doc-body h2 { font-size: 1.14rem; }
     .doc-body h3 { font-size: 1.02rem; }
 
-    .doc-top { padding: 1rem 1.1rem; }
+    .doc-top { padding: 1rem 0; }
+    .doc-top-in { padding: 0 1.4rem; }
     .doc-back, .doc-src { font-size: 0.82rem; padding: 0.3rem 0.45rem; }
 
     /* A long domain in the corner must not grow into the Back button. */

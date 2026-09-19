@@ -28,11 +28,7 @@
     top: 0;
     left: 0;
     right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
+    padding: 1.4rem 0;
     background: linear-gradient(to bottom, var(--ui-bg) 55%, transparent);
 }
 
@@ -430,7 +426,8 @@
     .eng-pre code { font-size: 0.7rem; }
     .eng-table { font-size: 0.82rem; }
 
-    .eng-top { padding: 1rem 1.1rem; }
+    .eng-top { padding: 1rem 0; }
+    .eng-top-in { padding: 0 1.4rem; }
     .eng-mark { font-size: 0.88rem; }
 
     /* The field was sized in rem while the strip beside it was not, so the
@@ -439,4 +436,10 @@
     .eng-tools { flex: 1; justify-content: flex-end; min-width: 0; }
     .eng-find { flex: 1; min-width: 0; max-width: 11rem; }
     .eng-find input { width: 100%; min-width: 0; font-size: 0.82rem; }
+}
+
+/* Lines the name and the search field up with the column below them. */
+.eng-top-in {
+    width: min(38rem, 100%);
+    padding: 0 clamp(1.5rem, 6vw, 2.5rem);
 }

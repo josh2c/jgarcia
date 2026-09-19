@@ -49,13 +49,28 @@
     top: 0;
     left: 0;
     right: 0;
+    padding: 1.4rem 0;
+    pointer-events: none;
+}
+
+/* The bar is full width; what is IN it is not. Its contents line up with the
+   column below, so the controls sit on the same left and right edges as the
+   writing. Pinned to the viewport instead, they float in whitespace with
+   nothing to relate to, which is what made the top of the page read as a
+   separate site from the rest of it. */
+.cv-top-in {
+    width: min(34rem, 100%);
+    margin: 0 auto;
+    padding: 0 clamp(2.4rem, 8vw, 3rem);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.4rem clamp(1.1rem, 4vw, 2.6rem);
-    pointer-events: none;
 }
+
+/* The home page already says the name, in the lead, a few lines below. A
+   second copy directly above it is not navigation, it is an echo. */
+.cv-mark { display: none; }
 
 .cv-top > * { pointer-events: auto; }
 
@@ -336,7 +351,15 @@
 
 /* The theme toggle, and the shape any future icon-only control takes: the
    same flat fill as the text buttons, just square. */
-.cv-tools, .eng-tools { display: inline-flex; align-items: center; gap: 0.15rem; }
+/* margin-left rather than relying on space-between: on the cover the mark is
+   hidden, and a flex row with one child puts it at the start. This keeps the
+   controls on the column's right edge whether or not a mark sits opposite. */
+.cv-tools, .eng-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin-left: auto;
+}
 
 .cv-icon {
     display: inline-flex;
@@ -399,7 +422,8 @@
     .cv-ref { display: block; margin: 0.45rem 0 0; }
 
     /* The strip has three things in it and a phone has room for about two. */
-    .cv-top { padding: 1rem 1.1rem; }
+    .cv-top { padding: 1rem 0; }
+    .cv-top-in { padding: 0 1.4rem; }
     .cv-mark { font-size: 0.88rem; }
     .cv-moodboard { font-size: 0.82rem; padding: 0.3rem 0.45rem; }
     .cv-tools { gap: 0; }
