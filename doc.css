@@ -427,3 +427,17 @@
     /* A fixed height is a promise the phone cannot keep; let it size itself. */
     .doc-stage { height: auto !important; min-height: 26rem; }
 }
+
+/* The language, sitting at the right end of a code block's caption. */
+.doc-term figcaption {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.doc-lang { color: var(--ui-text-3); letter-spacing: 0.08em; }
+
+/* Headings inside a project page. These pages get long enough to need them. */
+.doc-body h2 { margin-top: 2.6rem; }
+.doc-body h2:first-child { margin-top: 0; }
