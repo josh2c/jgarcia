@@ -23,6 +23,7 @@ let kindEl = null;
 let metaEl = null;
 let standEl = null;
 let srcEl = null;
+let src2El = null;
 let shotEl = null;
 let techEl = null;
 let lastFocus = null;
@@ -45,7 +46,10 @@ function build() {
     layer.innerHTML =
         '<div class="doc-top">' +
             '<button type="button" class="doc-back">← Back</button>' +
-            '<a class="doc-src" target="_blank" rel="noopener noreferrer"></a>' +
+            '<span class="doc-links">' +
+                '<a class="doc-src doc-src-2" target="_blank" rel="noopener noreferrer"></a>' +
+                '<a class="doc-src" target="_blank" rel="noopener noreferrer"></a>' +
+            '</span>' +
         '</div>' +
         '<div class="doc-col">' +
             '<p class="doc-kind"></p>' +
@@ -64,7 +68,8 @@ function build() {
     kindEl = layer.querySelector('.doc-kind');
     metaEl = layer.querySelector('.doc-meta');
     standEl = layer.querySelector('.doc-standfirst');
-    srcEl = layer.querySelector('.doc-src');
+    srcEl = layer.querySelector('.doc-src:not(.doc-src-2)');
+    src2El = layer.querySelector('.doc-src-2');
     shotEl = layer.querySelector('.doc-shot');
     techEl = layer.querySelector('.doc-tech');
 
@@ -132,6 +137,20 @@ function open(doc) {
         srcEl.hidden = false;
     } else {
         srcEl.hidden = true;
+    }
+
+    /* A second link, for a project that has both somewhere to use it and
+     * somewhere to read it. Where the repository is private there is only one,
+     * and the page says so rather than leaving a reviewer hunting for source
+     * that is not there. */
+    if (doc.source2) {
+        src2El.href = doc.source2;
+        src2El.textContent = doc.sourceLabel2 || 'Source \u2197';
+        src2El.hidden = false;
+    } else {
+        src2El.removeAttribute('href');
+        src2El.textContent = '';
+        src2El.hidden = true;
     }
 
     /* A mounted thing gets a stage to fill; everything else is just markup. */

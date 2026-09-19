@@ -72,7 +72,7 @@ const PRINCIPLES = [
     {
         id: 'measure-the-slop',
         title: 'Make AI slop measurable',
-        body: 'Arguing about whether generated code is bad goes nowhere. Thresholds — complexity, file length, dead code, surviving mutants, untyped escapes — turn it into something you can point at. They are signals for where to look, not a standard to pass.',
+        body: 'Arguing about whether generated code is bad goes nowhere. Thresholds turn it into something you can point at: complexity, file length, dead code, surviving mutants, untyped escapes. They are signals for where to look rather than a standard to pass.',
         from: 'Code quality / AI slop audit',
         source: 'quentin-cody-slop',
         topics: ['audit', 'deslop', 'testing']
@@ -104,14 +104,14 @@ const PRINCIPLES = [
     {
         id: 'smallest-change',
         title: 'Make the smallest change that produces the required behavior',
-        body: 'Preserve the existing architecture and conventions while doing it. Most AI slop is not wrong code — it is unnecessary code: extra wrappers, extra abstraction, extra configuration, all defensible line by line and indefensible as a whole.',
+        body: 'Preserve the existing architecture and conventions while doing it. Most AI slop is unnecessary rather than wrong: extra wrappers, extra abstraction, extra configuration, all defensible line by line and indefensible as a whole.',
         from: 'Deslop',
         topics: ['deslop', 'refactoring']
     },
     {
         id: 'self-explanatory-code',
         title: 'Prefer making code clear over documenting why it is not',
-        body: 'Documentation written only to explain confusing code is a recurring cost paid to avoid a one-time fix. Spend it on naming, control flow, types, data structures and smaller functions instead. This is not an argument against documentation — why, architecture, business rules, constraints and operational knowledge still have to be written down.',
+        body: 'Documentation written only to explain confusing code is a recurring cost paid to avoid a one-time fix. Spend it on naming, control flow, types, data structures and smaller functions instead. This is not an argument against documentation. Why, architecture, business rules, constraints and operational knowledge all still have to be written down.',
         from: 'Self-explanatory code',
         source: 'matt-pocock-self-explanatory',
         topics: ['documentation', 'refactoring']
@@ -119,21 +119,21 @@ const PRINCIPLES = [
     {
         id: 'reference-not-imitation',
         title: 'Reference an engineer, do not imitate one',
-        body: '"Write this like Rob Pike would" produces pastiche. Pointing at the documented design philosophy of a language team — what they optimize for and why — gives the model something specific to reason against. The names are a bibliography, not a costume.',
+        body: '"Write this like Rob Pike would" produces pastiche. Pointing at the documented design philosophy of a language team, what they optimize for and why, gives the model something specific to reason against. The names are a bibliography rather than a costume.',
         from: 'Language-specific engineering',
         topics: ['languages']
     },
     {
         id: 'reference-not-invention',
         title: 'Do not invent techniques from titles',
-        body: 'A saved link is a saved link. Until the actual content has been read and the technique extracted, there is nothing to teach and nothing to claim — and a plausible summary generated from a headline is worse than an empty slot, because it looks like knowledge.',
+        body: 'A saved link is a saved link. Until the actual content has been read and the technique extracted, there is nothing to teach and nothing to claim. A plausible summary generated from a headline is worse than an empty slot, because it looks like knowledge.',
         from: 'Cloud agents',
         topics: ['audit']
     },
     {
         id: 'examine-continuously',
         title: 'AI should not only write the software, it should continuously examine it',
-        body: 'Writing code is one mode among many — explore, plan, build, debug, test, audit, deslop, secure, optimize, document, deploy, monitor. Treating generation as the whole job is what produces a system nobody understands, including the person who shipped it.',
+        body: 'Writing code is one mode among many: explore, plan, build, debug, test, audit, deslop, secure, optimize, document, deploy, monitor. Treating generation as the whole job produces a system nobody understands, including the person who shipped it.',
         from: 'The meta-skill',
         topics: ['audit', 'orchestration']
     }
@@ -151,7 +151,7 @@ const ENTRIES = [
         topics: ['audit', 'deslop', 'testing', 'complexity'],
         langs: [],
         lesson: 'Proposes measurable thresholds for generated code: cyclomatic and cognitive complexity under 22, Halstead difficulty under 80, under 500 lines per file, 100% test coverage, CRAP under 25, and zero surviving mutants, dead code, redundant code, or any/unknown escapes.',
-        note: 'A bit overbearing, but it helps give clues about what we can add for testing. I treat these as audit signals rather than universal requirements — the point is that "this feels like slop" becomes something measurable.',
+        note: 'A bit overbearing, but it helps give clues about what we can add for testing. I treat these as audit signals rather than universal requirements. The point is that "this feels like slop" becomes something measurable.',
         rec: 'Worth reading even if you reject the numbers. It reframes an aesthetic complaint as an engineering one.',
         status: 'public',
         added: '2026-09'
@@ -165,7 +165,7 @@ const ENTRIES = [
         topics: ['audit', 'complexity', 'architecture'],
         langs: ['rust'],
         lesson: 'Three independent booleans describing one thing (held, sold, out_of_order) permit eight combinations, most of them invalid or contradictory, and every call site has to defend against them. One enum with four variants encodes only the states that can actually exist.',
-        workflow: 'When I see three or more booleans travelling together through a function signature, that is the audit trigger — the question is what state machine they are impersonating.',
+        workflow: 'When I see three or more booleans travelling together through a function signature, that is the audit trigger. The question is what state machine they are impersonating.',
         status: 'public',
         added: '2026-09'
     },
@@ -194,7 +194,7 @@ const ENTRIES = [
         langs: [],
         lesson: 'A strong orchestrator inventories every subsystem, launches fresh read-only agents against each with one standardized prompt, then validates, deduplicates, groups and ranks the findings into a single report. The workers only read, gather evidence, and explain; they never modify.',
         workflow: 'This is the shape I use for anything codebase-wide. The orchestrator owns the inventory and the ranking; the workers own the evidence.',
-        rec: 'The gist is the useful half — the prompt is the whole technique.',
+        rec: 'The gist is the useful half. The prompt is the whole technique.',
         status: 'public',
         added: '2026-09'
     },
@@ -207,7 +207,7 @@ const ENTRIES = [
         topics: ['documentation', 'refactoring'],
         langs: ['typescript'],
         lesson: 'Delete documentation that exists only to explain confusing code, and spend the saved maintenance cost on making the code clear instead.',
-        note: 'Easy to over-apply. It is an argument against docs that compensate for avoidable confusion, not against documentation — why, architecture, business rules, external constraints, operational procedures and historical decisions all still need writing down.',
+        note: 'Easy to over-apply. It argues against docs that compensate for avoidable confusion, not against documentation itself. Why, architecture, business rules, external constraints, operational procedures and historical decisions all still need writing down.',
         status: 'public',
         added: '2026-09'
     },
@@ -219,7 +219,7 @@ const ENTRIES = [
         kind: 'project',
         topics: ['complexity', 'audit', 'automation'],
         langs: ['typescript'],
-        lesson: 'The project added a lint rule capping cyclomatic complexity at 80 — deliberately set at what the codebase already was, rather than where they wanted it — to stop new complexity while hotspots are simplified, with the stated intention of lowering the ceiling over time.',
+        lesson: 'The project added a lint rule capping cyclomatic complexity at 80, set deliberately at what the codebase already was rather than where they wanted it. It stops new complexity while hotspots get simplified, and the PR states the intention of lowering the ceiling over time.',
         rec: 'The interesting part is the honesty of the starting number. A ceiling set at the ideal fails on day one and gets disabled.',
         status: 'public',
         added: '2026-09'
@@ -232,7 +232,7 @@ const ENTRIES = [
         kind: 'source',
         topics: ['security', 'cloud'],
         langs: [],
-        lesson: 'A practical pass across secrets, database access, authentication, input validation, API surface, abuse and infrastructure — the categories that actually get exploited on small shipped products.',
+        lesson: 'A practical pass across secrets, database access, authentication, input validation, API surface, abuse and infrastructure. These are the categories that actually get exploited on small shipped products.',
         status: 'public',
         added: '2026-09'
     },
@@ -321,7 +321,7 @@ const LANGS = [
     {
         id: 'typescript',
         name: 'TypeScript',
-        philosophy: 'Types that make invalid states hard to represent, with real validation at the trust boundaries — and no type-level cleverness that does not pay for itself.',
+        philosophy: 'Types that make invalid states hard to represent, with real validation at the trust boundaries, and no type-level cleverness that does not pay for itself.',
         engineers: [
             { name: 'Anders Hejlsberg', what: 'TypeScript creator and language designer' },
             { name: 'Matt Pocock', what: 'Practical TypeScript, type-system usage, APIs' },
@@ -422,7 +422,7 @@ const LANGS = [
     {
         id: 'shell',
         name: 'Bash / Shell',
-        philosophy: 'No single personality to reference here — use the Unix, POSIX and Bash ecosystem, and know when to stop.',
+        philosophy: 'No single personality to reference here. Use the Unix, POSIX and Bash ecosystem, and know when to stop.',
         engineers: [],
         areas: ['Quoting', 'Exit codes', 'Robust scripting', 'Standard tools', 'ShellCheck'],
         rules: [
@@ -450,7 +450,7 @@ const LANGS = [
 const PRACTICES = [
     {
         topic: 'codebase-understanding',
-        intro: 'Before changing unfamiliar code, map it. The map is the deliverable — the instruction that matters is "do not modify anything yet", because without it the model starts editing at the first plausible cause and the map never gets made.',
+        intro: 'Before changing unfamiliar code, map it. The map is the deliverable, and the instruction that matters is "do not modify anything yet". Without it the model starts editing at the first plausible cause and the map never gets made.',
         flow: ['User action', 'UI', 'Event handler', 'API', 'Business logic', 'Database', 'Response', 'UI state'],
         checks: ['Entry point', 'Call path', 'Functions involved', 'Data flow', 'Database interactions', 'External services', 'Side effects', 'Relevant types', 'Tests covering the behavior'],
         rule: 'Where does data enter, where does it change, who owns the behavior, and where do the side effects happen?',
@@ -479,20 +479,20 @@ const PRACTICES = [
     },
     {
         topic: 'deslop',
-        intro: 'Most AI slop is not wrong code. It is unnecessary code — every piece defensible on its own line and indefensible as a whole.',
+        intro: 'Most AI slop is unnecessary rather than wrong. Every piece is defensible on its own line and indefensible as a whole.',
         checks: ['Excessive complexity', 'Dead code', 'Redundant code', 'Duplicate logic', 'Unnecessary abstractions', 'Excessive wrappers', 'Giant functions', 'Giant files', 'Excessive conditionals', 'Weak typing', 'any / unknown', 'Repeated validation', 'AI boilerplate', 'Unused configuration', 'Code that does not match repository conventions'],
         flow: ['Identify suspicious code', 'Explain why', 'Provide evidence', 'Decide whether the complexity is justified', 'Propose simplification', 'Get approval if architectural', 'Implement', 'Test'],
         rule: 'Make the smallest change that produces the required behavior while preserving existing architecture and conventions.'
     },
     {
         topic: 'complexity',
-        intro: 'Complexity is worth auditing separately from correctness, because the code is usually working \u2014 the problem is what it costs to change next time.',
+        intro: 'Complexity is worth auditing separately from correctness. The code is usually working. The problem is what it costs to change next time.',
         checks: ['Large decision trees', 'Nested conditionals', 'Repeated guards', 'Boolean combinations', 'Large switch or match statements', 'State-transition logic', 'Dispatchers doing too much'],
         prompt: 'Identify the highest-complexity functions in this codebase.\n\nFor each:\n\n- calculate/inspect complexity\n- explain why it is complex\n- identify the decision paths\n- determine whether the complexity is justified\n- identify simplification opportunities\n- identify missing tests'
     },
     {
         topic: 'security',
-        intro: 'A pass in a fixed order, because the expensive findings cluster at the front. The output is a table — severity, finding, attack scenario, affected code, fix, verification — so that a finding without an attack scenario does not count as a finding.',
+        intro: 'A pass in a fixed order, because the expensive findings cluster at the front. The output is a table of severity, finding, attack scenario, affected code, fix and verification, so a finding without an attack scenario does not count as a finding.',
         flow: ['Secrets', 'Authentication', 'Authorization', 'Database / RLS', 'Input validation', 'API exposure', 'Sessions', 'File uploads', 'Rate limiting', 'Security headers', 'Dependencies', 'Infrastructure'],
         table: {
             caption: 'Finding format',

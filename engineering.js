@@ -102,7 +102,7 @@ function home() {
             '<h1>How I build with AI</h1>' +
             '<p class="eng-standfirst">The public half of my engineering library: the ' +
             'principles that survived distillation, the people I took them from, and what I ' +
-            'am reading now. The working notes stay private — they are operational, and most ' +
+            'am reading now. The working notes stay private. They are operational, and most ' +
             'useful while they are still messy.</p>' +
         '</header>' +
 
@@ -122,7 +122,7 @@ function home() {
 
         (QUEUED.length ? section('Now',
             '<p class="eng-note">Saved, not yet extracted. Listed because it is what I am ' +
-            'working through — with nothing claimed about it until I have actually read it.</p>' +
+            'working through, with nothing claimed about it until I have actually read it.</p>' +
             QUEUED.map((e) => rowLink('#/e/' + e.id, e.title, e.by || '', '')).join('')) : '');
 }
 
@@ -276,7 +276,7 @@ function language(id) {
         (l.engineers.length ? '<section class="eng-sec">' +
             '<h2 class="eng-sec-h">Reference engineers</h2>' +
             '<p class="eng-note">Not people to imitate. Their documented design ' +
-            'principles are what I point a model at — see ' +
+            'principles are what I point a model at. See ' +
             '<a href="#/p/reference-not-imitation">reference, do not imitate</a>.</p>' +
             l.engineers.map((n) =>
                 '<div class="eng-row eng-row-static">' +
@@ -325,7 +325,7 @@ function prompts() {
             '<p class="eng-kind">Prompts</p>' +
             '<h1>The prompts I actually use</h1>' +
             '<p class="eng-standfirst">' + all.length + ' of them. Most are shaped the same ' +
-            'way — say what to look at, in what order, and what not to decide alone.</p>' +
+            'way: say what to look at, in what order, and what not to decide alone.</p>' +
         '</header>' +
         section('Review and workflow', fromTopics.map((r) =>
             rowLink(r.href, r.name, r.meta, '')).join('')) +

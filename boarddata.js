@@ -46,7 +46,7 @@ const RAW = [
     /* ---- row 1 ------------------------------------------------------- */
     { type: 'note', x:   22, y: 3002, w:  716, h:  336, num: '01', title: 'About',
       head: 'A creative who codes, designs, and thinks big.',
-      body: 'I build things end to end — the product, the look, and the way it gets talked about.' },
+      body: 'I build things end to end: the product, the look, and the way it gets talked about.' },
     { type: 'img', x:  782, y: 3002, w:  336, h:  336, src: 'board/img/tz-logo.webp',
       alt: 'Trezure logo', title: 'Trezure', body: 'The mark for the football-first fantasy app.' },
     { type: 'swatch', x: 1702, y: 2242, w:  296, h:  376, hex: '#e8a33d' },
@@ -64,7 +64,7 @@ const RAW = [
     { type: 'note', x: 3582, y: 2242, w:  696, h:  376, num: '02', title: 'Now',
       head: 'Building Trezure.',
       body: 'A daily fantasy sports app, plus Busy Cab and Bemore Labz. And I design websites professionally.' },
-    { type: 'ph', x: 4002, y: 3002, w:  716, h:  336, label: 'Personal — album art' },
+    { type: 'ph', x: 4002, y: 3002, w:  716, h:  336, label: 'Personal, album art' },
 
     /* ---- row 3 ------------------------------------------------------- */
         { type: 'img', x: 2042, y: 2242, w:  356, h:  376, src: 'board/img/tz-mascot-pirate.webp',
@@ -72,13 +72,13 @@ const RAW = [
     { type: 'swatch', x: 2442, y: 2242, w:  256, h:  376, hex: '#6e9b57' },
     { type: 'img', x: 2742, y: 3002, w:  436, h:  336, src: 'board/img/century.webp',
       alt: 'Black Toyota Century on the Bonneville salt flats', title: 'Toyota Century',
-      body: 'Parked on the Bonneville salt. A V12 that never mentions it — the whole car is restraint, which is the part I keep stealing.' },
+      body: 'Parked on the Bonneville salt. A V12 that never mentions it. The whole car is restraint, and that is the part I keep stealing.' },
     { type: 'swatch', x:  782, y:  362, w:  336, h:  376, hex: '#2a2e2b' },
 
     /* ---- row 4 ------------------------------------------------------- */
     { type: 'img', x: 3582, y:  362, w:  696, h:  376, src: 'board/img/octopus.webp',
       alt: 'Engraving of an octopus', title: 'Octopus',
-      body: 'An old scientific engraving. Nine brains and no single one in charge — which is closer to how anything good actually gets built.' },
+      body: 'An old scientific engraving. Nine brains and no single one in charge, which is closer to how anything good actually gets built.' },
     { type: 'note', x:  782, y: 1942, w:  876, h:  676, num: '03', title: 'Also',
       head: 'Data, crypto, real estate and strategy games.',
       body: 'A hundred-odd Python problems solved for fun. I like systems you can take apart.' },

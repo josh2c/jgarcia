@@ -441,3 +441,7 @@
 /* Headings inside a project page. These pages get long enough to need them. */
 .doc-body h2 { margin-top: 2.6rem; }
 .doc-body h2:first-child { margin-top: 0; }
+
+/* Two links in the corner where a project has both a live build and a public
+   repository. They sit together and read right to left in importance. */
+.doc-links { display: inline-flex; align-items: center; gap: 0.15rem; }
