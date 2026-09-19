@@ -223,7 +223,7 @@ function openPost(href, listed) {
     open({
         kind: 'Writing',
         title: from.title || 'Post',
-        meta: [from.date, from.cat].filter(Boolean).join(' · '),
+        meta: from.date || '',
         html: '<p class="doc-note">Loading…</p>',
         source: href,
         sourceLabel: 'Open page ↗'
@@ -233,14 +233,12 @@ function openPost(href, listed) {
         const t = doc.querySelector('.post-title, h1');
         const content = doc.querySelector('.post-content');
         const date = doc.querySelector('.date');
-        const cat = doc.querySelector('.category');
         if (!content) throw new Error('no content');
 
         titleEl.textContent = from.title || (t ? t.textContent.trim() : 'Post');
-        metaEl.textContent = [
-            from.date || (date && date.textContent.trim()),
-            from.cat || (cat && cat.textContent.trim())
-        ].filter(Boolean).join(' · ');
+        /* Date only. The categories these posts carried were one word each and
+         * said less than the title beside them already did. */
+        metaEl.textContent = from.date || (date ? date.textContent.trim() : '');
         metaEl.hidden = !metaEl.textContent;
         bodyEl.innerHTML = content.innerHTML;
         layer.scrollTop = 0;

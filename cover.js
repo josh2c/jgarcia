@@ -454,15 +454,13 @@ function mountPosts(list) {
                 const title = el.querySelector('.post-title');
                 const link = el.querySelector('.read-more');
                 const date = el.querySelector('.date');
-                const cat = el.querySelector('.category');
                 if (!title || !link) return null;
                 const raw = date ? date.textContent.trim() : '';
                 return {
                     title: title.textContent.trim(),
                     href: link.getAttribute('href'),
                     raw,
-                    iso: isoDate(raw),
-                    cat: cat ? cat.textContent.trim() : ''
+                    iso: isoDate(raw)
                 };
             }).filter(Boolean);
 
@@ -480,7 +478,6 @@ function mountPosts(list) {
                 '" title="' + esc(post.title) + (post.raw ? ' \u00b7 ' + esc(post.raw) : '') + '">' +
                 '<span class="cv-date">' + esc(post.iso || '') + '</span>' +
                 '<span class="cv-label">' + esc(post.title) + '</span>' +
-                (post.cat ? '<span class="cv-meta">' + esc(post.cat) + '</span>' : '') +
                 '</button></li>').join(''));
 
             list.querySelectorAll('[data-post]').forEach((b) => {
@@ -488,7 +485,7 @@ function mountPosts(list) {
                     const post = posts[Number(b.dataset.post)];
                     if (window.jgReader) {
                         window.jgReader.openPost(post.href, {
-                            title: post.title, date: post.raw, cat: post.cat
+                            title: post.title, date: post.raw
                         });
                     }
                 });
