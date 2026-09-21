@@ -296,7 +296,11 @@
     font-family: var(--jg-mono);
     font-size: 0.78rem;
     line-height: 1.7;
-    white-space: pre;
+    /* Wrap, do not scroll. A prompt is prose in a monospace box, so a long
+       line should fold like prose. The one thing that must not wrap is a
+       console transcript with fixed columns, and that is .doc-term. */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
     color: var(--ui-text);
 }
 
@@ -416,6 +420,11 @@
     .eng-row-meta { display: none; }
 
     .eng-lead h1 { font-size: 1.45rem; }
+
+    /* No room for a gutter; the label goes above its topics. */
+    .eng-area { display: block; padding: 0.7rem 0; }
+    .eng-area-h { width: auto; padding: 0 0 0.15rem; font-size: 0.82rem; }
+    .eng-area .eng-row { padding-left: 0; margin-left: 0; }
     .eng-standfirst { font-size: 1rem; }
     .eng-row-label { font-size: 0.96rem; }
     .eng-row-sub { font-size: 0.82rem; }
@@ -443,3 +452,169 @@
     width: min(38rem, 100%);
     padding: 0 clamp(1.5rem, 6vw, 2.5rem);
 }
+
+/* ---------- areas ---------- */
+
+/* The area label sits in a left gutter with its topics beside it, the same
+   shape the dated posts use on the cover. Stacked instead, the label had to be
+   bolder than the section heading above it to read as a group at all, which
+   inverted the hierarchy and was the sloppy part. In a gutter it needs no
+   weight: position does the work. */
+.eng-area {
+    display: flex;
+    gap: 1.1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--ui-line);
+}
+
+.eng-area:last-child { border-bottom: 0; }
+
+.eng-area-h {
+    flex: none;
+    width: 8.5rem;
+    margin: 0;
+    padding: 0.42rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--ui-text-2);
+}
+
+.eng-area-list { flex: 1; min-width: 0; }
+
+/* Rows inside an area are tighter than standalone rows and carry no rule of
+   their own, so each area reads as one block rather than a run of separate
+   entries. */
+.eng-area .eng-row {
+    padding: 0.42rem 0.5rem;
+    border-bottom: 0;
+    margin-left: -0.5rem;
+    border-radius: var(--ui-radius);
+}
+
+.eng-area .eng-row:hover { background: var(--ui-hover); }
+
+/* ---------- narrow screens ----------
+   Last in the file on purpose. These overrides are single-class rules
+   with the same specificity as the ones they override, so the cascade
+   decides on order alone — anything appended below this block would
+   silently win on a phone and nowhere else. */
+
+@media (max-width: 640px) {
+    .eng-col { padding: 5.2rem 1.4rem 6rem; }
+    .eng-row-meta { display: none; }
+
+    .eng-lead h1 { font-size: 1.45rem; }
+
+    /* No room for a gutter; the label goes above its topics. */
+    .eng-area { display: block; padding: 0.7rem 0; }
+    .eng-area-h { width: auto; padding: 0 0 0.15rem; font-size: 0.82rem; }
+    .eng-area .eng-row { padding-left: 0; margin-left: 0; }
+    .eng-standfirst { font-size: 1rem; }
+    .eng-row-label { font-size: 0.96rem; }
+    .eng-row-sub { font-size: 0.82rem; }
+    .eng-rule { font-size: 0.97rem; padding: 0.85rem 0.95rem; }
+    .eng-flow li { font-size: 0.96rem; }
+    .eng-list { font-size: 0.96rem; }
+    .eng-block p { font-size: 0.97rem; }
+    .eng-pre code { font-size: 0.7rem; }
+    .eng-table { font-size: 0.82rem; }
+
+    .eng-top { padding: 1rem 0; }
+    .eng-top-in { padding: 0 1.4rem; }
+    .eng-mark { font-size: 0.88rem; }
+
+    /* The field was sized in rem while the strip beside it was not, so the
+       placeholder ran off the screen. It now takes whatever is left after the
+       name and the toggle, and never less than is useful. */
+    .eng-tools { flex: 1; justify-content: flex-end; min-width: 0; }
+    .eng-find { flex: 1; min-width: 0; max-width: 11rem; }
+    .eng-find input { width: 100%; min-width: 0; font-size: 0.82rem; }
+}
+
+/* Lines the name and the search field up with the column below them. */
+.eng-top-in {
+    width: min(38rem, 100%);
+    padding: 0 clamp(1.5rem, 6vw, 2.5rem);
+}
+
+/* ---------- the loop ---------- */
+
+/* A phase label is lighter than a section heading on purpose. Ten of these at
+   section weight would give the page fourteen headings and no hierarchy; they
+   are a grouping inside Topics, not ten new sections. */
+.eng-phase { margin: 0 0 1.5rem; }
+.eng-phase:last-child { margin-bottom: 0; }
+
+.eng-phase-h {
+    margin: 0 0 0.1rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--ui-text);
+}
+
+/* Rows inside a phase sit in from the label, so the grouping reads without a
+   rule or a box doing the work. */
+.eng-phase .eng-row { padding-left: 0.9rem; border-bottom: 0; }
+.eng-phase .eng-row:hover { background: var(--ui-hover); border-radius: var(--ui-radius); }
+
+/* A topic heading inside an area page. Sentence case and dark, so it sits
+   clearly above the mono-caps labels of the blocks underneath it. */
+.eng-topic-h {
+    margin: 2.8rem 0 0.5rem;
+    font-size: 1.18rem;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    color: var(--ui-text);
+}
+
+.eng-topic-h:first-of-type { margin-top: 1.4rem; }
+
+.eng-topic-intro {
+    margin: 0 0 1.4rem;
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: var(--ui-text-2);
+}
+
+/* ---------- contents ---------- */
+
+/* A jump list, not a sidebar. One wrapped line under the standfirst, only on
+   areas that hold more than one section. */
+.eng-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.5rem;
+    margin: 0 0 2.2rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--ui-line);
+}
+
+.eng-toc button {
+    font: inherit;
+    font-size: 0.86rem;
+    color: var(--ui-text-2);
+    background: transparent;
+    border: 0;
+    border-radius: var(--ui-radius);
+    padding: 0.18rem 0.4rem;
+    margin-left: -0.4rem;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.eng-toc button:hover { background: var(--ui-hover); color: var(--ui-text); }
+.eng-toc button:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
+
+/* Where a starting point came from, under its name. */
+.eng-topic-from {
+    margin: 0 0 0.9rem;
+    font-family: var(--jg-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ui-text-3);
+}
+
+.eng-topic-from a { color: var(--ui-link); text-decoration: none; }

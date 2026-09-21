@@ -8,10 +8,10 @@
  * Views:
  *   #/            home — principles, topics, languages, now
  *   #/p/<id>      one principle, and what it came from
- *   #/t/<id>      one topic
+ *   #/a/<id>      one area, topics as sections
  *   #/l/<id>      one language
  *   #/e/<id>      one entry
- *   #/now         saved and not yet extracted
+ *   #/reading     saved links I have not read yet
  *   #/q/<query>   search
  */
 
@@ -52,6 +52,19 @@ function topics() {
 }
 
 const practiceFor = (t) => (L.PRACTICES || []).find((w) => w.topic === t);
+const areaById = (id) => (L.AREAS || []).find((a) => a.id === id);
+const areaForTopic = (t) => (L.AREAS || []).find((a) => a.topics.includes(t));
+
+/* Topics are sections now, so anything that used to point at a topic points at
+ * the area holding it, deduplicated. */
+function areaLinks(topicIds) {
+    const seen = [];
+    (topicIds || []).forEach((t) => {
+        const a = areaForTopic(t);
+        if (a && !seen.some((x) => x.id === a.id)) seen.push(a);
+    });
+    return seen.map((a) => rowLink('#/a/' + a.id, a.name, '', '')).join('');
+}
 
 const topicName = (id) => L.TOPIC_NAMES[id] || id;
 const entriesForTopic = (t) => PUBLIC.filter((e) => (e.topics || []).includes(t));
@@ -94,24 +107,43 @@ const section = (title, body, more) => body ?
 
 /* ----------------------------------------------------------------- views -- */
 
+/* Topics grouped by area. An empty area is skipped, and anything not filed
+ * into one still shows up under Elsewhere rather than vanishing quietly when a
+ * new topic is added. */
+/* One row per area, with what is inside it as the subtitle rather than as
+ * twenty-one more links. */
+function areaRows(ts) {
+    const have = new Set(ts.map((t) => t.id));
+    return (L.AREAS || []).map((a) => {
+        const inside = a.topics.filter((t) => have.has(t)).map(topicName);
+        if (!inside.length) return '';
+        return rowLink('#/a/' + a.id, a.name, '', inside.join(' \u00b7 '));
+    }).join('');
+}
+
 function home() {
     const ts = topics();
 
     return '<header class="eng-lead">' +
             '<p class="eng-kind">Engineering</p>' +
             '<h1>How I build with AI</h1>' +
-            '<p class="eng-standfirst">The public half of my engineering library: the ' +
-            'principles that survived distillation, the people I took them from, and what I ' +
-            'am reading now. The working notes stay private. They are operational, and most ' +
-            'useful while they are still messy.</p>' +
+            '<p class="eng-standfirst">Notes on using AI to build software. What I have ' +
+            'settled on, where it came from, and what I am reading now. The working version ' +
+            'of this lives in my own notes, which change too often to be worth publishing.</p>' +
         '</header>' +
 
         section('Principles',
             L.PRINCIPLES.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
 
-        section('Topics',
-            ts.map((t) => rowLink('#/t/' + t.id, t.name, t.has ? 'Workflow' : '', '')).join(''),
-            { href: '#/prompts', label: 'All prompts →' }) +
+        section('Areas', areaRows(ts)) +
+
+        /* Its own section rather than a link tucked beside a heading. These
+         * are one of the two things people actually come here for, and they
+         * were reachable only by noticing a small link. */
+        section('Base prompts',
+            startingPoints().map((r) =>
+                rowLink('#/prompts/' + r.id, r.name, '', r.where)).join(''),
+            { href: '#/prompts', label: 'Read them all →' }) +
 
         section('Languages',
             L.LANGS.map((l) => rowLink('#/l/' + l.id, l.name,
@@ -120,9 +152,9 @@ function home() {
         section('Sources',
             PUBLIC.map(entryRow).join('')) +
 
-        (QUEUED.length ? section('Now',
-            '<p class="eng-note">Saved, not yet extracted. Listed because it is what I am ' +
-            'working through, with nothing claimed about it until I have actually read it.</p>' +
+        (QUEUED.length ? section('Reading list',
+            '<p class="eng-note">Saved and not read yet. None of it counts as a ' +
+            'recommendation until I have been through it.</p>' +
             QUEUED.map((e) => rowLink('#/e/' + e.id, e.title, e.by || '', '')).join('')) : '');
 }
 
@@ -152,8 +184,7 @@ function principle(id) {
 
         section('Related sources', related.length ? related.map(entryRow).join('') : '') +
 
-        section('Topics', (p.topics || []).map((t) =>
-            rowLink('#/t/' + t, topicName(t), '', '')).join(''));
+        section('Filed under', areaLinks(p.topics));
 }
 
 function entry(id) {
@@ -165,7 +196,7 @@ function entry(id) {
 
     return back() +
         '<header class="eng-lead">' +
-            '<p class="eng-kind">' + esc(queued ? 'Queued' : (e.kind === 'technique' ? 'Technique' : 'Source')) + '</p>' +
+            '<p class="eng-kind">' + esc(queued ? 'Unread' : (e.kind === 'technique' ? 'Technique' : 'Source')) + '</p>' +
             '<h1>' + esc(e.title) + '</h1>' +
             (e.by ? '<p class="eng-byline">' + esc(e.by) + '</p>' : '') +
         '</header>' +
@@ -178,8 +209,8 @@ function entry(id) {
         '</p>' : '') +
 
         (queued ?
-            '<p class="eng-note">Saved, not yet extracted. I have not written up a technique ' +
-            'for this, and I am not going to summarise something I have not read properly.</p>' : '') +
+            '<p class="eng-note">Saved and not read yet. I have not written anything up for ' +
+            'it, and I am not going to summarise something I have not read.</p>' : '') +
 
         block('lesson', e.by, e.lesson) +
         block('note', null, e.note) +
@@ -190,11 +221,51 @@ function entry(id) {
             derived.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
 
         section('Filed under',
-            (e.topics || []).map((t) => rowLink('#/t/' + t, topicName(t), '', '')).join('') +
+            areaLinks(e.topics) +
             (e.langs || []).map((l) => {
                 const lg = langById(l);
                 return lg ? rowLink('#/l/' + lg.id, lg.name, '', '') : '';
             }).join(''));
+}
+
+/* An area page: its topics as sections, then everything filed under any of
+ * them. This is the level with enough on it to be worth opening. */
+function area(id) {
+    const a = areaById(id);
+    if (!a) return notFound();
+
+    const inside = a.topics.filter((t) => practiceFor(t) || entriesForTopic(t).length ||
+        L.PRINCIPLES.some((pr) => (pr.topics || []).includes(t)));
+
+    const body = inside.map((t) => {
+        const w = practiceFor(t);
+        return '<h2 class="eng-topic-h" id="sec-' + esc(t) + '">' + esc(topicName(t)) + '</h2>' +
+            (w && w.intro ? '<p class="eng-topic-intro">' + esc(w.intro) + '</p>' : '') +
+            practice(w);
+    }).join('');
+
+    /* Only where there is something to jump between. A contents list above a
+     * single section is furniture. These are buttons rather than anchors on
+     * purpose: an href of #sec-x would overwrite the route in the address bar
+     * and send the router somewhere it does not recognise. */
+    const toc = inside.length > 1 ?
+        '<nav class="eng-toc">' + inside.map((t) =>
+            '<button type="button" data-jump="sec-' + esc(t) + '">' +
+            esc(topicName(t)) + '</button>').join('') + '</nav>' : '';
+
+    const ps = L.PRINCIPLES.filter((pr) => (pr.topics || []).some((t) => a.topics.includes(t)));
+    const es = PUBLIC.filter((e) => (e.topics || []).some((t) => a.topics.includes(t)));
+
+    return back() +
+        '<header class="eng-lead">' +
+            '<p class="eng-kind">Area</p>' +
+            '<h1>' + esc(a.name) + '</h1>' +
+            (a.intro ? '<p class="eng-standfirst">' + esc(a.intro) + '</p>' : '') +
+        '</header>' +
+        toc +
+        body +
+        section('Principles', ps.map((pr) => rowLink('#/p/' + pr.id, pr.title, '', '')).join('')) +
+        section('Sources', es.map(entryRow).join(''));
 }
 
 function topic(id) {
@@ -254,7 +325,8 @@ function practice(w) {
 
     const prompt = w.prompt ?
         '<section class="eng-sec">' +
-            '<h2 class="eng-sec-h">The prompt I use</h2>' +
+            '<h2 class="eng-sec-h">Base prompt</h2>' +
+            STARTER_NOTE +
             '<pre class="eng-pre"><code>' + esc(w.prompt) + '</code></pre>' +
         '</section>' : '';
 
@@ -303,45 +375,73 @@ function language(id) {
         '</section>' : '') +
 
         (l.prompt ? '<section class="eng-sec">' +
-            '<h2 class="eng-sec-h">The review prompt I use</h2>' +
+            '<h2 class="eng-sec-h">Base prompt</h2>' +
+            STARTER_NOTE +
             '<pre class="eng-pre"><code>' + esc(l.prompt) + '</code></pre>' +
         '</section>' : '') +
 
         section('Sources', es.map(entryRow).join(''));
 }
 
-/* Every prompt in the library, gathered. They live on their own pages; this
- * is only an index, because "which prompt do I want" is a question people
- * arrive with and it is otherwise answerable only by opening every topic. */
+/* The starting points, gathered once and used by both the home page and the
+ * page that prints them. */
+function startingPoints() {
+    const fromAreas = (L.PRACTICES || []).filter((w) => w.prompt).map((w) => ({
+        id: w.topic,
+        name: topicName(w.topic),
+        where: (areaForTopic(w.topic) || {}).name || '',
+        href: '#/a/' + ((areaForTopic(w.topic) || {}).id || ''),
+        text: w.prompt
+    }));
+    const fromLangs = L.LANGS.filter((l) => l.prompt).map((l) => ({
+        id: l.id, name: l.name, where: 'Language', href: '#/l/' + l.id, text: l.prompt
+    }));
+    return fromAreas.concat(fromLangs);
+}
+
+/* The caveat, wherever a prompt is shown. It is the opening move on a run, not
+ * a macro: every one of them needs the project's own constraints pasted in
+ * before it is worth sending. */
+const STARTER_NOTE = '<p class="eng-note">I don\u2019t send these as-is. Each one gets ' +
+    'the project\u2019s own constraints and conventions pasted in first.</p>';
+
+/* Every starting point, printed rather than linked. It was a list of eleven
+ * links to pages reachable from the home page anyway, which is the same
+ * signpost problem the topic pages had. The prompts themselves are the one
+ * thing here you would want in a single place, so the page shows them. */
 function prompts() {
-    const fromTopics = (L.PRACTICES || []).filter((w) => w.prompt)
-        .map((w) => ({ href: '#/t/' + w.topic, name: topicName(w.topic), meta: 'Topic' }));
-    const fromLangs = L.LANGS.filter((l) => l.prompt)
-        .map((l) => ({ href: '#/l/' + l.id, name: l.name, meta: 'Language' }));
-    const all = fromTopics.concat(fromLangs);
+    const all = startingPoints();
+
+    const block = (r) =>
+        '<h2 class="eng-topic-h">' + esc(r.name) + '</h2>' +
+        '<p class="eng-topic-from">' + esc(r.where) +
+            ' \u00b7 <a href="' + r.href + '">in context \u2192</a></p>' +
+        '<pre class="eng-pre"><code>' + esc(r.text) + '</code></pre>';
 
     return back() +
         '<header class="eng-lead">' +
-            '<p class="eng-kind">Prompts</p>' +
-            '<h1>The prompts I actually use</h1>' +
-            '<p class="eng-standfirst">' + all.length + ' of them. Most are shaped the same ' +
-            'way: say what to look at, in what order, and what not to decide alone.</p>' +
+            '<p class="eng-kind">Base prompts</p>' +
+            '<h1>Prompts I start from</h1>' +
+            '<p class="eng-standfirst">Eleven of them, in full. I don\u2019t run these ' +
+            'as-is. Each one gets the project\u2019s constraints and conventions pasted in ' +
+            'first, plus whatever is out of scope. They are all built the same way: say what ' +
+            'to look at, in what order, and what not to decide without me.</p>' +
         '</header>' +
-        section('Review and workflow', fromTopics.map((r) =>
-            rowLink(r.href, r.name, r.meta, '')).join('')) +
-        section('By language', fromLangs.map((r) =>
-            rowLink(r.href, r.name, r.meta, '')).join(''));
+        '<nav class="eng-toc">' + all.map((r) =>
+            '<button type="button" data-jump="sp-' + esc(r.id) + '">' +
+            esc(r.name) + '</button>').join('') + '</nav>' +
+        all.map((r) => '<div id="sp-' + esc(r.id) + '">' + block(r) + '</div>').join('');
 }
 
 function now() {
     return back() +
         '<header class="eng-lead">' +
-            '<p class="eng-kind">Now</p>' +
-            '<h1>What I am working through</h1>' +
-            '<p class="eng-standfirst">Saved, not yet extracted. Nothing is claimed about ' +
-            'any of it until I have read it properly and written the technique down.</p>' +
+            '<p class="eng-kind">Reading list</p>' +
+            '<h1>What I have not read yet</h1>' +
+            '<p class="eng-standfirst">Links I have saved and not got to. Until I have been ' +
+            'through one, there is nothing here worth quoting and I am not recommending it.</p>' +
         '</header>' +
-        section('Queue', QUEUED.map((e) => rowLink('#/e/' + e.id, e.title, e.by || '', '')).join(''));
+        section('Saved', QUEUED.map((e) => rowLink('#/e/' + e.id, e.title, e.by || '', '')).join(''));
 }
 
 /* Substring match over everything a person might reasonably type: titles,
@@ -376,7 +476,7 @@ function search(q) {
             '<p class="eng-standfirst">' + total + (total === 1 ? ' result' : ' results') + '</p>' +
         '</header>' +
         section('Principles', ps.map((p) => rowLink('#/p/' + p.id, p.title, '', '')).join('')) +
-        section('Topics', ws.map((w) => rowLink('#/t/' + w.topic, topicName(w.topic), 'Workflow', '')).join('')) +
+        section('Areas', areaLinks(ws.map((w) => w.topic))) +
         section('Languages', ls.map((l) => rowLink('#/l/' + l.id, l.name, '', '')).join('')) +
         section('Sources', es.map(entryRow).join('')) +
         (total ? '' : '<p class="eng-note">Nothing yet. The library is small on purpose ' +
@@ -397,17 +497,32 @@ function render() {
     const arg = decodeURIComponent(rest.join('/') || '');
 
     let html;
+    /* Topics are sections inside an area now. Old links still work: they land
+     * on the area that holds the topic. */
+    if (kind === 't') {
+        const holder = areaForTopic(arg);
+        if (holder) { location.replace('#/a/' + holder.id); return; }
+    }
+
     if (kind === 'p') html = principle(arg);
-    else if (kind === 't') html = topic(arg);
+    else if (kind === 'a') html = area(arg);
     else if (kind === 'l') html = language(arg);
     else if (kind === 'e') html = entry(arg);
     else if (kind === 'q') html = search(arg);
-    else if (kind === 'now') html = now();
+    else if (kind === 'reading' || kind === 'now') html = now();
     else if (kind === 'prompts') html = prompts();
     else html = home();
 
     view.innerHTML = html;
     if (scroller) scroller.scrollTop = 0;
+
+    /* #/prompts/<id> lands on that one rather than the top of the page. */
+    if (kind === 'prompts' && arg) {
+        const target = document.getElementById('sp-' + arg);
+        if (target && scroller) {
+            scroller.scrollTop = target.getBoundingClientRect().top + scroller.scrollTop - 24;
+        }
+    }
 
     /* The box reflects the URL, so a shared search link arrives filled in. */
     if (searchEl && kind !== 'q') searchEl.value = '';
@@ -416,6 +531,17 @@ function render() {
     document.title = (kind ? view.querySelector('h1').textContent + ' · ' : '') +
         'Engineering · Josh Garcia';
 }
+
+/* Delegated, because render() replaces the view on every route change. */
+view.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-jump]');
+    if (!b) return;
+    const target = document.getElementById(b.dataset.jump);
+    if (!target || !scroller) return;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const y = target.getBoundingClientRect().top + scroller.scrollTop - 24;
+    scroller.scrollTo({ top: y, behavior: calm ? 'auto' : 'smooth' });
+});
 
 window.addEventListener('hashchange', render);
 

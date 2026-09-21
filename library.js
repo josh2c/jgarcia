@@ -450,7 +450,7 @@ const LANGS = [
 const PRACTICES = [
     {
         topic: 'codebase-understanding',
-        intro: 'Before changing unfamiliar code, map it. The map is the deliverable, and the instruction that matters is "do not modify anything yet". Without it the model starts editing at the first plausible cause and the map never gets made.',
+        intro: 'Map unfamiliar code before you change it. The map is the point, and the line that matters is "do not modify anything yet". Without it the model starts editing at the first thing that looks wrong and you never get the map.',
         flow: ['User action', 'UI', 'Event handler', 'API', 'Business logic', 'Database', 'Response', 'UI state'],
         checks: ['Entry point', 'Call path', 'Functions involved', 'Data flow', 'Database interactions', 'External services', 'Side effects', 'Relevant types', 'Tests covering the behavior'],
         rule: 'Where does data enter, where does it change, who owns the behavior, and where do the side effects happen?',
@@ -458,7 +458,7 @@ const PRACTICES = [
     },
     {
         topic: 'debugging',
-        intro: 'Call-path first. The visible error is usually not the root cause, and the fastest way to find that out is to walk the path before proposing anything.',
+        intro: 'Follow the call path first. The error you can see usually is not the cause, and walking the path is the quickest way to find that out.',
         flow: ['Reproduce', 'Trace call path', 'Identify ownership', 'Explain behavior', 'Form hypothesis', 'Predict it yourself', 'Test the hypothesis', 'Fix', 'Regression test'],
         checks: ['What receives the input?', 'What transforms it?', 'Where does state change?', 'Where does the failure first appear?', 'What owns the behavior?', 'What assumptions are being violated?', 'Is the visible error actually the root cause?'],
         rule: 'Predict the problem yourself before the model proposes a fix. If you cannot, you do not understand it yet.',
@@ -466,33 +466,33 @@ const PRACTICES = [
     },
     {
         topic: 'testing',
-        intro: 'Coverage says the line ran. Mutation testing says the suite would have noticed if the line were wrong. Those are very different claims, and only the second one is worth much on generated code.',
+        intro: 'Coverage tells you the line ran. Mutation testing tells you the suite would have noticed if the line were wrong. On generated code only the second one is worth much.',
         flow: ['Implementation', 'Tests', 'Mutation testing', 'Surviving mutants', 'Identify missing assertions', 'Improve tests', 'Run mutation testing again'],
         checks: ['Coverage', 'Missing branches', 'Missing edge cases', 'Weak assertions', 'Duplicate tests', 'Error paths', 'Integration boundaries', 'Regression coverage'],
         rule: 'A test suite should demonstrate that it can detect meaningful changes in behavior, not merely execute lines of code.'
     },
     {
         topic: 'audit',
-        intro: 'Auditing is its own mode, run read-only and in parallel, with one orchestrator holding the inventory and doing the ranking. The moment an agent can fix what it finds, it stops reporting.',
+        intro: 'Run it read-only and in parallel, with one orchestrator keeping the inventory and doing the ranking. The moment an agent can fix what it finds, it stops telling you about it.',
         flow: ['Inventory every subsystem', 'Launch fresh read-only agents', 'One standardized prompt', 'Validate findings', 'Deduplicate', 'Rank opportunities', 'Audit report'],
         rule: 'Audit only. Never let the agents modify the codebase in the same pass.'
     },
     {
         topic: 'deslop',
-        intro: 'Most AI slop is unnecessary rather than wrong. Every piece is defensible on its own line and indefensible as a whole.',
+        intro: 'Most AI slop is not wrong, it is just unnecessary. Each piece looks fine on its own line and the whole thing is a mess.',
         checks: ['Excessive complexity', 'Dead code', 'Redundant code', 'Duplicate logic', 'Unnecessary abstractions', 'Excessive wrappers', 'Giant functions', 'Giant files', 'Excessive conditionals', 'Weak typing', 'any / unknown', 'Repeated validation', 'AI boilerplate', 'Unused configuration', 'Code that does not match repository conventions'],
         flow: ['Identify suspicious code', 'Explain why', 'Provide evidence', 'Decide whether the complexity is justified', 'Propose simplification', 'Get approval if architectural', 'Implement', 'Test'],
         rule: 'Make the smallest change that produces the required behavior while preserving existing architecture and conventions.'
     },
     {
         topic: 'complexity',
-        intro: 'Complexity is worth auditing separately from correctness. The code is usually working. The problem is what it costs to change next time.',
+        intro: 'Worth checking on its own, separately from whether the code works. It usually does work. The question is what it will cost to change next time.',
         checks: ['Large decision trees', 'Nested conditionals', 'Repeated guards', 'Boolean combinations', 'Large switch or match statements', 'State-transition logic', 'Dispatchers doing too much'],
         prompt: 'Identify the highest-complexity functions in this codebase.\n\nFor each:\n\n- calculate/inspect complexity\n- explain why it is complex\n- identify the decision paths\n- determine whether the complexity is justified\n- identify simplification opportunities\n- identify missing tests'
     },
     {
         topic: 'security',
-        intro: 'A pass in a fixed order, because the expensive findings cluster at the front. The output is a table of severity, finding, attack scenario, affected code, fix and verification, so a finding without an attack scenario does not count as a finding.',
+        intro: 'Go in this order, because the expensive stuff sits near the front. Write findings into a table: severity, finding, attack scenario, affected code, fix, how you verified it. If you cannot write the attack scenario, it is not a finding.',
         flow: ['Secrets', 'Authentication', 'Authorization', 'Database / RLS', 'Input validation', 'API exposure', 'Sessions', 'File uploads', 'Rate limiting', 'Security headers', 'Dependencies', 'Infrastructure'],
         table: {
             caption: 'Finding format',
@@ -504,44 +504,44 @@ const PRACTICES = [
     },
     {
         topic: 'performance',
-        intro: 'The whole discipline is refusing to act on intuition. Every step exists to make sure something was measured before and after.',
+        intro: 'The discipline is not acting on a hunch. Every step is there to make sure something got measured before and after.',
         flow: ['Measure', 'Find the bottleneck', 'Explain the bottleneck', 'Propose a change', 'Implement', 'Measure again'],
         checks: ['N+1 queries', 'Sequential requests', 'Waterfalls', 'Missing indexes', 'Large payloads', 'Slow APIs', 'Rendering', 'Bundle size', 'Caching', 'Memory', 'CPU'],
         rule: 'Measure before optimizing.'
     },
     {
         topic: 'database',
-        intro: 'Schema outward. Most query problems are schema problems that have been paid for repeatedly rather than fixed once.',
+        intro: 'Start at the schema. Most query problems are schema problems that someone keeps paying for instead of fixing.',
         flow: ['Schema', 'Relationships', 'Constraints', 'Queries', 'Indexes', 'RLS', 'Transactions', 'Performance', 'Migration safety']
     },
     {
         topic: 'architecture',
-        intro: 'The job is laying out the options and their costs, not picking one quietly. An architecture chosen without a stated tradeoff is a decision nobody made.',
+        intro: 'Lay out the options and what each one costs. An architecture picked without a stated tradeoff is a decision nobody actually made.',
         checks: ['Viable approaches', 'Tradeoffs of each', 'Failure modes', 'Operational complexity', 'Assumptions', 'What needs to be measured or validated'],
         rule: 'Do not silently choose an architecture when a material tradeoff requires a human decision.',
         prompt: 'Given these requirements and constraints:\n\n1. Identify the viable architectural approaches.\n2. Explain the tradeoffs of each.\n3. Identify failure modes.\n4. Identify operational complexity.\n5. Identify assumptions.\n6. Identify what needs to be measured or validated.\n\nDo not silently choose an architecture when a material tradeoff requires a human decision.'
     },
     {
         topic: 'review',
-        intro: 'Reviewed in this order, because a correctness bug and a naming preference are not the same kind of finding and should never appear in the same list.',
+        intro: 'Go in this order. A correctness bug and a naming preference are not the same kind of finding and should not end up in the same list.',
         flow: ['Correctness', 'Security', 'Data integrity', 'Performance', 'Maintainability', 'Type safety', 'Error handling', 'Tests', 'Regression risk', 'Repository consistency'],
         rule: 'Do not report stylistic preferences as defects.'
     },
     {
         topic: 'refactoring',
-        intro: 'Refactoring is the one mode with a hard constraint attached, and it is the constraint an agent is most likely to quietly break.',
+        intro: 'This one has a hard rule attached, and it is the rule an agent is most likely to break quietly.',
         checks: ['Simplify control flow', 'Remove duplication', 'Remove dead code', 'Improve types', 'Split large functions', 'Simplify abstractions', 'Improve naming', 'Improve data structures'],
         rule: 'Behavior must remain unchanged unless a behavior change was explicitly requested.'
     },
     {
         topic: 'documentation',
-        intro: 'Documentation carries what the code cannot: why, architecture, business rules, external constraints, operational procedure, and the decisions that are no longer visible in the source.',
+        intro: 'Docs carry what the code cannot: why it works this way, the business rules, the outside constraints, and decisions you can no longer see in the source.',
         checks: ['README', 'Architecture docs', 'API docs', 'Database docs', 'Setup instructions', 'Deployment docs', 'Runbooks', 'Troubleshooting', 'ADRs', 'Security docs', 'Contributing guides'],
         rule: 'Write it in Simplified Technical English, document actual behavior, and do not let it sound generated.'
     },
     {
         topic: 'git',
-        intro: 'One worktree per agent. Parallel work stops being frightening when the agents cannot reach each other\u2019s files.',
+        intro: 'One worktree per agent. Running several at once stops being scary once they cannot touch each other\u2019s files.',
         checks: ['Parallel work', 'Isolated changes', 'Lower collision risk', 'Easier review', 'Easier rollback', 'Independent experiments']
     },
     {
@@ -552,22 +552,22 @@ const PRACTICES = [
     },
     {
         topic: 'observability',
-        intro: 'Observability is worth what it can answer. If the logs, metrics, traces, error tracking and deployment history cannot answer these six questions, they are decoration.',
+        intro: 'It is worth whatever it can answer. If the logs, metrics, traces and deploy history cannot answer these six questions, they are decoration.',
         checks: ['What happened?', 'When did it start?', 'What changed?', 'Why did it happen?', 'What was affected?', 'How do we know the fix worked?']
     },
     {
         topic: 'incident',
-        intro: 'Contain before you investigate. The timeline is what turns an incident into something you can actually learn from.',
+        intro: 'Contain it before you investigate. The timeline is what makes it something you can learn from afterwards.',
         flow: ['Detect', 'Contain', 'Investigate', 'Establish timeline', 'Identify root cause', 'Fix', 'Verify', 'Document']
     },
     {
         topic: 'release',
-        intro: 'Shipping is a sequence with a way back out of it. The last step is the one people skip.',
+        intro: 'A sequence with a way back out. People skip the last step.',
         flow: ['Audit', 'Test', 'Build', 'Deploy', 'Smoke test', 'Monitor', 'Verify', 'Roll back if required']
     },
     {
         topic: 'orchestration',
-        intro: 'Large runs get a table before they get code. The confidence column is where the rework hides; the open-questions column is what stops decisions being made silently.',
+        intro: 'Big runs get a table before any code. The confidence column is where the rework hides. The open questions column is what stops decisions getting made without me.',
         flow: ['Understand requirements', 'Inventory relevant code', 'Identify dependencies', 'Create implementation table', 'Identify uncertainty', 'Resolve important questions', 'Define acceptance criteria', 'Implement', 'Test', 'Audit', 'Report progress', 'Update the table'],
         checks: ['Feature or part', 'Completion percentage', 'Level of effort', 'Model confidence it understands the implementation', 'Questions needed for intent parity', 'Current status'],
         rule: 'An updated implementation table at every progress or stop point.',
@@ -584,9 +584,66 @@ const PRACTICES = [
     },
     {
         topic: 'cloud',
-        intro: 'The operational surface I expect an agent to be competent across before letting it near a box that serves traffic.',
+        intro: 'What I expect an agent to know before it goes near a box that serves traffic.',
         checks: ['Linux', 'SSH', 'Users and groups', 'Firewall', 'Docker', 'Docker Compose', 'Reverse proxy', 'Nginx', 'Caddy', 'SSL', 'DNS', 'Backups', 'Monitoring', 'Logs', 'Resource management', 'Database hosting', 'Deployment', 'Recovery']
     }
+];
+
+/* ----------------------------------------------------------------- areas --- */
+
+/* The areas of the work where AI is worth pointing at something, in roughly
+ * the order you meet them. Not a loop or a process: nobody runs these in
+ * sequence. It is a way of finding the right shelf, replacing a flat list of
+ * twenty-one topics sorted by how many entries each happened to have.
+ *
+ * These are the pages. A topic is a section inside one, not a destination of
+ * its own: seven of the twenty-one had no sources and no principles behind
+ * them, so clicking one bought a heading and a list of nouns. An area collects
+ * enough to be worth landing on.
+ *
+ * `languages` is deliberately absent. It is not an area of the work, it sits
+ * under all of them, so it keeps its own block on the page.
+ */
+const AREAS = [
+    { id: 'plan', name: 'Intent & plan',
+      intro: 'Working out what is being built before anyone builds it, and keeping a long run from drifting.',
+      topics: ['requirements', 'architecture', 'orchestration'] },
+
+    { id: 'understand', name: 'Understand',
+      intro: 'Reading the code before you touch it.',
+      topics: ['codebase-understanding'] },
+
+    { id: 'build', name: 'Build',
+      intro: 'Changing code, plus the two things that cause the most trouble while you do.',
+      topics: ['refactoring', 'git', 'database'] },
+
+    { id: 'debug', name: 'Debug',
+      intro: 'Finding the real cause instead of the first one that looks right.',
+      topics: ['debugging'] },
+
+    { id: 'test', name: 'Test',
+      intro: 'Checking the tests would actually catch a change in behaviour.',
+      topics: ['testing'] },
+
+    { id: 'audit', name: 'Audit',
+      intro: 'Finding problems. Fixing them is a different job.',
+      topics: ['audit', 'complexity', 'deslop', 'review'] },
+
+    { id: 'secure', name: 'Secure',
+      intro: 'The pass that catches what actually gets exploited on small products.',
+      topics: ['security'] },
+
+    { id: 'optimize', name: 'Optimize',
+      intro: 'Measure, change one thing, measure again.',
+      topics: ['performance'] },
+
+    { id: 'document', name: 'Document',
+      intro: 'Writing down what the code cannot tell you itself.',
+      topics: ['documentation'] },
+
+    { id: 'ship', name: 'Ship & run',
+      intro: 'Getting it out, watching it, and being able to go back.',
+      topics: ['release', 'cloud', 'automation', 'observability', 'incident'] }
 ];
 
 /* ---------------------------------------------------------------- topics --- */
@@ -618,4 +675,4 @@ const TOPIC_NAMES = {
     'database': 'Databases'
 };
 
-window.jgLibrary = { PRINCIPLES, ENTRIES, LANGS, PRACTICES, TOPIC_NAMES };
+window.jgLibrary = { PRINCIPLES, ENTRIES, LANGS, PRACTICES, AREAS, TOPIC_NAMES };
