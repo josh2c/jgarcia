@@ -61,7 +61,7 @@ const SECTIONS = [
                                 text: 'lib/features/pack_draft/\n├── cubit/          state, and the only place it changes\n├── models/         freezed unions: loading, loaded and error\n│                   are separate types, not one nullable bag\n├── repositories/   the only code here that talks to Supabase\n├── screens/        layout, no state\n└── widgets/'
                             }
                         },
-                        { p: 'State is modelled as Freezed unions rather than one class full of nullable fields. Loading, loaded and failed are three separate types, so a screen cannot render a score that has not arrived yet.' },
+                        { p: 'State is modeled as Freezed unions rather than one class full of nullable fields. Loading, loaded and failed are three separate types, so a screen cannot render a score that has not arrived yet.' },
 
                         { h: 'Stats are somebody else’s uptime' },
                         { p: 'Live NFL and NBA numbers arrive through sync workers that run outside the request path and write into Postgres. The app reads the database and never the provider. When a feed goes down on a Sunday, and it does, scores go stale instead of the app going dark.' },
@@ -100,7 +100,7 @@ const SECTIONS = [
                             code: {
                                 caption: 'Collide, slide, and pay for it',
                                 lang: 'typescript',
-                                text: '// Nearest point on the box to the cab’s centre.\nconst cx = clamp(pos.x, c.minX, c.maxX)\nconst cz = clamp(pos.z, c.minZ, c.maxZ)\nconst dx = pos.x - cx\nconst dz = pos.z - cz\nif (dx * dx + dz * dz >= radius * radius) continue   // clear\n\nconst d  = Math.sqrt(dx * dx + dz * dz)\nconst nx = dx / d\nconst nz = dz / d\npos.x = cx + nx * radius          // push out along the normal\npos.z = cz + nz * radius\n\n// Remove only the part of the velocity going INTO the wall, so the\n// cab slides along it instead of sticking. Scraping costs speed,\n// which is the whole penalty. There is no damage model.\nconst vn = vel.x * nx + vel.z * nz\nif (vn < 0) {\n  vel.x -= nx * vn\n  vel.z -= nz * vn\n  vel.multiplyScalar(0.75)\n}'
+                                text: '// Nearest point on the box to the cab’s center.\nconst cx = clamp(pos.x, c.minX, c.maxX)\nconst cz = clamp(pos.z, c.minZ, c.maxZ)\nconst dx = pos.x - cx\nconst dz = pos.z - cz\nif (dx * dx + dz * dz >= radius * radius) continue   // clear\n\nconst d  = Math.sqrt(dx * dx + dz * dz)\nconst nx = dx / d\nconst nz = dz / d\npos.x = cx + nx * radius          // push out along the normal\npos.z = cz + nz * radius\n\n// Remove only the part of the velocity going INTO the wall, so the\n// cab slides along it instead of sticking. Scraping costs speed,\n// which is the whole penalty. There is no damage model.\nconst vn = vel.x * nx + vel.z * nz\nif (vn < 0) {\n  vel.x -= nx * vn\n  vel.z -= nz * vn\n  vel.multiplyScalar(0.75)\n}'
                             }
                         },
                         { p: 'The rest is arcade arithmetic. One countdown that every drop-off extends, so a run ends when you stop being quick rather than at a fixed time. Fast drop-offs pay double. Hot cargo pays triple and brings company. Capacitor wraps the same build for iOS and Android, and every asset is original or CC0.' },
@@ -193,8 +193,8 @@ const SECTIONS = [
                         { p: 'Flicking is one specific skill. The target is somewhere else, and the only thing being measured is how fast you can put the crosshair on it and commit. Most trainers bury that under modes, weapons and progression. This one has none of them.' },
                         { p: 'One target exists at a time. Hit it and the next appears immediately, so there is nothing to queue and nothing to plan.' },
 
-                        { h: 'The crosshair is always the centre of the screen' },
-                        { p: 'The Pointer Lock API captures the mouse, so there is no cursor and the camera rotates from raw movement deltas. That makes hit detection simple. The ray always starts at screen centre, so aiming depends on where the camera points rather than where a pointer happens to sit.' },
+                        { h: 'The crosshair is always the center of the screen' },
+                        { p: 'The Pointer Lock API captures the mouse, so there is no cursor and the camera rotates from raw movement deltas. That makes hit detection simple. The ray always starts at screen center, so aiming depends on where the camera points rather than where a pointer happens to sit.' },
                         {
                             code: {
                                 caption: 'The whole of shooting',
@@ -566,7 +566,7 @@ function mountSkills(list) {
 /* --------------------------------------------------------------- marker -- */
 
 /* One dot follows you down the column. It marks the row nearest a reading
- * line set above centre — the same place your eye sits when scanning a list,
+ * line set above center — the same place your eye sits when scanning a list,
  * and high enough that the marked row is never in the bottom fade.
  *
  * Row positions are measured once per scroll burst rather than per row per

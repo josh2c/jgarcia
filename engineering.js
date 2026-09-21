@@ -210,7 +210,7 @@ function entry(id) {
 
         (queued ?
             '<p class="eng-note">Saved and not read yet. I have not written anything up for ' +
-            'it, and I am not going to summarise something I have not read.</p>' : '') +
+            'it, and I am not going to summarize something I have not read.</p>' : '') +
 
         block('lesson', e.by, e.lesson) +
         block('note', null, e.note) +

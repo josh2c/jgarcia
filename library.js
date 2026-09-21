@@ -165,7 +165,7 @@ const ENTRIES = [
         topics: ['audit', 'complexity', 'architecture'],
         langs: ['rust'],
         lesson: 'Three independent booleans describing one thing (held, sold, out_of_order) permit eight combinations, most of them invalid or contradictory, and every call site has to defend against them. One enum with four variants encodes only the states that can actually exist.',
-        workflow: 'When I see three or more booleans travelling together through a function signature, that is the audit trigger. The question is what state machine they are impersonating.',
+        workflow: 'When I see three or more booleans traveling together through a function signature, that is the audit trigger. The question is what state machine they are impersonating.',
         status: 'public',
         added: '2026-09'
     },
@@ -622,7 +622,7 @@ const AREAS = [
       topics: ['debugging'] },
 
     { id: 'test', name: 'Test',
-      intro: 'Checking the tests would actually catch a change in behaviour.',
+      intro: 'Checking the tests would actually catch a change in behavior.',
       topics: ['testing'] },
 
     { id: 'audit', name: 'Audit',
